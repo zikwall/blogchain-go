@@ -27,10 +27,10 @@ export default function Index() {
 
     return (
         <Container>
-        <Grid>
-            <Ref innerRef={contextRef}>
-                <Grid.Row columns={2}>
-                    <Grid.Column width={13}>
+            <Grid>
+                <Ref innerRef={contextRef}>
+                    <Grid.Row columns={2}>
+                        <Grid.Column width={13}>
                             <Message icon>
                                 <Icon name='circle notched' loading />
                                 <Message.Content>
@@ -47,31 +47,31 @@ export default function Index() {
                                     <Image src='https://react.semantic-ui.com/images/wireframe/short-paragraph.png' />
                                 </Segment>
                             ))}
-                    </Grid.Column>
-                    <Grid.Column width={3}>
-                        <Sticky context={contextRef} offset={30}>
-                            <Menu pointing secondary vertical fluid>
-                                <Menu.Item
-                                    name='home'
-                                    active={activeItem === 'home'}
-                                    onClick={onItemClick}
-                                />
-                                <Menu.Item
-                                    name='messages'
-                                    active={activeItem === 'messages'}
-                                    onClick={onItemClick}
-                                />
-                                <Menu.Item
-                                    name='friends'
-                                    active={activeItem === 'friends'}
-                                    onClick={onItemClick}
-                                />
-                            </Menu>
-                        </Sticky>
-                    </Grid.Column>
-                </Grid.Row>
-            </Ref>
-        </Grid>
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                            <Sticky context={contextRef} offset={30}>
+                                <Menu pointing secondary vertical fluid>
+                                    <Menu.Item
+                                        name='home'
+                                        active={activeItem === 'home'}
+                                        onClick={onItemClick}
+                                    />
+                                    <Menu.Item
+                                        name='messages'
+                                        active={activeItem === 'messages'}
+                                        onClick={onItemClick}
+                                    />
+                                    <Menu.Item
+                                        name='friends'
+                                        active={activeItem === 'friends'}
+                                        onClick={onItemClick}
+                                    />
+                                </Menu>
+                            </Sticky>
+                        </Grid.Column>
+                    </Grid.Row>
+                </Ref>
+            </Grid>
         </Container>
     );
 }
