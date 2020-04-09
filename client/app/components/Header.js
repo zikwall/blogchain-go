@@ -18,7 +18,7 @@ const Header = () => {
     return (
         <Menu secondary>
             <Menu.Item>
-                <img src='https://react.semantic-ui.com/logo.png' />
+                <img src={'/images/bc_300.png'} />
             </Menu.Item>
             <Menu.Item
                 name='home'
