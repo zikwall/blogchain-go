@@ -1,0 +1,12 @@
+.root-container {
+    padding: 40px;
+    padding-top: 20px;
+}
+
+.root-content {
+    padding-top: 20px;
+}
+
+.root-comments {
+    max-width: 100%!important;
+}
