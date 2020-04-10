@@ -47,6 +47,7 @@ func main() {
 
 		app.Use(middlewares.JWT)
 		app.Get("/", actions.HelloWorldAction)
+		app.Get("/jwt", actions.GenerateJWTAction)
 		app.Static("/docs", "./docs")
 
 		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
