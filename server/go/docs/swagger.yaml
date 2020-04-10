@@ -1,0 +1,21 @@
+host: blogchain.io
+info:
+  contact:
+    email: support@blogchain.io
+    name: API Support Blog Chain
+    url: http://www.blogchain.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Blog Chain swagger documentation for Go service
+  version: "1.0"
+paths:
+  /:
+    get:
+      responses:
+        "200":
+          description: Hello, World!
+      summary: Show Hello World text
+swagger: "2.0"

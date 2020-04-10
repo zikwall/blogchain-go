@@ -10,6 +10,19 @@ import (
 	"os"
 )
 
+// @title Blog Chain swagger documentation for Go service
+// @version 1.0
+// @description This is a sample server celler server.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support Blog Chain
+// @contact.url http://www.blogchain.io/support
+// @contact.email support@blogchain.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host blogchain.io
 func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
@@ -34,6 +47,7 @@ func main() {
 
 		app.Use(middlewares.JWT)
 		app.Get("/", actions.HelloWorldAction)
+		app.Static("/docs", "./docs")
 
 		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
 

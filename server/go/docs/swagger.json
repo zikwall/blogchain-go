@@ -1,0 +1,31 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a sample server celler server.",
+        "title": "Blog Chain swagger documentation for Go service",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support Blog Chain",
+            "url": "http://www.blogchain.io/support",
+            "email": "support@blogchain.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "blogchain.io",
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Show Hello World text",
+                "responses": {
+                    "200": {
+                        "description": "Hello, World!"
+                    }
+                }
+            }
+        }
+    }
+}
