@@ -5,6 +5,7 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/urfave/cli"
 	"github.com/zikwall/blogchain/actions"
+	service "github.com/zikwall/blogchain/di"
 	"github.com/zikwall/blogchain/middlewares"
 	"log"
 	"os"
@@ -36,6 +37,32 @@ func main() {
 				Value: 3001,
 				Usage: "Run service in port",
 			},
+			// database
+			&cli.StringFlag{
+				Name:  "dbhost",
+				Value: "@",
+				Usage: "Database host",
+			},
+			&cli.StringFlag{
+				Name:  "dbuser",
+				Value: "root2",
+				Usage: "Database user",
+			},
+			&cli.StringFlag{
+				Name:  "dbpass",
+				Value: "prizrak211",
+				Usage: "Database password",
+			},
+			&cli.StringFlag{
+				Name:  "dbname",
+				Value: "blogchain",
+				Usage: "Database name",
+			},
+			&cli.StringFlag{
+				Name:  "dbdriv",
+				Value: "mysql",
+				Usage: "Database driver",
+			},
 		},
 	}
 
@@ -43,8 +70,17 @@ func main() {
 		host := c.String("host")
 		port := c.Int("port")
 
-		app := fiber.New()
+		service.DI().Bootstrap()
+		service.DI().Database.ConnectDatabase(service.DBConfig{
+			Host: c.String("dbhost"),
+			User: c.String("dbuser"),
+			Pass: c.String("dbpass"),
+			Port: "",
+			Name: c.String("dbname"),
+			Driv: c.String("dbdriv"),
+		})
 
+		app := fiber.New()
 		app.Use(middlewares.JWT)
 		app.Get("/", actions.HelloWorldAction)
 		app.Get("/jwt", actions.GenerateJWTAction)
