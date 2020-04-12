@@ -1,7 +1,41 @@
+import React, { useEffect, useState } from 'react';
 import Head from "next/head";
+import Router from "next/router";
 import { Button, Card, Image, Form, Header, Grid } from 'semantic-ui-react';
+import { authenticate } from "../app/redux/actions";
+import { connect } from "react-redux";
+import { bindActionCreators } from 'redux';
 
-const Login = () => {
+const Login = ({ isAuthenticated, auth }) => {
+    const [ username, setUsername ] = useState('');
+    const [ password, setPassword ] = useState('');
+    const [ error, setError ] = useState(false);
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            Router.push('/');
+        }
+
+        return () => {}
+    }, []);
+
+    const handleChangeUsername = (e) => {
+        e.preventDefault();
+
+        setUsername(e.target.value);
+    };
+
+    const handleChangePassword = (e) => {
+        e.preventDefault();
+
+        setPassword(e.target.value);
+    };
+
+    const handleClickSubmit = (e) => {
+        e.preventDefault();
+        auth({ username: username, password: password }, 'login');
+    };
+
     return (
         <>
             <Head>
@@ -21,15 +55,21 @@ const Login = () => {
                         <Card.Content>
                             <Form size='large'>
 
-                                <Form.Input fluid icon='user' iconPosition='left' placeholder='E-mail address' />
+                                <Form.Input
+                                    fluid icon='user'
+                                    iconPosition='left'
+                                    placeholder='E-mail address'
+                                    onChange={handleChangeUsername}
+                                />
                                 <Form.Input
                                     fluid
                                     icon='lock'
                                     iconPosition='left'
                                     placeholder='Password'
                                     type='password'
+                                    onChange={handleChangePassword}
                                 />
-                                <Button fluid>
+                                <Button fluid onClick={handleClickSubmit}>
                                     Login
                                 </Button>
                             </Form>
@@ -44,4 +84,12 @@ const Login = () => {
     )
 };
 
-export default Login;
+const mapStateToProps = (state) => (
+    { isAuthenticated: !!state.authentication.token }
+);
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+    auth: authenticate
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

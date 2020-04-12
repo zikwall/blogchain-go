@@ -1,5 +1,9 @@
+import { Provider } from "react-redux";
 import App from "next/app";
+import withRedux from "next-redux-wrapper";
 import { MainLayout } from "../app/layouts";
+import { makeStore } from "../app/redux/Store";
+import { Initialize } from '../app/services/auth';
 
 // assets
 import 'semantic-ui-css/semantic.min.css'
@@ -7,6 +11,8 @@ import '../app/assets/custom.css';
 
 class MyApp extends App {
     static async getInitialProps({ Component, ctx }) {
+        Initialize(ctx);
+
         return {
             pageProps: {
                 ...(Component.getInitialProps
@@ -17,14 +23,16 @@ class MyApp extends App {
     }
 
     render() {
-        const { Component, pageProps } = this.props;
+        const { Component, pageProps, store } = this.props;
 
         return (
-            <MainLayout>
-                <Component {...pageProps} />
-            </MainLayout>
+            <Provider store={ store }>
+                <MainLayout>
+                    <Component {...pageProps} />
+                </MainLayout>
+            </Provider>
         )
     }
 }
 
-export default MyApp;
+export default withRedux(makeStore)(MyApp);

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Input, Menu, Dropdown, Image } from 'semantic-ui-react'
+import { connect } from 'react-redux';
+import { authenticate, reauthenticate, deauthenticate } from '../redux/actions';
 
-const Header = () => {
+const Header = ({ isAuthenticated }) => {
     const [ activeItem, setActiveItem ] = useState('home');
 
     const onItemClick = (e, { name }) => {
@@ -39,28 +41,35 @@ const Header = () => {
                 <Menu.Item>
                     <Input icon='search' placeholder='Search...' />
                 </Menu.Item>
-                <Menu.Item>
-                    <Dropdown trigger={trigger} pointing='top right'>
-                        <Dropdown.Menu pointing secondary>
-                            <Dropdown.Item text={
-                                <span>
+                {
+                    isAuthenticated &&
+                    <Menu.Item>
+                        <Dropdown trigger={trigger} pointing='top right'>
+                            <Dropdown.Menu pointing secondary>
+                                <Dropdown.Item text={
+                                    <span>
                                     Signed in as <strong>Andrey Ka</strong>
                                 </span>
-                            } disabled/>
-                            <Dropdown.Item text='Your Profile' selected/>
-                            <Dropdown.Item text='Your Stars'/>
-                            <Dropdown.Item text='Explore'/>
-                            <Dropdown.Item text='Integrations'/>
-                            <Dropdown.Item text='Help'/>
-                            <Dropdown.Item text='Settings'/>
-                            <Dropdown.Divider />
-                            <Dropdown.Item text='Sign Out' onClick={() => alert('Log out!')}/>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                </Menu.Item>
+                                } disabled/>
+                                <Dropdown.Item text='Your Profile' selected/>
+                                <Dropdown.Item text='Your Stars'/>
+                                <Dropdown.Item text='Explore'/>
+                                <Dropdown.Item text='Integrations'/>
+                                <Dropdown.Item text='Help'/>
+                                <Dropdown.Item text='Settings'/>
+                                <Dropdown.Divider />
+                                <Dropdown.Item text='Sign Out' onClick={() => alert('Log out!')}/>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Menu.Item>
+                }
             </Menu.Menu>
         </Menu>
     )
 };
 
-export default Header;
+const mapStateToProps = (state) => (
+    { isAuthenticated: !!state.authentication.token }
+);
+
+export default connect(mapStateToProps, { authenticate, reauthenticate, deauthenticate })(Header);
