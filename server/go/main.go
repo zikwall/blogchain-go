@@ -81,10 +81,16 @@ func main() {
 		})
 
 		app := fiber.New()
-		app.Use(middlewares.JWT)
-		app.Get("/", actions.HelloWorldAction)
-		app.Get("/jwt", actions.GenerateJWTAction)
 		app.Static("/docs", "./docs")
+
+		// Main endpoint group by `/api` prefix
+		api := app.Group("/api", middlewares.JWT)
+		api.Get("/", actions.HelloWorldAction)
+
+		// not usage JWT middleware in Login & Register endpoints
+		auth := app.Group("/auth", middlewares.Auth)
+		auth.Post("/register", actions.Register)
+		auth.Post("/login", actions.Login)
 
 		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
 
