@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber"
-	user2 "github.com/zikwall/blogchain/models/user"
+	"github.com/zikwall/blogchain/models/user"
 	"strings"
 )
 
 func JWT(c *fiber.Ctx) {
 	mySigningKey := []byte("secret")
 	tokenString := c.Get("Authorization")
+	// default empty instance of user
+	userInstance := &user.User{}
 
 	if tokenString != "" {
 		header := strings.Split(tokenString, "Bearer ")
@@ -28,15 +30,14 @@ func JWT(c *fiber.Ctx) {
 
 			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 				if uuid, ok := claims["uuid"]; ok {
-					user, _ := user2.FindById(int64(uuid.(float64)))
-					if user.Exist() {
-						c.Locals("user", user)
-						fmt.Println("User auth by JWT, user is: %s", user.Username)
-					}
+					// set new instance
+					userInstance, _ = user.FindById(int64(uuid.(float64)))
 				}
 			}
 		}
 	}
 
+	// always set user instance
+	c.Locals("user", userInstance)
 	c.Next()
 }

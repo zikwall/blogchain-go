@@ -38,6 +38,10 @@ func (u *User) Exist() bool {
 	return u.Id > 0
 }
 
+func (u *User) IsGuest() bool {
+	return !u.Exist()
+}
+
 func (u *User) Properties() PublicUser {
 	return PublicUser{
 		Id:       u.Id,
