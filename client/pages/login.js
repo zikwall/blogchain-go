@@ -1,48 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import Head from "next/head";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { Button, Card, Image, Form, Header, Grid } from 'semantic-ui-react';
 import { authenticate } from "../app/redux/actions";
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
+import { WithoutHeaderLayout } from "../app/layouts";
 
 const Login = ({ isAuthenticated, auth }) => {
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ error, setError ] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         if (isAuthenticated) {
-            Router.push('/');
+            router.push('/');
         }
 
         return () => {}
     }, []);
 
-    const handleChangeUsername = (e) => {
+    const onChangeUsername = (e) => {
         e.preventDefault();
 
         setUsername(e.target.value);
     };
 
-    const handleChangePassword = (e) => {
+    const onChangePassword = (e) => {
         e.preventDefault();
 
         setPassword(e.target.value);
     };
 
-    const handleClickSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
-        auth({ username: username, password: password }, 'login');
+        const status = await auth({ username: username, password: password }, 'login');
+
+        if (status === 200) {
+            router.push('/');
+        }
     };
 
     return (
-        <>
+        <WithoutHeaderLayout>
             <Head>
                 <title>Blog | Auth</title>
             </Head>
 
-            <Grid textAlign='center' style={{ height: '75vh' }} verticalAlign='middle'>
+            <Grid textAlign='center' style={{ height: '85vh' }} verticalAlign='middle'>
                 <Grid.Column style={{ maxWidth: 450 }}>
                     <Header as='h2' textAlign='center'>
                         <Image src={'/images/bc_300.png'} />
@@ -59,7 +65,7 @@ const Login = ({ isAuthenticated, auth }) => {
                                     fluid icon='user'
                                     iconPosition='left'
                                     placeholder='E-mail address'
-                                    onChange={handleChangeUsername}
+                                    onChange={onChangeUsername}
                                 />
                                 <Form.Input
                                     fluid
@@ -67,9 +73,9 @@ const Login = ({ isAuthenticated, auth }) => {
                                     iconPosition='left'
                                     placeholder='Password'
                                     type='password'
-                                    onChange={handleChangePassword}
+                                    onChange={onChangePassword}
                                 />
-                                <Button fluid onClick={handleClickSubmit}>
+                                <Button fluid onClick={onSubmit}>
                                     Login
                                 </Button>
                             </Form>
@@ -80,7 +86,7 @@ const Login = ({ isAuthenticated, auth }) => {
                     </Card>
                 </Grid.Column>
             </Grid>
-        </>
+        </WithoutHeaderLayout>
     )
 };
 

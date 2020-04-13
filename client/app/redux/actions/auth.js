@@ -6,7 +6,7 @@ import { SESSION_TOKEN_KEY } from "../../constants";
 // gets token from the api and stores it in the redux store and in cookie
 const authenticate = ({ username, password }) => {
     return (dispatch) => {
-        apiFetch('/auth/login', {
+        return apiFetch('/auth/login', {
             method: 'POST',
             body: JSON.stringify({
                 username,
@@ -15,6 +15,8 @@ const authenticate = ({ username, password }) => {
         }).then((response) => {
             Cookie.setCookie(SESSION_TOKEN_KEY, response.token);
             dispatch({type: AUTHENTICATE, token: response.token});
+
+            return response.status;
         }).catch((error) => {
             throw new Error(error);
         });

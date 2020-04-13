@@ -1,7 +1,5 @@
 import Head from "next/head";
-import { Header as MenuHeader} from "../components";
 import { Container} from 'semantic-ui-react';
-
 
 const MainLayout = ({ children }) => {
     return (
@@ -11,11 +9,7 @@ const MainLayout = ({ children }) => {
                 <link rel="icon" href="/favicon.ico"/>
             </Head>
 
-            <MenuHeader />
-
-            <main className="app root-content">
-                { children }
-            </main>
+            { children }
         </Container>
     )
 };
