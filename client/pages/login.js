@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Button, Card, Image, Form, Header, Grid } from 'semantic-ui-react';
+import { Button, Card, Image, Form, Header, Grid, Message } from 'semantic-ui-react';
 import { authenticate } from "../app/redux/actions";
 import { connect } from "react-redux";
 import { bindActionCreators } from 'redux';
@@ -10,7 +10,9 @@ import { WithoutHeaderLayout } from "../app/layouts";
 const Login = ({ isAuthenticated, auth }) => {
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
-    const [ error, setError ] = useState(false);
+    const [ error, setError ] = useState({
+        has: false, message: ''
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -35,7 +37,16 @@ const Login = ({ isAuthenticated, auth }) => {
 
     const onSubmit = async (e) => {
         e.preventDefault();
-        const status = await auth({ username: username, password: password }, 'login');
+        const { status, message } = await auth({ username: username, password: password }, 'login');
+
+        if (status === 100) {
+            setError({
+                has: true,
+                message: message
+            });
+
+            return false;
+        }
 
         if (status === 200) {
             router.push('/');
@@ -59,6 +70,14 @@ const Login = ({ isAuthenticated, auth }) => {
                     </Header>
                     <Card fluid>
                         <Card.Content>
+                            {
+                                error.has &&
+                                <Message
+                                    error
+                                    header='Action Forbidden'
+                                    content={error.message}
+                                />
+                            }
                             <Form size='large'>
 
                                 <Form.Input

@@ -16,7 +16,7 @@ const authenticate = ({ username, password }) => {
             Cookie.setCookie(SESSION_TOKEN_KEY, response.token);
             dispatch({type: AUTHENTICATE, token: response.token});
 
-            return response.status;
+            return response;
         }).catch((error) => {
             throw new Error(error);
         });

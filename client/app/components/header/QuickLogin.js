@@ -3,10 +3,15 @@ import { useRouter } from "next/router";
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { authenticate } from "../../redux/actions";
+import { Message } from "semantic-ui-react";
 
 const QuickLogin = ({ visible, authenticate }) => {
     const [ username, setUsername ] = useState('');
     const [ password, setPassword ] = useState('');
+    const [ error, setError ] = useState({
+        has: false, message: ''
+    });
+
     const router = useRouter();
 
     const dropClassNames = classNames({
@@ -21,13 +26,29 @@ const QuickLogin = ({ visible, authenticate }) => {
         setPassword(e.target.value);
     };
 
-    const onSubmit = () => {
-        authenticate({ username: username, password: password }, 'login');
+    const onSubmit = async () => {
+        const { status, message } = await authenticate({ username: username, password: password }, 'login');
+
+        if (status === 100) {
+            setError({
+                has: true,
+                message: message
+            });
+
+            return false;
+        }
     };
 
     return (
         <div id="top_profile_menu" className={ dropClassNames }>
             <div className="quick_login">
+                {
+                    error.has &&
+                    <Message
+                        error
+                        content={error.message}
+                    />
+                }
                 <form name="login">
                     <div className="label">Телефон или email</div>
                     <div className="labeled">
