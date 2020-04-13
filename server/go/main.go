@@ -91,6 +91,7 @@ func main() {
 		auth := app.Group("/auth", middlewares.Auth)
 		auth.Post("/register", actions.Register)
 		auth.Post("/login", actions.Login)
+		auth.Post("/logout", actions.Login)
 
 		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
 

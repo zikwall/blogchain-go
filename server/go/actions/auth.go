@@ -7,6 +7,13 @@ import (
 	"github.com/zikwall/blogchain/types"
 )
 
+func Logout(c *fiber.Ctx) {
+	c.JSON(fiber.Map{
+		"status":  200,
+		"message": "Successful",
+	})
+}
+
 func Login(c *fiber.Ctx) {
 	form := &forms.LoginForm{
 		Username: "",
