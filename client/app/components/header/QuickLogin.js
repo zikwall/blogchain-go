@@ -51,7 +51,7 @@ const QuickLogin = ({ visible, authenticate }) => {
                     </div>
                 </form>
                 <button onClick={ onSubmit } className="flat_button button_wide">Войти</button>
-                <button onClick={() => router.push('/register')} className="flat_button button_wide button_gray">Регистрация</button>
+                <button onClick={() => router.push('/register')} className="flat_button button_wide login_reg_button">Регистрация</button>
                 <div className="clear forgot">
                     <a className="quick_forgot" target="_top" onClick={(e) => {
                         e.preventDefault();

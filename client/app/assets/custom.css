@@ -115,9 +115,9 @@
     text-align: center;
     text-decoration: none;
 }
-.button_gray {
-    background-color: #cacbcd;
-    color: #121212;
+.login_reg_button {
+    width: 155px;
+    background-color: #5fb053;
 }
 .button_wide {
     display: block;
@@ -131,13 +131,12 @@
 }
 input.big_text, input.dark {
     color: #000;
-    padding: 3px 5px;
-    padding-top: 3px;
-    padding-right: 5px;
-    padding-bottom: 3px;
-    padding-left: 5px;
+    padding: 5px 5px;
     margin: 0;
     border: 1px solid #d3d9de;
+}
+.quick_forgot {
+    cursor: pointer;
 }
 
 /* quick login */
