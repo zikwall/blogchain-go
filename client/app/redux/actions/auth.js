@@ -14,7 +14,6 @@ const authenticate = ({ username, password }) => {
             })
         }).then((response) => {
             Cookie.setCookie(SESSION_TOKEN_KEY, response.token);
-            //Router.push('/');
             dispatch({type: AUTHENTICATE, token: response.token});
         }).catch((error) => {
             throw new Error(error);
@@ -32,9 +31,13 @@ const reauthenticate = (token) => {
 // removing the token
 const deauthenticate = () => {
     return (dispatch) => {
-        apiFetch('/auth/logout').then((response) => {
+        apiFetch('/auth/logout', {
+            method: 'POST',
+            body: JSON.stringify({
+                'action': 'logout'
+            })
+        }).then((response) => {
             Cookie.removeCookie(SESSION_TOKEN_KEY);
-            //Router.push('/');
             dispatch({type: DEAUTHENTICATE});
         }).catch((error) => {
             throw new Error(error);

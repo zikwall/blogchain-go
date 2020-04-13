@@ -10,3 +10,134 @@
 .root-comments {
     max-width: 100%!important;
 }
+
+/* quick login */
+#top_profile_menu.shown {
+    visibility: visible;
+    opacity: 1;
+    top: 75px;
+    pointer-events: auto;
+}
+#top_profile_menu {
+    position: absolute;
+    visibility: hidden;
+    width: 185px;
+    top: 40px;
+    right: 2rem;
+    background: #fff;
+    z-index: 800;
+    border: 1px solid #c5d0db;
+    padding: 4px 0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    opacity: 0;
+    transition: opacity 100ms linear, top 100ms linear, visibility 100ms linear;
+    pointer-events: none;
+}
+#top_profile_menu:after, #top_profile_menu:before {
+    position: absolute;
+    pointer-events: none;
+    border: solid transparent;
+    content: '';
+    height: 0;
+    width: 0;
+    bottom: 100%;
+    right: 42px;
+}
+#top_profile_menu:after, #top_profile_menu:before {
+    position: absolute;
+    pointer-events: none;
+    border: solid transparent;
+    content: '';
+    height: 0;
+    width: 0;
+    bottom: 100%;
+    right: 42px;
+}
+#top_profile_menu:before {
+    border-width: 6px;
+    margin: 0 -6px;
+    border-bottom-color: #c5d0db;
+}
+.quick_login {
+    padding: 11px 10px 0;
+}
+.quick_login .forgot {
+    padding-top: 16px;
+    text-align: center;
+    font-size: 12.5px;
+    padding-bottom: 5px;
+}
+.quick_login .forgot .label {
+    cursor: pointer;
+}
+.quick_login .label {
+    padding: 0 0 8px;
+    color: #656565;
+    font-size: 12.5px;
+    font-weight: 500;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+}
+.quick_login .labeled {
+    padding-bottom: 13px;
+}
+.quick_login input.dark {
+    width: 100%;
+}
+.button_wide button, .flat_button.button_wide {
+    width: 100%;
+    padding-left: 3px;
+    padding-right: 3px;
+    margin-bottom: 5px;
+}
+.button_blue button, .button_gray button, .button_light_gray button, .flat_button {
+    padding: 10px 16px 8px;
+    margin: 0;
+    display: inline-block;
+    zoom: 1;
+    cursor: pointer;
+    white-space: nowrap;
+    outline: none;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+    background: none;
+    background-color: #5181b8;
+    color: #fff;
+    border: 0;
+    border-radius: 4px;
+    box-sizing: border-box;
+
+    text-transform: none;
+    text-shadow: none;
+    font-weight: 500;
+    line-height: 1em;
+    font-style: normal;
+    text-align: center;
+    text-decoration: none;
+}
+.button_gray {
+    background-color: #cacbcd;
+    color: #121212;
+}
+.button_wide {
+    display: block;
+}
+.btn, button {
+    font-size: 13px;
+    position: relative;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+input.big_text, input.dark {
+    color: #000;
+    padding: 3px 5px;
+    padding-top: 3px;
+    padding-right: 5px;
+    padding-bottom: 3px;
+    padding-left: 5px;
+    margin: 0;
+    border: 1px solid #d3d9de;
+}
+
+/* quick login */
