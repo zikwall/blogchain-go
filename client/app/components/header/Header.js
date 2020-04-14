@@ -3,9 +3,11 @@ import { Input, Menu, Image } from 'semantic-ui-react'
 import { connect } from 'react-redux';
 import { authenticate, reauthenticate } from '../../redux/actions';
 import ProfileMenu from './ProfileMenu';
+import { useRouter } from "next/router";
 
 const Header = ({ isAuthenticated }) => {
     const [ activeItem, setActiveItem ] = useState('home');
+    const router = useRouter();
 
     const onItemClick = (e, { name }) => {
         setActiveItem(name);
@@ -24,7 +26,9 @@ const Header = ({ isAuthenticated }) => {
             <Menu.Item
                 name='messages'
                 active={activeItem === 'messages'}
-                onClick={onItemClick}
+                onClick={() => {
+                    router.push('/editor')
+                }}
             />
             <Menu.Item
                 name='friends'

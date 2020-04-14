@@ -8,6 +8,7 @@ import { Initialize } from '../app/services/auth';
 // assets
 import 'semantic-ui-css/semantic.min.css'
 import '../app/assets/custom.css';
+import 'react-quill/dist/quill.snow.css';
 
 class MyApp extends App {
     static async getInitialProps({ Component, ctx }) {
