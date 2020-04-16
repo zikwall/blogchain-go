@@ -6,6 +6,9 @@ type RegisterForm struct {
 	Password       string `json:"password"`
 	PasswordRepeat string `json:"password_repeat"`
 	RegistrationIp string
+	Name		   string `json:"name"`
+	PublicEmail	   string `json:"public_email"`
+	Avatar		   string `json:"avatar"`
 }
 
 func (r *RegisterForm) ComparePasswords() bool {
@@ -17,7 +20,7 @@ func (r *RegisterForm) Validate() bool {
 }
 
 func (r *RegisterForm) required() bool {
-	return r.Email != "" && r.Username != "" && r.Password != ""
+	return r.Email != "" && r.Username != "" && r.Password != "" && r.Name != ""
 }
 
 func (r *RegisterForm) minLengths() bool {

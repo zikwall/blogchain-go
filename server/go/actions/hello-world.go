@@ -14,7 +14,7 @@ func HelloWorldAction(c *fiber.Ctx) {
 	userInstance := c.Locals("user").(*user2.User)
 
 	if !userInstance.IsGuest() {
-		c.Send(fmt.Sprintf("Hello, %s!", userInstance.Username))
+		c.Send(fmt.Sprintf("Hello, %s!", userInstance.Profile.Name))
 		return
 	}
 

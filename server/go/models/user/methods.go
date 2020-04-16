@@ -30,7 +30,10 @@ func CreateUser(r *forms.RegisterForm) (*User, error) {
 			Int64: 0,
 			Valid: false,
 		},
-		CreatedAt: 0,
+		CreatedAt: sql.NullInt64{
+			Int64: 0,
+			Valid: false,
+		},
 		UpdatedAt: sql.NullInt64{
 			Int64: 0,
 			Valid: false,
@@ -48,7 +51,7 @@ func CreateUser(r *forms.RegisterForm) (*User, error) {
 		String: r.RegistrationIp,
 		Valid:  false,
 	}
-	u.CreatedAt = time.Now().Unix()
+	u.CreatedAt.Int64 = time.Now().Unix()
 
 	status, err := di.DI().Database.Query().Insert("user", dbx.Params{
 		"password_hash":   u.PasswordHash,
@@ -60,7 +63,36 @@ func CreateUser(r *forms.RegisterForm) (*User, error) {
 
 	u.Id, err = status.LastInsertId()
 
+	AttachProfile(r, u)
+
 	return u, err
+}
+
+func AttachProfile(r *forms.RegisterForm, u *User) {
+	profile := Profile{
+		userId:      u.Id,
+		Name:        r.Name,
+		PublicEmail: r.PublicEmail,
+		Avatar:      sql.NullString{
+			String: r.Avatar,
+			Valid:  false,
+		},
+	}
+
+	status, err := di.DI().Database.Query().Insert("profile", dbx.Params{
+		"user_id": profile.userId,
+		"name": profile.Name,
+		"public_email": profile.PublicEmail,
+		"avatar": profile.Avatar,
+	}).Execute()
+
+	_, err = status.LastInsertId()
+
+	if err != nil {
+		panic(err)
+	}
+
+	u.Profile = profile
 }
 
 func FindByUsernameOrEmail(username string, email string) (*User, error) {
@@ -86,12 +118,22 @@ func FindByCredentials(credentials string) (*User, error) {
 		Username:     "",
 		Email:        "",
 		PasswordHash: "",
+		Profile: Profile{
+			userId:      0,
+			Name:        "",
+			PublicEmail: "",
+			Avatar:      sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		},
 	}
 
 	err := di.DI().Database.Query().
-		Select("*").
+		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
-		Where(dbx.Or(dbx.HashExp{"username": credentials}, dbx.HashExp{"email": credentials})).
+		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
+		Where(dbx.Or(dbx.HashExp{"user.username": credentials}, dbx.HashExp{"user.email": credentials})).
 		One(&user)
 
 	return user, err
@@ -106,8 +148,9 @@ func FindById(id int64) (*User, error) {
 	}
 
 	err := di.DI().Database.Query().
-		Select("*").
+		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
+		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
 		Where(dbx.HashExp{"id": id}).
 		One(&user)
 

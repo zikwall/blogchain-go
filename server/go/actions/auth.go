@@ -39,6 +39,7 @@ func Login(c *fiber.Ctx) {
 	}
 
 	user, _ := user2.FindByCredentials(form.Username)
+
 	if !user.Exist() || !user2.PasswordFirewall(user.PasswordHash, form.Password) {
 		c.JSON(fiber.Map{
 			"status":  100,
@@ -67,6 +68,7 @@ func Register(c *fiber.Ctx) {
 		Username:       "",
 		Password:       "",
 		PasswordRepeat: "",
+		Name:			"",
 	}
 
 	if err := c.BodyParser(&form); err != nil {

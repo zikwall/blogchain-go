@@ -11,7 +11,7 @@ type User struct {
 	PasswordHash   string
 	ConfirmedAt    sql.NullInt64
 	BlockedAt      sql.NullInt64
-	CreatedAt      int64
+	CreatedAt      sql.NullInt64
 	UpdatedAt      sql.NullInt64
 	RegistrationIp sql.NullString
 
@@ -19,15 +19,22 @@ type User struct {
 }
 
 type Profile struct {
-	UserId      int
+	userId      int64
 	Name        string
 	PublicEmail string
-	Avatar      string
+	Avatar      sql.NullString
 }
 
 type PublicUser struct {
 	Id       int64  `json:"id"`
 	Username string `json:"username"`
+	Profile  PublicProfile `json:"profile"`
+}
+
+type PublicProfile struct {
+	Name string `json:"name"`
+	Email string `json:"email"`
+	Avatar string `json:"avatar"`
 }
 
 func (u *User) GetId() int64 {
@@ -46,5 +53,10 @@ func (u *User) Properties() PublicUser {
 	return PublicUser{
 		Id:       u.Id,
 		Username: u.Username,
+		Profile:  PublicProfile {
+			Name:   u.Profile.Name,
+			Email:  u.Profile.PublicEmail,
+			Avatar: u.Profile.Avatar.String,
+		},
 	}
 }
