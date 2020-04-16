@@ -20,24 +20,17 @@ const Header = ({ isAuthenticated }) => {
                 <img src={'/images/bc_300.png'} />
             </Menu.Item>
 
-            <MenuItemLink name="Home" href="/" />
-            <MenuItemLink name="Editor" href="/editor" />
+            <MenuItemLink name="Моя лента" href="/" />
+            <MenuItemLink href="/editor">
+                Все потоки
+            </MenuItemLink>
+            <MenuItemLink href="/editor">
+                Как стать автором
+            </MenuItemLink>
 
-            <Menu.Item
-                name='messages'
-                active={activeItem === 'messages'}
-                onClick={() => {
-                    router.push('/editor')
-                }}
-            />
-            <Menu.Item
-                name='friends'
-                active={activeItem === 'friends'}
-                onClick={onItemClick}
-            />
             <Menu.Menu position='right'>
                 <Menu.Item>
-                    <Input icon='search' placeholder='Search...' />
+                    <Input icon='search' placeholder='Поиск...' />
                 </Menu.Item>
 
                 <ProfileMenu />
