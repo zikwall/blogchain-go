@@ -17,7 +17,7 @@
 
 ### Todo
 
-- [ ] Feeds | Index | Home
+- [x] Feeds | Index | Home (WIP)
 - [ ] Post | Posts | Tags
 - [ ] Profile include (settings)
 - [ ] Top
