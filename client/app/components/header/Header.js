@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { authenticate, reauthenticate } from '../../redux/actions';
 import ProfileMenu from './ProfileMenu';
 import { useRouter } from "next/router";
+import { MenuItemLink } from "../ui/Active";
 
 const Header = ({ isAuthenticated }) => {
     const [ activeItem, setActiveItem ] = useState('home');
@@ -18,11 +19,10 @@ const Header = ({ isAuthenticated }) => {
             <Menu.Item>
                 <img src={'/images/bc_300.png'} />
             </Menu.Item>
-            <Menu.Item
-                name='home'
-                active={activeItem === 'home'}
-                onClick={onItemClick}
-            />
+
+            <MenuItemLink name="Home" href="/" />
+            <MenuItemLink name="Editor" href="/editor" />
+
             <Menu.Item
                 name='messages'
                 active={activeItem === 'messages'}

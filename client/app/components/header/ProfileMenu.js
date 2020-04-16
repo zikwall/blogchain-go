@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import AuthItem from "./AuthItem";
 import QuickLogin from "./QuickLogin";
 import CloseWrapper from "../close/CloseWrapper";
+import { DropdownItemLink } from '../ui/Active';
 
 const ProfileMenu = ({ isAuthenticated, logout, user }) => {
     const [ isDropped, setIsDropped ] = useState(false);
@@ -48,13 +49,16 @@ const ProfileMenu = ({ isAuthenticated, logout, user }) => {
                          Signed in as <strong>{ user.username }</strong>
                     </span>
                     } disabled/>
-                    <Dropdown.Item text='Your Profile' selected/>
-                    <Dropdown.Item text='Your Stars'/>
-                    <Dropdown.Item text='Explore'/>
-                    <Dropdown.Item text='Integrations'/>
-                    <Dropdown.Item text='Help'/>
-                    <Dropdown.Item text='Settings'/>
+
+                    <DropdownItemLink name='Your Profile' href='/profile' />
+                    <DropdownItemLink name='Your Stars' href='/stars' />
+                    <DropdownItemLink name='Explore' href='/explore' />
+                    <DropdownItemLink name='Integrations' href='/integrations' />
+                    <DropdownItemLink name='Help' href='/help' />
+                    <DropdownItemLink name='Settings' href='/settings' />
+
                     <Dropdown.Divider />
+
                     <Dropdown.Item text='Sign Out' onClick={() => logout()}/>
                 </Dropdown.Menu>
             </Dropdown>
