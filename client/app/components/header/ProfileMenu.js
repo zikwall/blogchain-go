@@ -8,16 +8,8 @@ import AuthItem from "./AuthItem";
 import QuickLogin from "./QuickLogin";
 import CloseWrapper from "../close/CloseWrapper";
 
-const ProfileMenu = ({ isAuthenticated, logout }) => {
+const ProfileMenu = ({ isAuthenticated, logout, user }) => {
     const [ isDropped, setIsDropped ] = useState(false);
-
-    const trigger = (
-        <span>
-            <Image avatar src={'https://avatars1.githubusercontent.com/u/23422968?s=460&u=2b4cedc533303cca1599e8785c1f33462251ae9a&v=4'} />
-            Andrey Ka
-        </span>
-    );
-
     const onOutsideOrEscape = () => {
         setIsDropped(false);
     };
@@ -40,13 +32,20 @@ const ProfileMenu = ({ isAuthenticated, logout }) => {
         )
     }
 
+    const trigger = (
+        <span>
+            <Image avatar src={'https://avatars1.githubusercontent.com/u/23422968?s=460&u=2b4cedc533303cca1599e8785c1f33462251ae9a&v=4'} />
+            { user.profile.name }
+        </span>
+    );
+
     return (
         <Menu.Item>
             <Dropdown trigger={trigger} pointing='top right'>
                 <Dropdown.Menu pointing secondary>
                     <Dropdown.Item text={
                         <span>
-                         Signed in as <strong>Andrey Ka</strong>
+                         Signed in as <strong>{ user.username }</strong>
                     </span>
                     } disabled/>
                     <Dropdown.Item text='Your Profile' selected/>
@@ -64,7 +63,8 @@ const ProfileMenu = ({ isAuthenticated, logout }) => {
 };
 
 const mapStateToProps = (state) => ({
-    isAuthenticated: !!state.authentication.token
+    isAuthenticated: !!state.authentication.token,
+    user: state.authentication.user
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({

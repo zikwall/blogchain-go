@@ -1,7 +1,7 @@
 import { AUTHENTICATE, DEAUTHENTICATE } from '../types';
 import { Cookie } from '../../help';
 import { apiFetch } from "../../services/api";
-import { SESSION_TOKEN_KEY } from "../../constants";
+import { SESSION_TOKEN_KEY, USER_KEY } from "../../constants";
 
 // gets token from the api and stores it in the redux store and in cookie
 const authenticate = ({ username, password }) => {
@@ -13,10 +13,22 @@ const authenticate = ({ username, password }) => {
                 password
             })
         }).then((response) => {
-            Cookie.setCookie(SESSION_TOKEN_KEY, response.token);
-            dispatch({type: AUTHENTICATE, token: response.token});
+            if (response.status && response.status === 200) {
+                Cookie.setCookie(SESSION_TOKEN_KEY, response.token);
+                Cookie.setCookie(USER_KEY, JSON.stringify(response.user));
 
-            return response;
+                dispatch({type: AUTHENTICATE, token: response.token, user: response.user});
+
+                return {
+                    status: true,
+                    message: ""
+                }
+            }
+
+            return {
+                status: false,
+                message: response.message
+            };
         }).catch((error) => {
             throw new Error(error);
         });
@@ -24,9 +36,9 @@ const authenticate = ({ username, password }) => {
 };
 
 // gets the token from the cookie and saves it in the store
-const reauthenticate = (token) => {
+const reauthenticate = (token, user) => {
     return (dispatch) => {
-        dispatch({type: AUTHENTICATE, token: token});
+        dispatch({type: AUTHENTICATE, token: token, user: user});
     };
 };
 
@@ -40,6 +52,7 @@ const deauthenticate = () => {
             })
         }).then((response) => {
             Cookie.removeCookie(SESSION_TOKEN_KEY);
+            Cookie.removeCookie(USER_KEY);
             dispatch({type: DEAUTHENTICATE});
         }).catch((error) => {
             throw new Error(error);
