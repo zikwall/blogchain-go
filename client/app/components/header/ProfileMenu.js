@@ -46,20 +46,21 @@ const ProfileMenu = ({ isAuthenticated, logout, user }) => {
                 <Dropdown.Menu pointing secondary>
                     <Dropdown.Item text={
                         <span>
-                         Signed in as <strong>{ user.username }</strong>
+                         Авторизированы как <strong>{ user.username }</strong>
                     </span>
                     } disabled/>
 
-                    <DropdownItemLink name='Your Profile' href='/profile' />
-                    <DropdownItemLink name='Your Stars' href='/stars' />
-                    <DropdownItemLink name='Explore' href='/explore' />
-                    <DropdownItemLink name='Integrations' href='/integrations' />
-                    <DropdownItemLink name='Help' href='/help' />
-                    <DropdownItemLink name='Settings' href='/settings' />
+                    <DropdownItemLink name='Мой профиль' href='/profile' />
+                    <DropdownItemLink name='Мои звезды' href='/stars' />
+                    <DropdownItemLink name='Публикации' href='/explore' />
+                    <DropdownItemLink name='Диалоги' href='/dialogs' />
+                    <DropdownItemLink name='Закладки' href='/bookmarks' />
+                    <DropdownItemLink name='Помощь' href='/help' />
+                    <DropdownItemLink name='Настройки' href='/settings' />
 
                     <Dropdown.Divider />
 
-                    <Dropdown.Item text='Sign Out' onClick={() => logout()}/>
+                    <Dropdown.Item text='Выйти' onClick={() => logout()}/>
                 </Dropdown.Menu>
             </Dropdown>
         </Menu.Item>
