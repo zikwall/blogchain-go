@@ -68,7 +68,7 @@ const Article = ({ title, text, image, tags, labels, publisher }) => {
             />
 
             <Header as='h2'>
-                <a href="/" style={{
+                <a href="/post/13" style={{
                     textDecoration: 'none',
                     color: 'rgba(0,0,0,.87)'
                 }}>
@@ -358,7 +358,7 @@ const MostReading = () => {
 
                 <MostReadingItem
                     title="Apple выпустила новый iPhone SE по цене от 40 000 ₽"
-                    href="/"
+                    href="/post/13"
                     labels={{
                         ups: 10,
                         views: 25,
@@ -368,7 +368,7 @@ const MostReading = () => {
                 />
                 <MostReadingItem
                     title="Девочки сидят дома: регистрация новых вебкам-моделей выросла на 37—69%"
-                    href="/"
+                    href="/post/13"
                     labels={{
                         ups: 2,
                         views: 14,
@@ -378,7 +378,7 @@ const MostReading = () => {
                 />
                 <MostReadingItem
                     title="Коллеги: и не друг, и не враг, а как?"
-                    href="/"
+                    href="/post/13"
                     labels={{
                         ups: 23,
                         views: 45,
@@ -388,7 +388,7 @@ const MostReading = () => {
                 />
                 <MostReadingItem
                     title="Ликбез по респираторам. Помогает ли респиратор от заражения вирусом. Обзор 11 респираторов"
-                    href="/"
+                    href="/post/13"
                     labels={{
                         ups: 7,
                         views: 30,
@@ -398,7 +398,7 @@ const MostReading = () => {
                 />
                 <MostReadingItem
                     title="Велотренажер #Самоизоляция или как угомонить ребенка на карантине"
-                    href="/"
+                    href="/post/13"
                     labels={{
                         ups: 35,
                         views: 342,

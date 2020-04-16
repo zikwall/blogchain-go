@@ -3,7 +3,7 @@ import { Button, Comment, Form, Header } from 'semantic-ui-react'
 const CommentExampleThreaded = () => (
     <Comment.Group threaded className={'root-comments'}>
         <Header as='h3' dividing>
-            Comments
+            Комментарии
         </Header>
 
         <Comment>
