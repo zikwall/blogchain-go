@@ -22,6 +22,6 @@
 - [ ] Profile include (settings)
 - [ ] Top
 
-### Visit
+### Welcome
 
 https://blogchain.now.sh/
