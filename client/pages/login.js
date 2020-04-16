@@ -39,7 +39,7 @@ const Login = ({ isAuthenticated, auth }) => {
         e.preventDefault();
         const { status, message } = await auth({ username: username, password: password }, 'login');
 
-        if (status === 100) {
+        if (status === false) {
             setError({
                 has: true,
                 message: message
@@ -48,7 +48,7 @@ const Login = ({ isAuthenticated, auth }) => {
             return false;
         }
 
-        if (status === 200) {
+        if (status === true) {
             router.push('/');
         }
     };
