@@ -1,10 +1,10 @@
-import { CommonLayout } from "../app/layouts";
+import { ProtectedLayout } from "../app/layouts";
 
 const Profile = () => {
     return (
-        <CommonLayout>
+        <ProtectedLayout>
 
-        </CommonLayout>
+        </ProtectedLayout>
     )
 };
 

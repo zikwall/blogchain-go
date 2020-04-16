@@ -1,9 +1,9 @@
 import { Editor } from "../app/components";
-import { CommonLayout } from "../app/layouts";
+import { ProtectedLayout } from "../app/layouts";
 
 const EditorPage = () => {
     return (
-        <CommonLayout>
+        <ProtectedLayout>
             <Editor initialValue={
                 '<div><span style="font-size: 18px;">Quill Rich Text Editor</span>'+
                 '</div><div><br></div><div>Quill is a free, <a href="https://githu'+
@@ -24,7 +24,7 @@ const EditorPage = () => {
                 '  Some(1)\n' +
                 '}</pre></code>'
             }/>
-        </CommonLayout>
+        </ProtectedLayout>
     )
 };
 

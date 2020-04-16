@@ -14,7 +14,7 @@ const initialState = {
     },
 };
 
-export default (state = initialState, action) => {
+const authentication = (state = initialState, action) => {
     switch(action.type) {
         case AUTHENTICATE:
             return { token: action.token, user: action.user};
@@ -24,3 +24,9 @@ export default (state = initialState, action) => {
             return state;
     }
 };
+
+export default authentication;
+
+export const getUser = state => state.authentication.user;
+export const getToken = state => state.authentication.token;
+
