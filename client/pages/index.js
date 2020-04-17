@@ -14,9 +14,9 @@ import {
     List,
     Divider
 } from 'semantic-ui-react';
-import { useRouter } from 'next/router';
 import { CommonLayout } from "../app/layouts";
 import { MenuItemLink } from "../app/components";
+import Article from "../app/components/Article";
 
 const TabMenu = () => (
     <Menu pointing secondary>
@@ -27,94 +27,8 @@ const TabMenu = () => (
     </Menu>
 );
 
-const TagBar = ({ tags }) => {
-    return (
-        <div style={{ paddingBottom: '20px' }}>
-            {tags.map((v, k) => (
-                <Label key={k} as='a' horizontal>
-                    { v }
-                </Label>
-            ))}
-        </div>
-    )
-};
-
-const ImageWrap = ({ src }) => (
-    <div style={{ paddingBottom: '10px' }}>
-        <Image src={src} centered />
-    </div>
-);
-
-const Publisher = ({ name, time, avatar }) => (
-    <>
-        <Label as='a' basic image>
-            <img src={ avatar } />
-            { name }
-        </Label>
-        <Label as='a' basic>
-            { time }
-        </Label>
-    </>
-);
-
-const Article = ({ title, text, image, tags, labels, publisher }) => {
-    return (
-        <Segment>
-
-            <Publisher
-                name={publisher.author}
-                time={publisher.time}
-                avatar={publisher.avatar}
-            />
-
-            <Header as='h2'>
-                <a href="/post/13" style={{
-                    textDecoration: 'none',
-                    color: 'rgba(0,0,0,.87)'
-                }}>
-                    { title }
-                </a>
-            </Header>
-
-            {
-                tags &&
-                <TagBar tags={tags} />
-            }
-
-            {
-                image &&
-                <ImageWrap src={image} />
-            }
-
-            { text }
-
-            <Label basic pointing>
-                <Icon name='lightning' /> { labels.ratings }
-            </Label>
-            <Label basic pointing>
-                <Icon name='eye' /> { labels.views }
-            </Label>
-            <Label basic pointing>
-                <Icon name='bookmark' /> { labels.bookmarks }
-            </Label>
-            <Label basic color='blue' pointing>
-                Comments
-                <Label.Detail>{ labels.comments }</Label.Detail>
-            </Label>
-        </Segment>
-    )
-};
-
 export default function Index() {
-    const [ activeItem, setActiveItem ] = useState('home');
-
     const contextRef = createRef();
-    const router = useRouter();
-
-    const onItemClick = (e, { name }) => {
-        setActiveItem(name);
-        router.push('/post/13');
-    };
 
     return (
         <CommonLayout>
