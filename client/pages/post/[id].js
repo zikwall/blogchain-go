@@ -1,5 +1,6 @@
 import { useState, createRef } from 'react';
 import { useRouter } from 'next/router';
+import Head from "next/head";
 import {
     Container,
     Grid,
@@ -127,6 +128,9 @@ const Post = () => {
 
     return (
         <CommonLayout>
+            <Head>
+                <title>Как мы научились делить видео на сцены с помощью хитрой математики</title>
+            </Head>
             <Container>
                 <CompanyBanner />
                 <Grid>
