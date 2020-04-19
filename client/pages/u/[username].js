@@ -1,4 +1,4 @@
-import { ProtectedLayout} from "../app/layouts";
+import { ProtectedLayout} from "../../app/layouts";
 import Head from "next/dist/next-server/lib/head";
 import {
     Container,
@@ -13,8 +13,8 @@ import {
     Segment
 } from "semantic-ui-react";
 import { createRef } from 'react';
-import { MenuItemLink } from "../app/components";
-import Article, { LabelBar, TagBar } from "../app/components/Article";
+import { MenuItemLink } from "../../app/components";
+import { LabelBar } from "../../app/components/Article";
 
 const Profile = () => {
     const contextRef = createRef();
@@ -156,7 +156,7 @@ const Pinneds = ({ items }) => {
     )
 };
 
-const PinnedItem = ({ title, text, tags, labels }) => (
+const PinnedItem = ({ title, labels }) => (
     <Segment>
         <Header as='h5'>
             <a href="/post/13" style={{
@@ -166,11 +166,6 @@ const PinnedItem = ({ title, text, tags, labels }) => (
                 { title }
             </a>
         </Header>
-
-        {tags && <TagBar
-            tags={tags}
-            tagget={true}
-        />}
 
         <LabelBar
             ratings={labels.ratings}
@@ -186,17 +181,7 @@ const Content = () => (
         <Pinneds
             items={[
                 {
-                    tags: [
-                        "Разработка под Arduino",
-                        "Периферия",
-                        "DIY или Сделай сам"
-                    ],
                     title:"Велотренажер #Самоизоляция или как угомонить ребенка на карантине",
-                    text:<>
-                        <p>
-                            Весь мир героически борется с «… заразой коронавирусной» (Путин В.В.) Большинство стран закрывают свои границы, своих граждан закрывают на карантин, вводят комендантский час. Вот и Россию не обошла эта гадость стороной.
-                        </p>
-                    </>,
                     labels: {
                         ratings: 10,
                         views: 23,
@@ -205,17 +190,7 @@ const Content = () => (
                     }
                 },
                 {
-                    tags: [
-                        "Разработка под Arduino",
-                        "Периферия",
-                        "DIY или Сделай сам"
-                    ],
                     title:"Как мы научились делить видео на сцены с помощью хитрой математики",
-                    text:<>
-                        <p>
-                            За 10 лет существования ivi мы собрали базу из 90000 видео разной длины, размера и качества. Каждую неделю появляются сотни новых. У нас есть гигабайты метаданных, которые полезны для рекомендаций, упрощают навигацию по сервису и настройку рекламы. Но извлекать информацию непосредственно из видео мы начали только два года назад.
-                        </p>
-                    </>,
                     labels: {
                         ratings: 10,
                         views: 23,
@@ -224,16 +199,34 @@ const Content = () => (
                     }
                 },
                 {
-                    tags: [
-                        'Блог компании Хабр,',
-                        'Здоровье гика'
-                    ],
                     title:"Как мы научились делить видео на сцены с помощью хитрой математики",
-                    text:<>
-                        <p>
-                            За 10 лет существования ivi мы собрали базу из 90000 видео разной длины, размера и качества. Каждую неделю появляются сотни новых. У нас есть гигабайты метаданных, которые полезны для рекомендаций, упрощают навигацию по сервису и настройку рекламы. Но извлекать информацию непосредственно из видео мы начали только два года назад.
-                        </p>
-                    </>,
+                    labels: {
+                        ratings: 10,
+                        views: 23,
+                        bookmarks: 5,
+                        comments: 214
+                    }
+                },
+                {
+                    title:"Как мы научились делить видео на сцены с помощью хитрой математики",
+                    labels: {
+                        ratings: 10,
+                        views: 23,
+                        bookmarks: 5,
+                        comments: 214
+                    }
+                },
+                {
+                    title:"Как мы научились делить видео на сцены с помощью хитрой математики",
+                    labels: {
+                        ratings: 10,
+                        views: 23,
+                        bookmarks: 5,
+                        comments: 214
+                    }
+                },
+                {
+                    title:"Как мы научились делить видео на сцены с помощью хитрой математики",
                     labels: {
                         ratings: 10,
                         views: 23,

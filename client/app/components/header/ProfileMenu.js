@@ -50,7 +50,7 @@ const ProfileMenu = ({ isAuthenticated, logout, user }) => {
                     </span>
                     } disabled/>
 
-                    <DropdownItemLink name='Мой профиль' href='/profile' />
+                    <DropdownItemLink name='Мой профиль' href={`/u/${user.username}`} />
                     <DropdownItemLink name='Мои звезды' href='/stars' />
                     <DropdownItemLink name='Публикации' href='/explore' />
                     <DropdownItemLink name='Диалоги' href='/dialogs' />
