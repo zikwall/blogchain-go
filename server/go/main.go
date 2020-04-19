@@ -87,6 +87,9 @@ func main() {
 		api := app.Group("/api", middlewares.JWT)
 		api.Get("/", actions.HelloWorldAction)
 
+		v1 := api.Group("/v1")
+		v1.Get("/profile/:username", actions.Profile)
+
 		// not usage JWT middleware in Login & Register endpoints
 		auth := app.Group("/auth", middlewares.Auth)
 		auth.Post("/register", actions.Register)

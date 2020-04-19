@@ -73,17 +73,17 @@ func AttachProfile(r *forms.RegisterForm, u *User) {
 		userId:      u.Id,
 		Name:        r.Name,
 		PublicEmail: r.PublicEmail,
-		Avatar:      sql.NullString{
+		Avatar: sql.NullString{
 			String: r.Avatar,
 			Valid:  false,
 		},
 	}
 
 	status, err := di.DI().Database.Query().Insert("profile", dbx.Params{
-		"user_id": profile.userId,
-		"name": profile.Name,
+		"user_id":      profile.userId,
+		"name":         profile.Name,
 		"public_email": profile.PublicEmail,
-		"avatar": profile.Avatar,
+		"avatar":       profile.Avatar,
 	}).Execute()
 
 	_, err = status.LastInsertId()
@@ -122,7 +122,7 @@ func FindByCredentials(credentials string) (*User, error) {
 			userId:      0,
 			Name:        "",
 			PublicEmail: "",
-			Avatar:      sql.NullString{
+			Avatar: sql.NullString{
 				String: "",
 				Valid:  false,
 			},
@@ -152,6 +152,52 @@ func FindById(id int64) (*User, error) {
 		From("user").
 		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
 		Where(dbx.HashExp{"id": id}).
+		One(&user)
+
+	return user, err
+}
+
+func FindByUsername(username string) (*User, error) {
+	user := &User{
+		Id:           0,
+		Username:     "",
+		Email:        "",
+		PasswordHash: "",
+		Profile: Profile{
+			userId:      0,
+			Name:        "",
+			PublicEmail: "",
+			Avatar: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+			Location: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+			Status: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+			Description: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		},
+	}
+
+	err := di.DI().Database.Query().
+		Select("user.username", "user.id",
+			"p.name as profile.name",
+			"p.public_email as profile.public_email",
+			"p.avatar as profile.avatar",
+			"p.location as profile.location",
+			"p.status as profile.status",
+			"p.description as profile.description",
+		).
+		From("user").
+		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
+		Where(dbx.HashExp{"username": username}).
 		One(&user)
 
 	return user, err
