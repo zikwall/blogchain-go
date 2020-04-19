@@ -3,7 +3,6 @@ import { Dropdown, Image, Menu } from "semantic-ui-react";
 import { connect } from 'react-redux';
 import { deauthenticate } from '../../redux/actions';
 import { bindActionCreators } from "redux";
-import { useRouter } from 'next/router'
 import AuthItem from "./AuthItem";
 import QuickLogin from "./QuickLogin";
 import CloseWrapper from "../close/CloseWrapper";
@@ -51,8 +50,8 @@ const ProfileMenu = ({ isAuthenticated, logout, user }) => {
                     } disabled/>
 
                     <DropdownItemLink name='Мой профиль' href={`/u/${user.username}`} />
-                    <DropdownItemLink name='Мои звезды' href='/stars' />
-                    <DropdownItemLink name='Публикации' href='/explore' />
+                    <DropdownItemLink name='Мои звезды' href={`/u/${user.username}/stars`} />
+                    <DropdownItemLink name='Публикации' href={`/u/${user.username}/all`} />
                     <DropdownItemLink name='Диалоги' href='/dialogs' />
                     <DropdownItemLink name='Закладки' href='/bookmarks' />
                     <DropdownItemLink name='Помощь' href='/help' />

@@ -20,13 +20,9 @@ const Header = ({ isAuthenticated }) => {
                 <img src={'/images/bc_300.png'} />
             </Menu.Item>
 
-            <MenuItemLink name="Моя лента" href="/" />
-            <MenuItemLink href="/editor">
-                Все потоки
-            </MenuItemLink>
-            <MenuItemLink href="/editor">
-                Как стать автором
-            </MenuItemLink>
+            <MenuItemLink name="Моя лента" href="/" as="/"/>
+            <MenuItemLink href="/editor" as="/editor" name="Все потоки" />
+            <MenuItemLink href="/editor" as="/editor" name="Как стать автором" />
 
             <Menu.Menu position='right'>
                 <Menu.Item>

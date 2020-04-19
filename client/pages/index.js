@@ -1,169 +1,112 @@
-import { createRef, useState } from "react";
 import {
-    Segment,
-    Ref,
-    Grid,
-    Container,
     Icon,
-    Sticky,
-    Menu,
     Label,
     Header,
-    Image,
     Button,
-    List,
     Divider
 } from 'semantic-ui-react';
-import { CommonLayout } from "../app/layouts";
-import { MenuItemLink } from "../app/components";
 import Article from "../app/components/Article";
-
-const TabMenu = () => (
-    <Menu pointing secondary>
-        <MenuItemLink href="/" name="Статьи" />
-        <MenuItemLink href="/news" name="Новости" />
-        <MenuItemLink href="/authors" name="Авторы" />
-        <MenuItemLink href="/companies" name="Компании" />
-    </Menu>
-);
+import IndexLayout from "../app/layouts/IndexLayout";
 
 export default function Index() {
-    const contextRef = createRef();
 
     return (
-        <CommonLayout>
-            <Container>
-                <Grid>
-                    <Ref innerRef={contextRef}>
-                        <Grid.Row columns={2}>
-                            <Grid.Column width={12}>
-                                <TabMenu />
+        <IndexLayout>
+            <Article
+                publisher={{
+                    author: 'LonelyHeart',
+                    time: 'вчера в 19:07',
+                    avatar: "https://habrastorage.org/getpro/habr/avatars/99b/81e/fff/99b81efff158c12f3c45e55c8a5d6abc.jpg"
+                }}
+                tags={[
+                    "Разработка под Arduino",
+                    "Периферия",
+                    "DIY или Сделай сам"
+                ]}
+                title="Велотренажер #Самоизоляция или как угомонить ребенка на карантине"
+                text={
+                    <>
+                        <p>
+                            Весь мир героически борется с «… заразой коронавирусной» (Путин В.В.) Большинство стран закрывают свои границы, своих граждан закрывают на карантин, вводят комендантский час. Вот и Россию не обошла эта гадость стороной.
+                        </p>
+                        <p>
+                            В сложившейся ситуации с пандемией SARS-CoV-2 (COVID-19) все мы с вами сейчас должны находиться на карантине самоизоляции.
+                        </p>
+                        <p>
+                            Поэтому вопрос о том, как найти активное развлечение для детей запертых в четырёх стенах стоит как никогда остро. Надо ещё и постараться чтоб эти четыре стены остались, по-возможности, в целости и сохранности.
+                        </p>
+                    </>
+                }
+                labels={{
+                    ratings: 10,
+                    views: 23,
+                    bookmarks: 5,
+                    comments: 214
+                }}
+            />
+            <Article
+                publisher={{
+                    author: 'SashulyaK',
+                    time: 'сегодня в 13:08',
+                    avatar: "https://habrastorage.org/getpro/habr/avatars/791/217/d31/791217d314e7458aef0f63497e212538.png"
+                }}
+                tags={[
+                    "Блог компании Онлайн-кинотеатр ivi",
+                    "Работа с видео",
+                    "Алгоритмы",
+                ]}
+                title="Как мы научились делить видео на сцены с помощью хитрой математики"
+                text={
+                    <>
+                        <p>
+                            За 10 лет существования ivi мы собрали базу из 90000 видео разной длины, размера и качества. Каждую неделю появляются сотни новых. У нас есть гигабайты метаданных, которые полезны для рекомендаций, упрощают навигацию по сервису и настройку рекламы. Но извлекать информацию непосредственно из видео мы начали только два года назад.
+                        </p>
+                        <p>
+                            В этой статье я расскажу, как мы разбираем фильмы на структурные элементы и зачем нам это нужно. В конце есть ссылка на репозиторий Github с кодом алгоритмов и примерами.
+                        </p>
+                    </>
+                }
+                image="/images/tmp/k4psugpjprxnpen_xkfykzemrqg.png"
+                labels={{
+                    ratings: 10,
+                    views: 23,
+                    bookmarks: 5,
+                    comments: 214
+                }}
+            />
+            <Article
+                publisher={{
+                    author: 'baragol',
+                    time: 'сегодня в 14:56',
+                    avatar: "https://habrastorage.org/getpro/habr/avatars/59c/ee7/489/59cee748971fb3479686a26b3b93908a.jpg"
+                }}
+                tags={[
+                    'Блог компании Хабр,',
+                    'Здоровье гика'
+                ]}
+                title="Проверка: насколько «здоровая» у вас поза, когда работаете за компьютером?"
+                text={
+                    <>
+                        <p>
+                            Ну ладно, домашними рабочими местами похвастались, теперь давайте о действительно важных вещах — о здоровье. Около 8 часов в сутки мы проводим сидя в одной, часто неудобной позе. Некоторые оригиналы — стоя, — но сути это не меняет. Если не уследить, то через несколько лет незаметно испортится осанка, начнутся проблемы с позвоночником, а оттуда головные боли и прочие неприятности. Мы не претендуем на научность, но пообщавшись с несколькими врачами и перечитав кучу релевантных постов тут на Хабре, соорудили короткий тест, который хотя бы в первом приближении покажет, насколько «здоровая» у вас поза для работы.
+                        </p>
+                    </>
+                }
+                image="/images/tmp/d9hit92csqfpdamska7jsmv0pry.jpeg"
+                labels={{
+                    ratings: 10,
+                    views: 23,
+                    bookmarks: 5,
+                    comments: 214
+                }}
+            />
 
-                                <Article
-                                    publisher={{
-                                        author: 'LonelyHeart',
-                                        time: 'вчера в 19:07',
-                                        avatar: "https://habrastorage.org/getpro/habr/avatars/99b/81e/fff/99b81efff158c12f3c45e55c8a5d6abc.jpg"
-                                    }}
-                                    tags={[
-                                        "Разработка под Arduino",
-                                        "Периферия",
-                                        "DIY или Сделай сам"
-                                    ]}
-                                    title="Велотренажер #Самоизоляция или как угомонить ребенка на карантине"
-                                    text={
-                                        <>
-                                            <p>
-                                                Весь мир героически борется с «… заразой коронавирусной» (Путин В.В.) Большинство стран закрывают свои границы, своих граждан закрывают на карантин, вводят комендантский час. Вот и Россию не обошла эта гадость стороной.
-                                            </p>
-                                            <p>
-                                                В сложившейся ситуации с пандемией SARS-CoV-2 (COVID-19) все мы с вами сейчас должны находиться на карантине самоизоляции.
-                                            </p>
-                                            <p>
-                                                Поэтому вопрос о том, как найти активное развлечение для детей запертых в четырёх стенах стоит как никогда остро. Надо ещё и постараться чтоб эти четыре стены остались, по-возможности, в целости и сохранности.
-                                            </p>
-                                        </>
-                                    }
-                                    labels={{
-                                        ratings: 10,
-                                        views: 23,
-                                        bookmarks: 5,
-                                        comments: 214
-                                    }}
-                                />
-                                <Article
-                                    publisher={{
-                                        author: 'SashulyaK',
-                                        time: 'сегодня в 13:08',
-                                        avatar: "https://habrastorage.org/getpro/habr/avatars/791/217/d31/791217d314e7458aef0f63497e212538.png"
-                                    }}
-                                    tags={[
-                                        "Блог компании Онлайн-кинотеатр ivi",
-                                        "Работа с видео",
-                                        "Алгоритмы",
-                                    ]}
-                                    title="Как мы научились делить видео на сцены с помощью хитрой математики"
-                                    text={
-                                        <>
-                                            <p>
-                                                За 10 лет существования ivi мы собрали базу из 90000 видео разной длины, размера и качества. Каждую неделю появляются сотни новых. У нас есть гигабайты метаданных, которые полезны для рекомендаций, упрощают навигацию по сервису и настройку рекламы. Но извлекать информацию непосредственно из видео мы начали только два года назад.
-                                            </p>
-                                            <p>
-                                                В этой статье я расскажу, как мы разбираем фильмы на структурные элементы и зачем нам это нужно. В конце есть ссылка на репозиторий Github с кодом алгоритмов и примерами.
-                                            </p>
-                                        </>
-                                    }
-                                    image="/images/tmp/k4psugpjprxnpen_xkfykzemrqg.png"
-                                    labels={{
-                                        ratings: 10,
-                                        views: 23,
-                                        bookmarks: 5,
-                                        comments: 214
-                                    }}
-                                />
-                                <Article
-                                    publisher={{
-                                        author: 'baragol',
-                                        time: 'сегодня в 14:56',
-                                        avatar: "https://habrastorage.org/getpro/habr/avatars/59c/ee7/489/59cee748971fb3479686a26b3b93908a.jpg"
-                                    }}
-                                    tags={[
-                                        'Блог компании Хабр,',
-                                        'Здоровье гика'
-                                    ]}
-                                    title="Проверка: насколько «здоровая» у вас поза, когда работаете за компьютером?"
-                                    text={
-                                        <>
-                                            <p>
-                                                Ну ладно, домашними рабочими местами похвастались, теперь давайте о действительно важных вещах — о здоровье. Около 8 часов в сутки мы проводим сидя в одной, часто неудобной позе. Некоторые оригиналы — стоя, — но сути это не меняет. Если не уследить, то через несколько лет незаметно испортится осанка, начнутся проблемы с позвоночником, а оттуда головные боли и прочие неприятности. Мы не претендуем на научность, но пообщавшись с несколькими врачами и перечитав кучу релевантных постов тут на Хабре, соорудили короткий тест, который хотя бы в первом приближении покажет, насколько «здоровая» у вас поза для работы.
-                                            </p>
-                                        </>
-                                    }
-                                    image="/images/tmp/d9hit92csqfpdamska7jsmv0pry.jpeg"
-                                    labels={{
-                                        ratings: 10,
-                                        views: 23,
-                                        bookmarks: 5,
-                                        comments: 214
-                                    }}
-                                />
-
-                                <BottomPagination />
-                                <MostReading />
-                            </Grid.Column>
-                            <Grid.Column width={4}>
-                                <Sticky context={contextRef} offset={30}>
-                                    <Menu pointing secondary vertical fluid>
-                                        {Flows.map((v, k) => (
-                                            <MenuItemLink
-                                                key={k}
-                                                href={v.href}
-                                            >
-                                                { v.title }
-                                                <Label basic color='green'>{ v.count }</Label>
-                                            </MenuItemLink>
-                                        ))}
-                                    </Menu>
-                                </Sticky>
-                            </Grid.Column>
-                        </Grid.Row>
-                    </Ref>
-                </Grid>
-            </Container>
-        </CommonLayout>
+            <BottomPagination />
+            <MostReading />
+        </IndexLayout>
     );
 }
 
-const Flows = [
-    {title: 'Разработка', count: '+55', href: '/flows/develop'},
-    {title: 'Научоп', count: '+6', href: '/'},
-    {title: 'Разработка', count: '+7', href: '/flows/develop'},
-    {title: 'Администрирвоание', count: '+22', href: '/flows/develop'},
-    {title: 'Дизайн', count: '+4', href: '/flows/develop'},
-    {title: 'Разработка', count: '+16', href: '/flows/develop'},
-    {title: 'Менеджмент', count: '+13', href: '/flows/develop'},
-    {title: 'Маркетинг', count: '+1', href: '/flows/develop'},
-];
 
 const BottomPagination = () => (
     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', }}>
