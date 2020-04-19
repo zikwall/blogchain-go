@@ -135,8 +135,12 @@ github.com/gobuffalo/packd v0.3.0/go.mod h1:zC7QkmNkYVGKPw4tHpBQ+ml7W/3tIebgeo1b
 github.com/gobuffalo/packr/v2 v2.7.1/go.mod h1:qYEvAazPaVxy7Y7KR0W8qYEE+RymX74kETFqjFoFlOc=
 github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4/go.mod h1:4Fw1eo5iaEhDUs8XyuhSVCVy52Jq3L+/3GJgYkwc+/0=
 github.com/godror/godror v0.13.3/go.mod h1:2ouUT4kdhUBk7TAkHWD4SN0CdI0pgEQbo8FVHhbSKWg=
+github.com/gofiber/cors v0.0.3 h1:SngvHSzNHq+0sMHJtq98ZwoYDxTJbw2rgyOXNhlQfQk=
+github.com/gofiber/cors v0.0.3/go.mod h1:TQCNpj0sjdbIx1LY8umvJMak4G7l7HxOGhUPIusPPyg=
 github.com/gofiber/fiber v1.8.431 h1:kFLjtUZ/O2ABjL52qJ3WKyazP7ua/wPIzzj+jnamH5k=
 github.com/gofiber/fiber v1.8.431/go.mod h1:yQhhFUJprqnZVaEbd5h4ZqU+wb9vzP5imw7UbjGlDuQ=
+github.com/gofiber/fiber v1.9.0 h1:rk7gtU044K+Ed/KhQWmVRmOzKnKtKUzKD6nhcGvrylI=
+github.com/gofiber/fiber v1.9.0/go.mod h1:yQhhFUJprqnZVaEbd5h4ZqU+wb9vzP5imw7UbjGlDuQ=
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
@@ -466,6 +470,8 @@ github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6Kllzaw
 github.com/valyala/bytebufferpool v1.0.0/go.mod h1:6bBcMArwyJ5K/AmCkWv1jt77kVWyCJ6HpOuEn7z0Csc=
 github.com/valyala/fasthttp v1.9.0 h1:hNpmUdy/+ZXYpGy0OBfm7K0UQTzb73W0T0U4iJIVrMw=
 github.com/valyala/fasthttp v1.9.0/go.mod h1:FstJa9V+Pj9vQ7OJie2qMHdwemEDaDiSdBnvPM1Su9w=
+github.com/valyala/fasthttp v1.11.0 h1:CpWaRjWmZMkgcngl8P7ygGoHmfXSZDcKx3Vdv8Bdkuw=
+github.com/valyala/fasthttp v1.11.0/go.mod h1:FstJa9V+Pj9vQ7OJie2qMHdwemEDaDiSdBnvPM1Su9w=
 github.com/valyala/tcplisten v0.0.0-20161114210144-ceec8f93295a/go.mod h1:v3UYOV9WzVtRmSR+PDvWpU/qWl4Wa5LApYYX4ZtKbio=
 github.com/xanzy/go-gitlab v0.15.0/go.mod h1:8zdQa/ri1dfn8eS3Ir1SyfvOKlw7WBJ8DVThkpGiXrs=
 github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c/go.mod h1:lB8K/P019DLNhemzwFU4jHLhdvlE6uDZjXFejJXr49I=

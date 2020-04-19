@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gofiber/cors"
 	"github.com/gofiber/fiber"
 	"github.com/urfave/cli"
 	"github.com/zikwall/blogchain/actions"
@@ -81,6 +82,16 @@ func main() {
 		})
 
 		app := fiber.New()
+		app.Use(cors.New(cors.Config{
+			Filter:           nil,
+			AllowOrigins:     []string{"*"},
+			AllowMethods:     []string{"*"},
+			AllowHeaders:     []string{"*"},
+			AllowCredentials: false,
+			ExposeHeaders:    nil,
+			MaxAge:           0,
+		}))
+
 		app.Static("/docs", "./docs")
 
 		// Main endpoint group by `/api` prefix
@@ -89,6 +100,10 @@ func main() {
 
 		v1 := api.Group("/v1")
 		v1.Get("/profile/:username", actions.Profile)
+
+		// content
+		v1.Post("/content/add", actions.AddContent)
+		v1.Get("/content/:id", actions.GetContent)
 
 		// not usage JWT middleware in Login & Register endpoints
 		auth := app.Group("/auth", middlewares.Auth)
