@@ -4,11 +4,12 @@ import { Session } from '../auth';
 import { Cookie } from "../../help";
 import { SESSION_TOKEN_KEY } from "../../constants";
 
-export const apiFetch = (url, options, useAuth = true) => {
+export const apiFetch = (url, options, req) => {
     let headers = {};
 
-    if (useAuth && !Session.isGuest()) {
-        headers = {...headers, ...{"Authorization": getAuthorizationHeader()}}
+    if (!!req) {
+        console.log(["USER AUTH", getAuthorizationHeader(req)]);
+        headers = {...headers, ...{"Authorization": getAuthorizationHeader(req)}}
     }
 
     return pureFetch(apiUrl(url), options, headers);
@@ -36,6 +37,6 @@ export const apiUrl = (url) => {
     return API_DOMAIN + url;
 };
 
-const getAuthorizationHeader = () => {
-    return 'Bearer ' + Cookie.getCookie(SESSION_TOKEN_KEY);
+const getAuthorizationHeader = (req) => {
+    return 'Bearer ' + Cookie.getCookie(SESSION_TOKEN_KEY, req);
 };

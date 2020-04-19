@@ -4,77 +4,98 @@ import { Button, Container, Grid, Header, Icon, Image, Label, Menu, Ref, Sticky}
 import { createRef } from 'react';
 import { MenuItemLink } from "../components";
 
-const Sidebar = () => (
-    <div style={{ width: '300px' }}>
-        <div style={{
-            border: '1px solid rgba(0,0,0,.1)',
-        }}>
-            <Image
-                src='https://avatars1.githubusercontent.com/u/23422968?s=460&u=2b4cedc533303cca1599e8785c1f33462251ae9a&v=4'
-                size='medium'
-            />
+const Sidebar = ({ user }) => {
+    const avatar = !!user.profile.avatar ? user.profile.avatar : "/images/zebra_pl.jpg";
+
+    return (
+        <div style={{width: '300px'}}>
             <div style={{
-                padding: '10px',
+                border: '1px solid rgba(0,0,0,.1)',
             }}>
-                Study...
+                <Image
+                    src={avatar}
+                    size='medium'
+                />
+
+                {
+                    !!user.profile.status &&
+                    <div style={{
+                        padding: '10px',
+                    }}>
+                        {user.profile.status}
+                    </div>
+                }
+
+            </div>
+
+            <div style={{ paddingTop: '10px', paddingBottom: '10px' }}>
+                <Header as="h1">
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}>
+                        <span>{user.profile.name}</span>
+                    </div>
+                </Header>
+                <span style={{
+                    fontHeight: 300,
+                    fontSize: '24px',
+                    lineHeight: '14px',
+                }}>{user.username}</span>
+            </div>
+
+            <div style={{paddingTop: '10px', paddingBottom: '10px'}}>
+                <Button animated='fade' basic fluid>
+                    <Button.Content visible>Редактировать профиль</Button.Content>
+                    <Button.Content hidden>Приступить</Button.Content>
+                </Button>
+            </div>
+
+            {
+                !!user.profile.description &&
+                <div style={{paddingTop: '10px', paddingBottom: '10px'}}>
+
+                </div>
+            }
+
+            <div style={{paddingTop: '10px', paddingBottom: '10px'}}>
+                {
+                    !!user.profile.email &&
+                    <Label basic>
+                        <Icon name='send'/> {user.profile.email}
+                    </Label>
+                }
+                {
+                    !!user.profile.location &&
+                    <>
+                        <div style={{paddingTop: '5px'}}/>
+                        <Label basic>
+                            <Icon name='map marker alternate'/> Russian, Moscow
+                        </Label>
+                    </>
+                }
             </div>
         </div>
+    )
+};
 
-        <div style={{ paddingTop: '10px', paddingBottom: '10px'}}>
-            <Header as="h1">
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}>
-                    <span>Andrey Kapitonov</span>
-                </div>
-            </Header>
-            <span style={{
-                fontHeight: 300,
-                fontSize: '24px',
-                lineHeight: '14px',
-            }}>zikwall</span>
-        </div>
-        <div style={{ paddingTop: '10px', paddingBottom: '10px' }}>
-            <Button animated='fade' basic fluid>
-                <Button.Content visible>Редактировать профиль</Button.Content>
-                <Button.Content hidden>Приступить</Button.Content>
-            </Button>
-        </div>
-
-        <div style={{ paddingTop: '10px', paddingBottom: '10px' }}>
-            #PHP, #Go, #JS, #React, #ReactNative - full stack developer
-            TODO: #Rust
-        </div>
-        <div style={{ paddingTop: '10px', paddingBottom: '10px' }}>
-            <Label basic>
-                <Icon name='send' /> andrey.kapitonov@gmail.com
-            </Label>
-            <div style={{ paddingTop: '5px' }} />
-            <Label basic>
-                <Icon name='map marker alternate' /> Russian, Moscow
-            </Label>
-        </div>
-    </div>
-);
-
-const TabBar = () => (
+const TabBar = ({ user }) => (
     <Menu pointing secondary>
-        <MenuItemLink href="/u/[username]" as="/u/zikwall" name="Обзор" />
-        <MenuItemLink href="/u/[username]/all" as="/u/zikwall/all" name="Все статьи" />
-        <MenuItemLink href="/u/[username]/stars" as="/u/zikwall/stars" name="Звезды" />
-        <MenuItemLink href="/u/[username]/followers" as="/u/zikwall/followers" name="Подписчики" />
-        <MenuItemLink href="/u/[username]/followings" as="/u/zikwall/followings" name="Подписки" />
+        <MenuItemLink href="/u/[username]" as={`/u/${user.username}`} name="Обзор" />
+        <MenuItemLink href="/u/[username]/all" as={`/u/${user.username}/all`} name="Все статьи" />
+        <MenuItemLink href="/u/[username]/stars" as={`/u/${user.username}/stars`} name="Звезды" />
+        <MenuItemLink href="/u/[username]/followers" as={`/u/${user.username}/followers`} name="Подписчики" />
+        <MenuItemLink href="/u/[username]/followings" as={`/u/${user.username}/followings`} name="Подписки" />
     </Menu>
 );
 
-const UserLayout = ({ username, children }) => {
+const UserLayout = ({ user, children }) => {
     const contextRef = createRef();
 
     return (
         <ProtectedLayout>
             <Head>
-                <title>ZikWall</title>
+                <title>{ user.profile.name } | Blogchain</title>
             </Head>
             <Container>
                 <Grid>
@@ -82,11 +103,11 @@ const UserLayout = ({ username, children }) => {
                         <Grid.Row columns={2}>
                             <Grid.Column width={5}>
                                 <Sticky context={contextRef} offset={30}>
-                                    <Sidebar />
+                                    <Sidebar user={user}/>
                                 </Sticky>
                             </Grid.Column>
                             <Grid.Column width={11}>
-                                <TabBar />
+                                <TabBar user={user} />
                                 { children }
                             </Grid.Column>
                         </Grid.Row>

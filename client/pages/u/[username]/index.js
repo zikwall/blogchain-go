@@ -5,15 +5,29 @@ import {
 } from "semantic-ui-react";
 import { LabelBar } from "../../../app/components/Article";
 import UserLayout from "../../../app/layouts/UserLayout";
+import { apiFetch } from "../../../app/services/api";
 
-const Profile = () => {
+const Profile = ({ user }) => {
     return (
-        <UserLayout>
+        <UserLayout user={user}>
             <Content />
         </UserLayout>
     )
 };
 
+// TODO move useEffect UserLayout?
+Profile.getInitialProps = async ({ req, query, res }) => {
+    const { username } = query;
+    const response = await apiFetch(`/api/v1/profile/${username}`, {}, req);
+
+    if (response.status === 100) {
+        res.statusCode = 404;
+        res.end('Not found');
+        return;
+    }
+
+    return { user: response.user }
+};
 
 const Pinneds = ({ items }) => {
     let groupingItems = [];

@@ -3,12 +3,12 @@ import { Cookie } from '../../help';
 import { SESSION_TOKEN_KEY } from "../../constants";
 
 export default class Session {
-    static isGuest = () => {
-        return !Session.isLogged();
+    static isGuest = (req) => {
+        return !Session.isLogged(req);
     };
 
-    static isLogged = () => {
-        const token = Cookie.getCookie(SESSION_TOKEN_KEY);
+    static isLogged = (req) => {
+        const token = Cookie.getCookie(SESSION_TOKEN_KEY, req);
         return !!token && !Session.isSessionExpired(token);
     };
 

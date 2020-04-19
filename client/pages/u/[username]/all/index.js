@@ -1,11 +1,25 @@
 import UserLayout from "../../../../app/layouts/UserLayout";
+import { apiFetch } from "../../../../app/services/api";
 
-const Index = () => {
+const Index = ({ user }) => {
     return (
-        <UserLayout>
+        <UserLayout user={user}>
             Все статьи
         </UserLayout>
     )
+};
+
+Index.getInitialProps = async ({ query, req, res }) => {
+    const { username } = query;
+    const response = await apiFetch(`/api/v1/profile/${username}`, {}, req);
+
+    if (response.status === 100) {
+        res.statusCode = 404;
+        res.end('Not found');
+        return;
+    }
+
+    return { user: response.user }
 };
 
 export default Index;
