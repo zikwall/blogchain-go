@@ -17,6 +17,9 @@
 .root-comments {
     max-width: 100%!important;
 }
+.root-dangerous-content-html img {
+    max-width: 100%; height: auto;
+}
 
 /* quick login */
 #top_profile_menu.shown {

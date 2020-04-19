@@ -27,21 +27,18 @@ const defFormats = [
 ];
 
 const Editor = ({ modules, formats, onChange, initialValue }) => {
-    const [value, setValue] = useState(initialValue);
-
     formats = [ ...defFormats, ...formats ];
     modules = { ...defModules, ...modules };
 
     const onOverrideChange = (value) => {
         onChange(value);
-        setValue(value);
     };
 
     return (
         <QuillNoSSRWrapper
             modules={modules}
             formats={formats}
-            value={value}
+            value={initialValue}
             onChange={onOverrideChange}
         />
     );

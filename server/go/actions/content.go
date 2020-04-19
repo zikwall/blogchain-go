@@ -57,7 +57,12 @@ func GetContent(c *fiber.Ctx) {
 	content, err := content2.FindContentById(id)
 
 	if err != nil {
-		//panic(err)
+		c.JSON(fiber.Map{
+			"status":  100,
+			"message": "Content not found",
+		})
+
+		return
 	}
 
 	c.JSON(fiber.Map{

@@ -50,6 +50,7 @@ const ProfileMenu = ({ isAuthenticated, logout, user }) => {
                     } disabled/>
 
                     <DropdownItemLink name='Мой профиль' href={`/u/${user.username}`} />
+                    <DropdownItemLink name='Новый пост' href='/editor' />
                     <DropdownItemLink name='Мои звезды' href={`/u/${user.username}/stars`} />
                     <DropdownItemLink name='Публикации' href={`/u/${user.username}/all`} />
                     <DropdownItemLink name='Диалоги' href='/dialogs' />

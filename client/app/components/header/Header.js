@@ -7,13 +7,6 @@ import { useRouter } from "next/router";
 import { MenuItemLink } from "../ui/Active";
 
 const Header = ({ isAuthenticated }) => {
-    const [ activeItem, setActiveItem ] = useState('home');
-    const router = useRouter();
-
-    const onItemClick = (e, { name }) => {
-        setActiveItem(name);
-    };
-
     return (
         <Menu secondary>
             <Menu.Item>
@@ -21,8 +14,9 @@ const Header = ({ isAuthenticated }) => {
             </Menu.Item>
 
             <MenuItemLink name="Моя лента" href="/" as="/"/>
-            <MenuItemLink href="/editor" as="/editor" name="Все потоки" />
-            <MenuItemLink href="/editor" as="/editor" name="Как стать автором" />
+            <MenuItemLink href="/editor1" as="/editor1" name="Все потоки" />
+            <MenuItemLink href="/editor2" as="/editor2" name="Как стать автором" />
+            <MenuItemLink href="/editor" as="/editor" name="Новая публикаця!" />
 
             <Menu.Menu position='right'>
                 <Menu.Item>
