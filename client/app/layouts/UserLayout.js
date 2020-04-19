@@ -54,7 +54,7 @@ const Sidebar = ({ user }) => {
             {
                 !!user.profile.description &&
                 <div style={{paddingTop: '10px', paddingBottom: '10px'}}>
-
+                    { user.profile.description }
                 </div>
             }
 
