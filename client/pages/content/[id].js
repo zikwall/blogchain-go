@@ -1,12 +1,15 @@
 import { Content } from "../../app/services";
 import { Container } from 'semantic-ui-react';
+import { CommonLayout } from "../../app/layouts";
 
 const ContentPage = ({ content }) => {
 
     return (
-        <Container>
-            <div className="root-dangerous-content-html" dangerouslySetInnerHTML={{ __html: content }} />
-        </Container>
+        <CommonLayout>
+            <Container>
+                <div className="root-dangerous-content-html" dangerouslySetInnerHTML={{ __html: content }} />
+            </Container>
+        </CommonLayout>
     )
 };
 
