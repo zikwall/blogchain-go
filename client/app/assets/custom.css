@@ -1,4 +1,10 @@
+.root-content {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
 .root-container {
+    flex: 1;
     padding: 40px;
     padding-top: 20px;
     padding-bottom: 5px;
