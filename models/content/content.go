@@ -31,18 +31,7 @@ func (c *Content) ToJSONAPI() PublicContent {
 		Annotation: c.Annotation,
 		Content:    c.Content,
 		Related: Related{
-			Publisher: user.PublicUser{
-				Id:       c.User.Id,
-				Username: c.User.Username,
-				Profile: user.PublicProfile{
-					Name:        c.User.Profile.Name,
-					Email:       c.User.Profile.Name,
-					Avatar:      c.User.Profile.Avatar.String,
-					Location:    c.User.Profile.Location.String,
-					Status:      c.User.Profile.Status.String,
-					Description: c.User.Profile.Description.String,
-				},
-			},
+			Publisher: c.User.Properties(),
 		},
 	}
 }
