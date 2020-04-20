@@ -60,3 +60,31 @@ func FindContentById(id int64) (*Content, error) {
 
 	return c, err
 }
+
+func FindAllContent() ([]PublicContent, error) {
+	var c []Content
+
+	err := di.DI().Database.Query().
+		Select(
+			"content.*",
+			"u.username as user.username",
+			"p.name as user.profile.name",
+			"p.public_email as user.profile.public_email",
+			"p.avatar as user.profile.avatar",
+		).
+		From("content").
+		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
+		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
+		All(&c)
+
+	if err != nil {
+		return nil, err
+	}
+
+	pc := []PublicContent{}
+	for _, v := range c {
+		pc = append(pc, v.ToJSONAPI())
+	}
+
+	return pc, err
+}

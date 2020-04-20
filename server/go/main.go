@@ -104,6 +104,7 @@ func main() {
 		// content
 		v1.Post("/content/add", actions.AddContent)
 		v1.Get("/content/:id", actions.GetContent)
+		v1.Get("/contents", actions.GetContents)
 
 		// not usage JWT middleware in Login & Register endpoints
 		auth := app.Group("/auth", middlewares.Auth)

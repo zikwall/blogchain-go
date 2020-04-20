@@ -72,3 +72,20 @@ func GetContent(c *fiber.Ctx) {
 		"user":    content.User.Properties(),
 	})
 }
+
+func GetContents(c *fiber.Ctx) {
+	contents, err := content2.FindAllContent()
+	if err != nil {
+		c.JSON(fiber.Map{
+			"status":  100,
+			"message": "Content not found",
+		})
+
+		return
+	}
+
+	c.JSON(fiber.Map{
+		"status":   200,
+		"contents": contents,
+	})
+}
