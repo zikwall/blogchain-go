@@ -1,1 +1,10 @@
+# IDE resources
 .idea
+
+# swagger
+swag
+
+# migration tool
+tools/*
+!tools/.gitkeep
+dbconfig.yml
