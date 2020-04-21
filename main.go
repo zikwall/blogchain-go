@@ -102,9 +102,13 @@ func main() {
 		v1.Get("/profile/:username", actions.Profile)
 
 		// content
-		v1.Post("/content/add", actions.AddContent)
 		v1.Get("/content/:id", actions.GetContent)
 		v1.Get("/contents", actions.GetContents)
+
+		editor := api.Group("/editor", middlewares.Authorization)
+		editor.Get("/content/:id", actions.GetEditContent)
+		editor.Post("/content/add", actions.AddContent)
+		editor.Post("/content/update/:id", actions.UpdateContent)
 
 		// not usage JWT middleware in Login & Register endpoints
 		auth := app.Group("/auth", middlewares.Auth)

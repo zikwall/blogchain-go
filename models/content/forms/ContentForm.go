@@ -1,9 +1,11 @@
 package forms
 
 type ContentForm struct {
-	UserId  int    `json:"user_id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	UserId     int64  `json:"user_id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	Annotation string `json:"annotation"`
+	Image      string `json:"image"`
 }
 
 // todo temporary

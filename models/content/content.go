@@ -7,7 +7,7 @@ import (
 
 type Content struct {
 	Id         int64
-	UserId     int
+	UserId     int64
 	Title      string
 	Annotation string
 	Content    string
