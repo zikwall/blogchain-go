@@ -151,7 +151,7 @@ func FindById(id int64) (*User, error) {
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
 		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
-		Where(dbx.HashExp{"id": id}).
+		Where(dbx.HashExp{"user.id": id}).
 		One(&user)
 
 	return user, err
