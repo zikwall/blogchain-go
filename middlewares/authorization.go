@@ -10,7 +10,7 @@ func Authorization(c *fiber.Ctx) {
 
 	if userInstance.IsGuest() {
 		c.JSON(fiber.Map{
-			"status":  300,
+			"status":  100,
 			"message": "Кажется у Вас нет доступа...",
 		})
 
