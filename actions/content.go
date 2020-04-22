@@ -9,7 +9,7 @@ import (
 func GetContent(c *fiber.Ctx) {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 
-	if err == nil {
+	if err != nil {
 		c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Content not found",
