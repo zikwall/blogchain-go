@@ -12,6 +12,7 @@ require (
 	github.com/google/jsonapi v0.0.0-20200226002910-c8283f632fb7 // indirect
 	github.com/klauspost/compress v1.10.4 // indirect
 	github.com/klauspost/cpuid v1.2.3 // indirect
+	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/swag v1.6.5 // indirect
 	github.com/urfave/cli v1.22.4
 	github.com/valyala/fasthttp v1.11.0 // indirect

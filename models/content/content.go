@@ -7,6 +7,7 @@ import (
 
 type Content struct {
 	Id         int64
+	Uuid       string
 	UserId     int64
 	Title      string
 	Annotation string
@@ -20,6 +21,7 @@ type Content struct {
 
 type PublicContent struct {
 	Id         int64  `json:"id"`
+	Uuid       string `json:"uuid"`
 	Title      string `json:"title"`
 	Annotation string `json:"annotation"`
 	Content    string `json:"content"`
@@ -37,6 +39,7 @@ type Related struct {
 func (c *Content) ToJSONAPI() PublicContent {
 	return PublicContent{
 		Id:         c.Id,
+		Uuid:       c.Uuid,
 		Title:      c.Title,
 		Annotation: c.Annotation,
 		Content:    c.Content,

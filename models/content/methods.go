@@ -1,47 +1,74 @@
 package content
 
 import (
+	"fmt"
 	dbx "github.com/go-ozzo/ozzo-dbx"
+	"github.com/gofiber/fiber"
+	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/di"
 	"github.com/zikwall/blogchain/models/content/forms"
 	"github.com/zikwall/blogchain/models/user"
 	"time"
 )
 
-func CreateContent(f *forms.ContentForm) (*Content, error) {
-	c := &Content{
+func createImagePath(uuidv4 string) string {
+	return fmt.Sprintf("%s.png", uuidv4)
+}
+
+func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
+	content := &Content{
 		Id:      0,
 		UserId:  0,
 		Title:   "",
 		Content: "",
 	}
 
-	c.Content = f.Content
-	c.Title = f.Title
-	c.UserId = f.UserId
+	content.Content = f.Content
+	content.Title = f.Title
+	content.UserId = f.UserId
+	content.Annotation = f.Annotation
+
+	var err error
+	uv4 := uuid.Must(uuid.NewV4(), err)
+	content.Uuid = uv4.String()
+
+	if f.GetImage().Err == nil {
+		content.Image.String = createImagePath(content.Uuid)
+		_ = c.SaveFile(f.GetImage().File, fmt.Sprintf("./public/uploads/%s", content.Image.String))
+	}
 
 	status, err := di.DI().Database.Query().Insert("content", dbx.Params{
-		"user_id":    c.UserId,
-		"title":      c.Title,
-		"content":    c.Content,
+		"uuid":       content.Uuid,
+		"user_id":    content.UserId,
+		"title":      content.Title,
+		"content":    content.Content,
 		"annotation": f.Annotation,
-		"image":      f.Image,
+		"image":      content.Image.String,
 		"created_at": time.Now().Unix(),
 	}).Execute()
 
-	c.Id, err = status.LastInsertId()
+	content.Id, err = status.LastInsertId()
 
-	return c, err
+	return content, err
 }
 
-func UpdateContent(c *Content, f *forms.ContentForm) error {
+func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
+	if f.GetImage().Err == nil {
+		content.Image.String = createImagePath(content.Uuid)
+		err := c.SaveFile(f.GetImage().File, fmt.Sprintf("./public/uploads/%s", content.Image.String))
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	_, err := di.DI().Database.Query().Update("content", dbx.Params{
 		"title":      f.Title,
 		"content":    f.Content,
 		"annotation": f.Annotation,
-		"image":      f.Image,
+		"image":      content.Image.String,
 		"updated_at": time.Now().Unix(),
-	}, dbx.HashExp{"id": c.Id}).Execute()
+	}, dbx.HashExp{"id": content.Id}).Execute()
 
 	return err
 }
