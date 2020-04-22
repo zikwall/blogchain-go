@@ -8,3 +8,7 @@ swag
 tools/*
 !tools/.gitkeep
 dbconfig.yml
+
+# public
+public/uploads/*
+!public/uploads/.gitkeep
