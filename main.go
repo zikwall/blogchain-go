@@ -92,7 +92,8 @@ func main() {
 			MaxAge:           0,
 		}))
 
-		app.Static("/docs", "./docs")
+		app.Static("/docs", "./public/docs")
+		app.Static("/uploads", "./public/uploads")
 
 		// Main endpoint group by `/api` prefix
 		api := app.Group("/api", middlewares.JWT)

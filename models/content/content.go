@@ -19,6 +19,7 @@ type Content struct {
 }
 
 type PublicContent struct {
+	Id         int64  `json:"id"`
 	Title      string `json:"title"`
 	Annotation string `json:"annotation"`
 	Content    string `json:"content"`
@@ -35,6 +36,7 @@ type Related struct {
 
 func (c *Content) ToJSONAPI() PublicContent {
 	return PublicContent{
+		Id:         c.Id,
 		Title:      c.Title,
 		Annotation: c.Annotation,
 		Content:    c.Content,

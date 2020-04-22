@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber"
 	content2 "github.com/zikwall/blogchain/models/content"
 	"github.com/zikwall/blogchain/models/content/forms"
@@ -34,7 +35,7 @@ func GetEditContent(c *fiber.Ctx) {
 
 	c.JSON(fiber.Map{
 		"status":  200,
-		"content": content,
+		"content": content.ToJSONAPI(),
 	})
 }
 
@@ -43,7 +44,6 @@ func UpdateContent(c *fiber.Ctx) {
 	userInstance := c.Locals("user").(*user.User)
 
 	if err != nil {
-		panic(err)
 		c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Content not found",
@@ -58,7 +58,7 @@ func UpdateContent(c *fiber.Ctx) {
 		Content: "",
 	}
 
-	if err := c.BodyParser(&form); err != nil {
+	if err := c.BodyParser(form); err != nil {
 		c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Failed to parse your request body.",
@@ -66,6 +66,8 @@ func UpdateContent(c *fiber.Ctx) {
 
 		return
 	}
+
+	form.UserId = userInstance.Id
 
 	if !form.Validate() {
 		c.JSON(fiber.Map{
@@ -85,6 +87,12 @@ func UpdateContent(c *fiber.Ctx) {
 		})
 
 		return
+	}
+
+	file, err := c.FormFile("image")
+	if err == nil {
+		form.Image = file.Filename
+		_ = c.SaveFile(file, fmt.Sprintf("./public/uploads/%s", file.Filename))
 	}
 
 	err = content2.UpdateContent(content, form)
