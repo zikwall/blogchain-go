@@ -31,9 +31,7 @@ func GetContent(c *fiber.Ctx) {
 
 	c.JSON(fiber.Map{
 		"status":  200,
-		"title":   content.Title,
-		"content": content.Content,
-		"user":    content.User.Properties(),
+		"content": content.ToJSONAPI(),
 	})
 }
 
