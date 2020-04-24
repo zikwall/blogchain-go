@@ -7,7 +7,6 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/di"
 	"github.com/zikwall/blogchain/models/content/forms"
-	"github.com/zikwall/blogchain/models/tag"
 	"github.com/zikwall/blogchain/models/user"
 	"time"
 )
@@ -83,7 +82,7 @@ func Find() *dbx.SelectQuery {
 				"p.name as user.profile.name",
 				"p.public_email as user.profile.public_email",
 				"p.avatar as user.profile.avatar",
-				"tags.*", "ct.*",
+				"tags.name as tags.name", "tags.id as tags.id",
 			).
 			From("content").
 			LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
@@ -129,7 +128,6 @@ func FindContentById(id int64) (*Content, error) {
 			Email:    "",
 			Profile:  user.Profile{},
 		},
-		Tags: []tag.Tag{},
 	}
 
 	err :=
