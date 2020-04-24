@@ -7,6 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/di"
 	"github.com/zikwall/blogchain/models/content/forms"
+	"github.com/zikwall/blogchain/models/tag"
 	"github.com/zikwall/blogchain/models/user"
 	"time"
 )
@@ -73,6 +74,26 @@ func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	return err
 }
 
+func Find() *dbx.SelectQuery {
+	query :=
+		di.DI().Database.Query().
+			Select(
+				"content.*",
+				"u.username as user.username",
+				"p.name as user.profile.name",
+				"p.public_email as user.profile.public_email",
+				"p.avatar as user.profile.avatar",
+				"tags.*", "ct.*",
+			).
+			From("content").
+			LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
+			LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
+			LeftJoin("content_tag ct", dbx.NewExp("content.id=ct.content_id")).
+			LeftJoin("tags", dbx.NewExp("ct.tag_id=tags.id"))
+
+	return query
+}
+
 func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
 	c := &Content{
 		Id:      0,
@@ -87,20 +108,11 @@ func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
 		},
 	}
 
-	err := di.DI().Database.Query().
-		Select(
-			"content.*",
-			"u.username as user.username",
-			"p.name as user.profile.name",
-			"p.public_email as user.profile.public_email",
-			"p.avatar as user.profile.avatar",
-		).
-		From("content").
-		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
-		Where(dbx.HashExp{"content.id": id}).
-		AndWhere(dbx.HashExp{"u.id": userid}).
-		One(&c)
+	err :=
+		Find().
+			Where(dbx.HashExp{"content.id": id}).
+			AndWhere(dbx.HashExp{"u.id": userid}).
+			One(&c)
 
 	return c, err
 }
@@ -117,21 +129,13 @@ func FindContentById(id int64) (*Content, error) {
 			Email:    "",
 			Profile:  user.Profile{},
 		},
+		Tags: []tag.Tag{},
 	}
 
-	err := di.DI().Database.Query().
-		Select(
-			"content.*",
-			"u.username as user.username",
-			"p.name as user.profile.name",
-			"p.public_email as user.profile.public_email",
-			"p.avatar as user.profile.avatar",
-		).
-		From("content").
-		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
-		Where(dbx.HashExp{"content.id": id}).
-		One(&c)
+	err :=
+		Find().
+			Where(dbx.HashExp{"content.id": id}).
+			One(&c)
 
 	return c, err
 }
@@ -139,18 +143,9 @@ func FindContentById(id int64) (*Content, error) {
 func FindAllContent() ([]PublicContent, error) {
 	var c []Content
 
-	err := di.DI().Database.Query().
-		Select(
-			"content.*",
-			"u.username as user.username",
-			"p.name as user.profile.name",
-			"p.public_email as user.profile.public_email",
-			"p.avatar as user.profile.avatar",
-		).
-		From("content").
-		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
-		All(&c)
+	err :=
+		Find().
+			All(&c)
 
 	if err != nil {
 		return nil, err

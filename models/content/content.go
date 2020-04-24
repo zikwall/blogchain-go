@@ -2,6 +2,7 @@ package content
 
 import (
 	"database/sql"
+	"github.com/zikwall/blogchain/models/tag"
 	"github.com/zikwall/blogchain/models/user"
 )
 
@@ -17,6 +18,7 @@ type Content struct {
 	Image      sql.NullString
 
 	User user.User
+	Tags []tag.Tag
 }
 
 type PublicContent struct {
@@ -34,6 +36,7 @@ type PublicContent struct {
 
 type Related struct {
 	Publisher user.PublicUser `json:"publisher"`
+	Tags      []tag.Tag       `json:"tags"`
 }
 
 func (c *Content) ToJSONAPI() PublicContent {
@@ -48,6 +51,7 @@ func (c *Content) ToJSONAPI() PublicContent {
 		Image:      c.Image.String,
 		Related: Related{
 			Publisher: c.User.Properties(),
+			Tags:      c.Tags,
 		},
 	}
 }

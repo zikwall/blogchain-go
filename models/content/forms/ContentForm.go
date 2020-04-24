@@ -1,13 +1,18 @@
 package forms
 
-import "mime/multipart"
+import (
+	"github.com/zikwall/blogchain/models/tag"
+	"mime/multipart"
+)
 
 type ContentForm struct {
 	UserId     int64     `json:"user_id" form:"user_id"`
 	Title      string    `json:"title" form:"title"`
 	Content    string    `json:"content" form:"content"`
 	Annotation string    `json:"annotation" form:"annotation"`
-	image      FormImage `json:"image" form:"image"`
+	Tags       []tag.Tag `json:"tags" form:"tags"`
+
+	image FormImage `json:"image" form:"image"`
 }
 
 type FormImage struct {
