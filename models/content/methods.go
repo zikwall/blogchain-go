@@ -1,6 +1,7 @@
 package content
 
 import (
+	"encoding/json"
 	"fmt"
 	dbx "github.com/go-ozzo/ozzo-dbx"
 	"github.com/gofiber/fiber"
@@ -34,8 +35,7 @@ func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
 	content.Uuid = uv4.String()
 
 	if f.GetImage().Err == nil {
-		content.Image.String = createImagePath(content.Uuid)
-		_ = c.SaveFile(f.GetImage().File, fmt.Sprintf("./public/uploads/%s", content.Image.String))
+		_ = SaveImage(content, f, c)
 	}
 
 	status, err := di.DI().Database.Query().Insert("content", dbx.Params{
@@ -55,12 +55,7 @@ func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
 
 func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	if f.GetImage().Err == nil {
-		content.Image.String = createImagePath(content.Uuid)
-		err := c.SaveFile(f.GetImage().File, fmt.Sprintf("./public/uploads/%s", content.Image.String))
-
-		if err != nil {
-			panic(err)
-		}
+		_ = SaveImage(content, f, c)
 	}
 
 	_, err := di.DI().Database.Query().Update("content", dbx.Params{
@@ -70,6 +65,45 @@ func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 		"image":      content.Image.String,
 		"updated_at": time.Now().Unix(),
 	}, dbx.HashExp{"id": content.Id}).Execute()
+
+	if err == nil {
+		err = UpsertTags(content, f, true)
+	}
+
+	return err
+}
+
+func UpsertTags(content *Content, f *forms.ContentForm, update bool) error {
+	var err error
+
+	if f.Tags != "" {
+		tags := []int{}
+
+		if err := json.Unmarshal([]byte(f.Tags), &tags); err == nil {
+
+			// todo calculate diff from request and existing tags (?)
+			if update {
+				_, err = di.DI().Database.Query().
+					Delete("content_tag", dbx.HashExp{"content_id": content.Id}).
+					Execute()
+			}
+
+			// todo batch upsert & limited tags
+			for _, v := range tags {
+				_, err = di.DI().Database.Query().Upsert("content_tag", dbx.Params{
+					"content_id": content.Id,
+					"tag_id":     v,
+				}, "content_id=content_id", "tag_id=tag_id").Execute()
+			}
+		}
+	}
+
+	return err
+}
+
+func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
+	content.Image.String = createImagePath(content.Uuid)
+	err := c.SaveFile(f.GetImage().File, fmt.Sprintf("./public/uploads/%s", content.Image.String))
 
 	return err
 }
