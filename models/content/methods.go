@@ -73,6 +73,23 @@ func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	return err
 }
 
+func Find() *dbx.SelectQuery {
+	query :=
+		di.DI().Database.Query().
+			Select(
+				"content.*",
+				"u.username as user.username",
+				"p.name as user.profile.name",
+				"p.public_email as user.profile.public_email",
+				"p.avatar as user.profile.avatar",
+			).
+			From("content").
+			LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
+			LeftJoin("profile p", dbx.NewExp("p.user_id=u.id"))
+
+	return query
+}
+
 func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
 	c := &Content{
 		Id:      0,
@@ -87,20 +104,14 @@ func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
 		},
 	}
 
-	err := di.DI().Database.Query().
-		Select(
-			"content.*",
-			"u.username as user.username",
-			"p.name as user.profile.name",
-			"p.public_email as user.profile.public_email",
-			"p.avatar as user.profile.avatar",
-		).
-		From("content").
-		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
+	err := Find().
 		Where(dbx.HashExp{"content.id": id}).
 		AndWhere(dbx.HashExp{"u.id": userid}).
 		One(&c)
+
+	if err == nil {
+		err = c.WithTags()
+	}
 
 	return c, err
 }
@@ -119,19 +130,13 @@ func FindContentById(id int64) (*Content, error) {
 		},
 	}
 
-	err := di.DI().Database.Query().
-		Select(
-			"content.*",
-			"u.username as user.username",
-			"p.name as user.profile.name",
-			"p.public_email as user.profile.public_email",
-			"p.avatar as user.profile.avatar",
-		).
-		From("content").
-		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
+	err := Find().
 		Where(dbx.HashExp{"content.id": id}).
 		One(&c)
+
+	if err == nil {
+		err = c.WithTags()
+	}
 
 	return c, err
 }
@@ -139,17 +144,7 @@ func FindContentById(id int64) (*Content, error) {
 func FindAllContent() ([]PublicContent, error) {
 	var c []Content
 
-	err := di.DI().Database.Query().
-		Select(
-			"content.*",
-			"u.username as user.username",
-			"p.name as user.profile.name",
-			"p.public_email as user.profile.public_email",
-			"p.avatar as user.profile.avatar",
-		).
-		From("content").
-		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id")).
+	err := Find().
 		All(&c)
 
 	if err != nil {
@@ -158,6 +153,7 @@ func FindAllContent() ([]PublicContent, error) {
 
 	pc := []PublicContent{}
 	for _, v := range c {
+		_ = v.WithTags()
 		pc = append(pc, v.ToJSONAPI())
 	}
 
