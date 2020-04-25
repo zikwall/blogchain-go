@@ -50,6 +50,10 @@ func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
 
 	content.Id, err = status.LastInsertId()
 
+	if err == nil {
+		err = UpsertTags(content, f, true)
+	}
+
 	return content, err
 }
 
