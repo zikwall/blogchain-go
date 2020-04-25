@@ -28,3 +28,9 @@ func GetTagsByContent(id int64) ([]Tag, error) {
 
 	return tags, err
 }
+
+func AttachTagQuery(query *dbx.SelectQuery, tag string) {
+	query.LeftJoin("content_tag", dbx.NewExp("content_tag.content_id=content.id")).
+		LeftJoin("tags", dbx.NewExp("content_tag.tag_id=tags.id")).
+		Where(dbx.HashExp{"tags.label": tag})
+}

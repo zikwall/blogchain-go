@@ -36,7 +36,9 @@ func GetContent(c *fiber.Ctx) {
 }
 
 func GetContents(c *fiber.Ctx) {
-	contents, err := content2.FindAllContent()
+	tag := c.Params("tag")
+
+	contents, err := content2.FindAllContent(tag)
 	if err != nil {
 		c.JSON(fiber.Map{
 			"status":  100,

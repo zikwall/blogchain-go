@@ -7,6 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/di"
 	"github.com/zikwall/blogchain/models/content/forms"
+	"github.com/zikwall/blogchain/models/tag"
 	"github.com/zikwall/blogchain/models/user"
 	"time"
 )
@@ -141,11 +142,16 @@ func FindContentById(id int64) (*Content, error) {
 	return c, err
 }
 
-func FindAllContent() ([]PublicContent, error) {
+func FindAllContent(label string) ([]PublicContent, error) {
 	var c []Content
 
-	err := Find().
-		All(&c)
+	query := Find()
+
+	if label != "" {
+		tag.AttachTagQuery(query, label)
+	}
+
+	err := query.All(&c)
 
 	if err != nil {
 		return nil, err

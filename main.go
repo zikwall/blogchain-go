@@ -108,6 +108,7 @@ func main() {
 
 		// tag
 		v1.Get("/tags", actions.Tags)
+		v1.Get("/tag/:tag", actions.GetContents)
 
 		editor := api.Group("/editor", middlewares.Authorization)
 		editor.Get("/content/:id", actions.GetEditContent)
