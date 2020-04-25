@@ -55,3 +55,13 @@ func (c *Content) ToJSONAPI() PublicContent {
 		},
 	}
 }
+
+func (c *Content) WithTags() error {
+	tags, err := tag.GetTagsByContent(c.Id)
+
+	if err == nil {
+		c.Tags = tags
+	}
+
+	return err
+}
