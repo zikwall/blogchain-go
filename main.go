@@ -78,6 +78,8 @@ func main() {
 			Driv: c.String("dbdriv"),
 		})
 
+		defer service.DI().Database.Close()
+
 		app := fiber.New()
 
 		InitRoutes(app)

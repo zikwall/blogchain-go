@@ -19,6 +19,10 @@ type Database struct {
 	DB *dbx.DB
 }
 
+func (db *Database) Close() {
+	_ = db.DB.Close()
+}
+
 func (db *Database) Query() *dbx.DB {
 	return db.DB
 }
