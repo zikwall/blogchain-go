@@ -30,11 +30,11 @@ func InitRoutes(app *fiber.App) {
 
 	// content
 	v1.Get("/content/:id", actions.GetContent)
-	v1.Get("/contents", actions.GetContents)
+	v1.Get("/contents/:page?", actions.GetContents)
 
 	// tag
 	v1.Get("/tags", actions.Tags)
-	v1.Get("/tag/:tag", actions.GetContents)
+	v1.Get("/tag/:tag/:page?", actions.GetContents)
 
 	editor := api.Group("/editor", middlewares.Authorization)
 	editor.Get("/content/:id", actions.GetEditContent)

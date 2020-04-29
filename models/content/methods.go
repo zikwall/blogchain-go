@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber"
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/di"
+	"github.com/zikwall/blogchain/help"
 	"github.com/zikwall/blogchain/models/content/forms"
 	"github.com/zikwall/blogchain/models/tag"
 	"github.com/zikwall/blogchain/models/user"
@@ -180,7 +181,7 @@ func FindContentById(id int64) (*Content, error) {
 	return c, err
 }
 
-func FindAllContent(label string) ([]PublicContent, error) {
+func FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
 	var c []Content
 
 	query := Find()
@@ -189,10 +190,16 @@ func FindAllContent(label string) ([]PublicContent, error) {
 		tag.AttachTagQuery(query, label)
 	}
 
+	var pageSize int64
+	pageSize = 4
+
+	countPages, _ := help.QueryCount(query, pageSize)
+	query.Offset(page * pageSize).Limit(pageSize)
+
 	err := query.All(&c)
 
 	if err != nil {
-		return nil, err
+		return nil, err, 0
 	}
 
 	pc := []PublicContent{}
@@ -201,5 +208,5 @@ func FindAllContent(label string) ([]PublicContent, error) {
 		pc = append(pc, v.ToJSONAPI())
 	}
 
-	return pc, err
+	return pc, err, countPages
 }

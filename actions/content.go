@@ -37,8 +37,15 @@ func GetContent(c *fiber.Ctx) {
 
 func GetContents(c *fiber.Ctx) {
 	tag := c.Params("tag")
+	var page int64
 
-	contents, err := content2.FindAllContent(tag)
+	if c.Params("page") != "" {
+		if p, err := strconv.ParseInt(c.Params("page"), 10, 64); err == nil {
+			page = p
+		}
+	}
+
+	contents, err, count := content2.FindAllContent(tag, page)
 	if err != nil {
 		c.JSON(fiber.Map{
 			"status":  100,
@@ -51,5 +58,8 @@ func GetContents(c *fiber.Ctx) {
 	c.JSON(fiber.Map{
 		"status":   200,
 		"contents": contents,
+		"meta": fiber.Map{
+			"pages": count,
+		},
 	})
 }
