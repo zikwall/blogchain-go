@@ -69,7 +69,7 @@ func main() {
 		port := c.Int("port")
 
 		service.DI().Bootstrap()
-		service.DI().Database.ConnectDatabase(service.DBConfig{
+		service.DI().Database.Open(service.DBConfig{
 			Host: c.String("dbhost"),
 			User: c.String("dbuser"),
 			Pass: c.String("dbpass"),

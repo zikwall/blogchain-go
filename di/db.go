@@ -27,7 +27,7 @@ func (db *Database) Query() *dbx.DB {
 	return db.DB
 }
 
-func (db *Database) ConnectDatabase(config DBConfig) {
+func (db *Database) Open(config DBConfig) {
 	var err error
 
 	db.DB, err = dbx.Open("mysql", connectionString(config))
