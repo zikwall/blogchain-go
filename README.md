@@ -6,4 +6,4 @@
 
 ### Deploy
 
-- `make build-migration-tool` && `make migrate-up`
+- `make`

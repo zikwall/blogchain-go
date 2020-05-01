@@ -2,6 +2,8 @@ PROJECTNAME=$(shell basename "$(PWD)")
 SCRIPT_AUTHOR=Andrey Kapitonov <andrey.kapitonov.96@gmail.com>
 SCRIPT_VERSION=0.0.1.dev
 
+all: build-migration-tool migrate-up
+
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate
 	cd ./sql-migrate/sql-migrate && go build && cd ../..
