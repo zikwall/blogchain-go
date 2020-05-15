@@ -13,8 +13,8 @@ func GetEditContent(c *fiber.Ctx) {
 	userInstance := c.Locals("user").(*user.User)
 
 	if err != nil {
-		c.JSON(fiber.Map{
-			"status":  100,
+		c.Status(500).JSON(fiber.Map{
+			//"status":  100,
 			"message": "Content not found",
 		})
 
@@ -24,16 +24,16 @@ func GetEditContent(c *fiber.Ctx) {
 	content, err := content2.FindContentByIdAndUser(id, userInstance.Id)
 
 	if err != nil {
-		c.JSON(fiber.Map{
-			"status":  100,
+		c.Status(404).JSON(fiber.Map{
+			//"status":  100,
 			"message": "Content not found",
 		})
 
 		return
 	}
 
-	c.JSON(fiber.Map{
-		"status":  200,
+	c.Status(200).JSON(fiber.Map{
+		//"status":  200,
 		"content": content.ToJSONAPI(),
 	})
 }

@@ -10,8 +10,8 @@ func GetContent(c *fiber.Ctx) {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 
 	if err != nil {
-		c.JSON(fiber.Map{
-			"status":  100,
+		c.Status(500).JSON(fiber.Map{
+			//"status":  100,
 			"message": "Content not found",
 		})
 
@@ -21,16 +21,16 @@ func GetContent(c *fiber.Ctx) {
 	content, err := content2.FindContentById(id)
 
 	if err != nil {
-		c.JSON(fiber.Map{
-			"status":  100,
+		c.Status(404).JSON(fiber.Map{
+			//"status":  100,
 			"message": "Content not found",
 		})
 
 		return
 	}
 
-	c.JSON(fiber.Map{
-		"status":  200,
+	c.Status(200).JSON(fiber.Map{
+		//"status":  200,
 		"content": content.ToJSONAPI(),
 	})
 }
@@ -46,17 +46,18 @@ func GetContents(c *fiber.Ctx) {
 	}
 
 	contents, err, count := content2.FindAllContent(tag, page)
+
 	if err != nil {
-		c.JSON(fiber.Map{
-			"status":  100,
+		c.Status(404).JSON(fiber.Map{
+			//"status":  100,
 			"message": "Content not found",
 		})
 
 		return
 	}
 
-	c.JSON(fiber.Map{
-		"status":   200,
+	c.Status(200).JSON(fiber.Map{
+		//"status":   200,
 		"contents": contents,
 		"meta": fiber.Map{
 			"pages": count,
