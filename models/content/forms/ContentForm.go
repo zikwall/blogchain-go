@@ -11,7 +11,7 @@ type ContentForm struct {
 	Annotation string `json:"annotation" form:"annotation"`
 	Tags       string `json:"tags" form:"tags"`
 
-	image FormImage `json:"image" form:"image"`
+	image FormImage
 }
 
 type FormImage struct {

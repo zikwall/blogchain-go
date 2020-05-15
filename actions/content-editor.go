@@ -94,7 +94,6 @@ func UpdateContent(c *fiber.Ctx) {
 	err = content2.UpdateContent(content, form, c)
 
 	if err != nil {
-		panic(err)
 		c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Что-то пошло не так...",
