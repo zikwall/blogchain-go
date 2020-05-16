@@ -9,7 +9,7 @@ func Profile(c *fiber.Ctx) {
 	user, err := user2.FindByUsername(c.Params("username"))
 
 	if err != nil {
-		c.JSON(fiber.Map{
+		c.Status(404).JSON(fiber.Map{
 			"status":  100,
 			"message": "Что-то пошло не так...",
 		})
@@ -17,7 +17,7 @@ func Profile(c *fiber.Ctx) {
 		return
 	}
 
-	c.JSON(fiber.Map{
+	c.Status(200).JSON(fiber.Map{
 		"status": 200,
 		"user":   user.Properties(),
 	})

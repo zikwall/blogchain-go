@@ -8,7 +8,7 @@ import (
 )
 
 func Logout(c *fiber.Ctx) {
-	c.JSON(fiber.Map{
+	c.Status(200).JSON(fiber.Map{
 		"status":  200,
 		"message": "Successful",
 	})
@@ -68,7 +68,7 @@ func Register(c *fiber.Ctx) {
 		Username:       "",
 		Password:       "",
 		PasswordRepeat: "",
-		Name:			"",
+		Name:           "",
 	}
 
 	if err := c.BodyParser(&form); err != nil {
