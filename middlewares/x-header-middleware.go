@@ -18,7 +18,12 @@ func XHeader(c *fiber.Ctx) {
 		return
 	}
 
-	fmt.Println(fmt.Sprintf("Request from platform: %s@%s", xHeader.XPlatform, xHeader.XAppVersion))
+	requestPath := c.Path()
+	fmt.Println(fmt.Sprintf("Request %s from platform: %s@%s",
+		requestPath,
+		xHeader.XPlatform,
+		xHeader.XAppVersion,
+	))
 
 	c.Next()
 }
