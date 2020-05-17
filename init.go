@@ -21,6 +21,9 @@ func InitRoutes(app *fiber.App) {
 	app.Static("/docs", "./public/docs")
 	app.Static("/uploads", "./public/uploads")
 
+	// only blogchain apps
+	app.Use(middlewares.XHeader)
+
 	// main endpoint group by `/api` prefix
 	api := app.Group("/api", middlewares.JWT)
 	// not usage JWT middleware in Login & Register endpoints
