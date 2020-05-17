@@ -10,12 +10,7 @@ func XHeader(c *fiber.Ctx) {
 	xHeader := types.NewXHeader(c)
 
 	if xHeader.IsBlogchainApp() == false {
-		c.Status(403).JSON(fiber.Map{
-			"status":  100,
-			"message": "Only real blogchain clients can use the API",
-		})
-
-		return
+		// todo
 	}
 
 	requestPath := c.Path()
