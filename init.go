@@ -36,6 +36,7 @@ func InitRoutes(app *fiber.App) {
 	v1.Get("/content/:id", actions.GetContent)
 	v1.Get("/contents/:page?", actions.GetContents)
 	v1.Get("/tags", actions.Tags)
+	v1.Get("/contents/user/:id/:page?", actions.GetUserContents)
 	v1.Get("/tag/:tag/:page?", actions.GetContents)
 	auth.Post("/register", actions.Register)
 	auth.Post("/login", actions.Login)

@@ -64,3 +64,31 @@ func GetContents(c *fiber.Ctx) {
 		},
 	})
 }
+
+func GetUserContents(c *fiber.Ctx) {
+	user, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	var page int64
+
+	if c.Params("page") != "" {
+		if p, err := strconv.ParseInt(c.Params("page"), 10, 64); err == nil {
+			page = p
+		}
+	}
+
+	contents, err, count := content2.FindAllByUser(user, page)
+
+	if err != nil {
+		c.Status(404).JSON(fiber.Map{
+			"message": "Content not found",
+		})
+
+		return
+	}
+
+	c.Status(200).JSON(fiber.Map{
+		"contents": contents,
+		"meta": fiber.Map{
+			"pages": count,
+		},
+	})
+}
