@@ -118,6 +118,7 @@ func Find() *dbx.SelectQuery {
 		di.DI().Database.Query().
 			Select(
 				"content.*",
+				"u.id as user.id",
 				"u.username as user.username",
 				"p.name as user.profile.name",
 				"p.public_email as user.profile.public_email",
@@ -128,6 +129,29 @@ func Find() *dbx.SelectQuery {
 			LeftJoin("profile p", dbx.NewExp("p.user_id=u.id"))
 
 	return query
+}
+
+func FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
+	var c []Content
+
+	query := Find().
+		Where(dbx.HashExp{"u.id": userid})
+
+	var pageSize int64
+	pageSize = 4
+
+	countPages, _ := help.QueryCount(query, pageSize)
+	query.Offset(page * pageSize).Limit(pageSize)
+
+	err := query.All(&c)
+
+	pc := []PublicContent{}
+	for _, v := range c {
+		_ = v.WithTags()
+		pc = append(pc, v.ToJSONAPI())
+	}
+
+	return pc, err, countPages
 }
 
 func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
