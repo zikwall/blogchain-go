@@ -2,12 +2,15 @@
 # docker build -t blogchain-go-img .
 
 # Run it
-# docker run -d -p 3000:3000 --name blogchain-go blogchain-go-img
+# docker run -d -p 3001:3001 --name blogchain-go blogchain-go-img
 
 # List
 # docker ps -a
 
-# Stop it
+# Stop
+# docker stop $(docker ps -q --filter ancestor=blogchain-go-img )
+
+# Remove it
 # docker rm <container_id>
 
 FROM golang:alpine
