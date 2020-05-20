@@ -18,4 +18,4 @@ RUN mkdir /app
 COPY . /app
 WORKDIR /app
 RUN go build -o main .
-CMD ["/app/main"]
+CMD ["/app/main", "--host", "0.0.0.0"]
