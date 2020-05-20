@@ -4,9 +4,11 @@
 # Run it
 # docker run -d -p 3000:3000 --name blogchain-go blogchain-go-img
 
-# Stop it
-# docker stop $(docker ps -q --filter ancestor=blogchain-go-img )
+# List
+# docker ps -a
 
+# Stop it
+# docker rm <container_id>
 
 FROM golang:alpine
 RUN mkdir /app
