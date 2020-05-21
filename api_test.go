@@ -17,7 +17,7 @@ func Init() {
 		Host: "@",
 		User: os.Getenv("MYSQL_USER"),
 		Pass: os.Getenv("MYSQL_PASSWORD"),
-		Port: "3001",
+		Port: "3006",
 		Name: os.Getenv("MYSQL_DATABASE"),
 		Driv: "mysql",
 	})
