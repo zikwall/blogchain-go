@@ -25,7 +25,7 @@ test:
 
 database:
 	@echo 'drop database if exists ${TEST_DB}; create database ${TEST_DB};' | mysql -u${TEST_USER} -p${TEST_PASSWORD}
-	@cat ./.teamcity/dump.sql | mysql -u${TEST_USER} -p${TEST_PASSWORD}
+	mysql -u${TEST_USER} -p${TEST_PASSWORD} ${TEST_DB} < .teamcity/dump.sql
 
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate
