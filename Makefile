@@ -2,7 +2,7 @@ PROJECTNAME=$(shell basename "$(PWD)")
 SCRIPT_AUTHOR=Andrey Kapitonov <andrey.kapitonov.96@gmail.com>
 SCRIPT_VERSION=0.0.1.dev
 
-all: tests
+all: test
 
 deploy: build-migration-tool migrate-up
 
@@ -15,8 +15,8 @@ run:
 stop:
 	docker stop $(docker ps -q --filter ancestor=blogchain-go-img )
 
-tests:
-	go tests -json
+test:
+	go test -json
 
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate
