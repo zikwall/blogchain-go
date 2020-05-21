@@ -26,3 +26,7 @@
 0. before `make build-migration-tool`
 1. `make migrate-new name={create_migration_name}`
 2. `make migrate-up`, `make migrate-down`, `make migrate-status`
+
+### CI/CD
+
+![test](.teamcity/tests.png)
