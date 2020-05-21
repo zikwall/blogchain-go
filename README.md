@@ -23,6 +23,6 @@
 
 ### Migrations
 
-0. after `make build-migration-tool`
+0. before `make build-migration-tool`
 1. `make migrate-new name={create_migration_name}`
 2. `make migrate-up`, `make migrate-down`, `make migrate-status`
