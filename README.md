@@ -6,12 +6,12 @@
 
 ### Deploy
 
-- `make`
+- `make deploy`
 
 ### Docker
 
-1. `docker build -t blogchain-go-img .`
-2. `docker run -d -p 3001:3001 --name blogchain-go blogchain-go-img`
+1. `make build`
+2. `make run`
 
 ### Tests
 
@@ -20,3 +20,9 @@
 #### For teamcity
 
 1. `go tests -json`
+
+### Migrations
+
+0. after `make build-migration-tool`
+1. `make migrate-new name={create_migration_name}`
+2. `make migrate-up`, `make migrate-down`, `make migrate-status`
