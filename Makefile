@@ -2,7 +2,12 @@ PROJECTNAME=$(shell basename "$(PWD)")
 SCRIPT_AUTHOR=Andrey Kapitonov <andrey.kapitonov.96@gmail.com>
 SCRIPT_VERSION=0.0.1.dev
 
-all: test
+# ENV
+TEST_DB=${MYSQL_DATABASE}
+TEST_USER=${MYSQL_USER}
+TEST_PASS=${MYSQL_PASSWORD}
+
+all: database test
 
 deploy: build-migration-tool migrate-up
 
@@ -17,6 +22,10 @@ stop:
 
 test:
 	go test -json
+
+database:
+	@echo 'drop database if exists ${TEST_DB}; create database ${TEST_DB};' | mysql -u${TEST_USER} -p${TEST_PASSWORD}
+	@cat ./.teamcity/dump.sql | mysql -u${TEST_USER} -p${TEST_PASSWORD}
 
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate
