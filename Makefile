@@ -21,7 +21,7 @@ stop:
 	docker stop $(docker ps -q --filter ancestor=blogchain-go-img )
 
 test:
-	go test -json
+	go test -json --tags=teamcity
 
 database:
 	mysql -u${TEST_USER} -p${TEST_PASS} -e "drop database if exists ${TEST_DB}; create database ${TEST_DB};"
