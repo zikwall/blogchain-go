@@ -15,11 +15,12 @@
 
 ### Tests
 
-1. `go tests`
+1. `go test`
+2. `go test --tags=integration teamcity`
 
 #### For teamcity
 
-1. `go tests -json`
+1. `go test -json --tags=teamcity`
 
 ### Migrations
 
