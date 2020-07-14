@@ -31,3 +31,10 @@
 ### CI/CD
 
 ![test](.teamcity/tests.png)
+
+If TeamCity agents state is `disconected`, then run following commands from agent directory (my example, `/home/msi/test/agent/bin/` or `~/test/agent/bin/`)
+
+```shell script
+$ ./agent.sh stop
+$ ./agent.sh start
+```
