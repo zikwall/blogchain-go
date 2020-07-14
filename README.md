@@ -38,3 +38,17 @@ If TeamCity agents state is `disconected`, then run following commands from agen
 $ ./agent.sh stop
 $ ./agent.sh start
 ```
+
+### Logs
+
+- [x] Simple logging in console thought DEV
+
+```shell script
+Request /api/v1/profile/zikwall from platform: web-next@0.0.1-build-commit#hash
+Request /api/v1/profile/zikwall from platform: web-next@0.0.1-build-commit#hash
+Request /api/v1/profile/zikwall from platform: web-next@0.0.1-build-commit#hash
+Request /api/v1/contents/user/2 from platform: web-next@0.0.1-build-commit#hash
+Request /api/v1/content/10 from platform: web-next@0.0.1-build-commit#hash
+```
+
+- [ ] Elasticsearch, Logstash, Kibana (ELK stack)
