@@ -1,6 +1,9 @@
+// +build integration
+
 package main
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber"
 	"net/http"
 	"testing"
@@ -25,4 +28,6 @@ func TestPingServer(t *testing.T) {
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf(`%s: Is not OK HTTP request`, t.Name())
 	}
+
+	fmt.Println("Teamcity todo tests")
 }
