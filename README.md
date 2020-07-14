@@ -6,27 +6,27 @@
 
 ### Deploy
 
-- `make deploy`
+- [x] `make deploy`
 
 ### Docker
 
-1. `make build`
-2. `make run`
+- [x] `make build`
+- [x] `make run`
 
 ### Tests
 
-1. `go test`
-2. `go test --tags=integration teamcity`
+- [x] `go test`
+- [x] `go test --tags=integration teamcity`
 
 #### For teamcity
 
-1. `go test -json --tags=teamcity`
+- [x] `go test -json --tags=teamcity`
 
 ### Migrations
 
-0. before `make build-migration-tool`
-1. `make migrate-new name={create_migration_name}`
-2. `make migrate-up`, `make migrate-down`, `make migrate-status`
+- [x] before `make build-migration-tool`
+- [x] `make migrate-new name={create_migration_name}`
+- [x] `make migrate-up`, `make migrate-down`, `make migrate-status`
 
 ### CI/CD
 
