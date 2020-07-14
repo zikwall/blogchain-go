@@ -20,3 +20,27 @@ type PublicProfile struct {
 	Status      string `json:"status"`
 	Description string `json:"description"`
 }
+
+func NewProfile() Profile {
+	return Profile{
+		userId:      0,
+		Name:        "",
+		PublicEmail: "",
+		Avatar: sql.NullString{
+			String: "",
+			Valid:  false,
+		},
+		Location: sql.NullString{
+			String: "",
+			Valid:  false,
+		},
+		Status: sql.NullString{
+			String: "",
+			Valid:  false,
+		},
+		Description: sql.NullString{
+			String: "",
+			Valid:  false,
+		},
+	}
+}

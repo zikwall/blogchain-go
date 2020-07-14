@@ -17,32 +17,7 @@ func CreateUser(r *forms.RegisterForm) (*User, error) {
 		log.Fatal(err)
 	}
 
-	u := &User{
-		Id:           0,
-		Username:     "",
-		Email:        "",
-		PasswordHash: "",
-		ConfirmedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		BlockedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		CreatedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		UpdatedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		RegistrationIp: sql.NullString{
-			String: r.RegistrationIp,
-			Valid:  false,
-		},
-	}
+	u := NewUser()
 
 	u.PasswordHash = string(password)
 	u.Email = r.Email
@@ -96,12 +71,7 @@ func AttachProfile(r *forms.RegisterForm, u *User) {
 }
 
 func FindByUsernameOrEmail(username string, email string) (*User, error) {
-	user := &User{
-		Id:           0,
-		Username:     "",
-		Email:        "",
-		PasswordHash: "",
-	}
+	user := NewUser()
 
 	err := di.DI().Database.Query().
 		Select("*").
@@ -113,21 +83,7 @@ func FindByUsernameOrEmail(username string, email string) (*User, error) {
 }
 
 func FindByCredentials(credentials string) (*User, error) {
-	user := &User{
-		Id:           0,
-		Username:     "",
-		Email:        "",
-		PasswordHash: "",
-		Profile: Profile{
-			userId:      0,
-			Name:        "",
-			PublicEmail: "",
-			Avatar: sql.NullString{
-				String: "",
-				Valid:  false,
-			},
-		},
-	}
+	user := NewUser()
 
 	err := di.DI().Database.Query().
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
@@ -140,12 +96,7 @@ func FindByCredentials(credentials string) (*User, error) {
 }
 
 func FindById(id int64) (*User, error) {
-	user := &User{
-		Id:           0,
-		Username:     "",
-		Email:        "",
-		PasswordHash: "",
-	}
+	user := NewUser()
 
 	err := di.DI().Database.Query().
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
@@ -158,33 +109,7 @@ func FindById(id int64) (*User, error) {
 }
 
 func FindByUsername(username string) (*User, error) {
-	user := &User{
-		Id:           0,
-		Username:     "",
-		Email:        "",
-		PasswordHash: "",
-		Profile: Profile{
-			userId:      0,
-			Name:        "",
-			PublicEmail: "",
-			Avatar: sql.NullString{
-				String: "",
-				Valid:  false,
-			},
-			Location: sql.NullString{
-				String: "",
-				Valid:  false,
-			},
-			Status: sql.NullString{
-				String: "",
-				Valid:  false,
-			},
-			Description: sql.NullString{
-				String: "",
-				Valid:  false,
-			},
-		},
-	}
+	user := NewUser()
 
 	err := di.DI().Database.Query().
 		Select("user.username", "user.id",
