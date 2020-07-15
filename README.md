@@ -8,12 +8,12 @@
 
 - [x] `make deploy`
 
-### Docker
+#### Docker
 
 - [x] `make build`
 - [x] `make run`
 
-### Tests
+#### Tests
 
 - [x] `go test`
 - [x] `go test --tags=integration teamcity`
@@ -22,7 +22,7 @@
 
 - [x] `go test -json --tags=teamcity`
 
-### Migrations
+#### Migrations
 
 - [x] before `make build-migration-tool`
 - [x] `make migrate-new name={create_migration_name}`
