@@ -26,43 +26,47 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "host",
-				Value: "localhost",
-				Usage: "Run service in host",
+				Name:   "host",
+				Value:  "localhost",
+				Usage:  "Run service in host",
+				EnvVar: "SERVER_HOST",
 			},
 			&cli.IntFlag{
-				Name:  "port",
-				Value: 3001,
-				Usage: "Run service in port",
+				Name:   "port",
+				Value:  3001,
+				Usage:  "Run service in port",
+				EnvVar: "SERVER_PORT",
 			},
 			// database
 			&cli.StringFlag{
-				Name:  "dbhost",
-				Value: "@",
-				Usage: "Database host",
+				Name:   "dbhost",
+				Value:  "@",
+				Usage:  "Database host",
+				EnvVar: "DATABASE_HOST",
 			},
 			&cli.StringFlag{
 				Name:   "dbuser",
 				Value:  "root2",
 				Usage:  "Database user",
-				EnvVar: "MYSQL_USER",
+				EnvVar: "DATABASE_USER",
 			},
 			&cli.StringFlag{
 				Name:   "dbpass",
 				Value:  "prizrak211",
 				Usage:  "Database password",
-				EnvVar: "MYSQL_PASSWORD",
+				EnvVar: "DATABASE_PASSWORD",
 			},
 			&cli.StringFlag{
 				Name:   "dbname",
 				Value:  "blogchain",
 				Usage:  "Database name",
-				EnvVar: "MYSQL_DATABASE",
+				EnvVar: "DATABASE_NAME",
 			},
 			&cli.StringFlag{
-				Name:  "dbdriv",
-				Value: "mysql",
-				Usage: "Database driver",
+				Name:   "dbdriv",
+				Value:  "mysql",
+				Usage:  "Database driver",
+				EnvVar: "DATABASE_DRIVER",
 			},
 		},
 	}
