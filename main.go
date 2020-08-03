@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/urfave/cli"
 	service "github.com/zikwall/blogchain/di"
-	"log"
 	"os"
 )
 
@@ -75,6 +74,7 @@ func main() {
 		host := c.String("host")
 		port := c.Int("port")
 
+		service.DI().SetupCloseHandler()
 		service.DI().Bootstrap()
 		service.DI().Database.Open(service.DBConfig{
 			Host: c.String("dbhost"),
@@ -85,8 +85,6 @@ func main() {
 			Driv: c.String("dbdriv"),
 		})
 
-		defer service.DI().Database.Close()
-
 		app := fiber.New()
 
 		InitRoutes(app)
@@ -94,7 +92,7 @@ func main() {
 		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
 
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 
 		return nil
@@ -103,6 +101,7 @@ func main() {
 	err := app.Run(os.Args)
 
 	if err != nil {
-		log.Fatal(err)
+		// todo signal notify
+		fmt.Println(err)
 	}
 }

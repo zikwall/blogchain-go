@@ -20,6 +20,7 @@ type Database struct {
 }
 
 func (db *Database) Close() {
+	fmt.Println("Connection close")
 	_ = db.DB.Close()
 }
 
@@ -33,7 +34,7 @@ func (db *Database) Open(config DBConfig) {
 	db.DB, err = dbx.Open("mysql", connectionString(config))
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 }
 

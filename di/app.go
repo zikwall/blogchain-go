@@ -1,7 +1,10 @@
 package di
 
 import (
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 var once sync.Once
@@ -21,4 +24,18 @@ func DI() *App {
 
 func (app *App) Bootstrap() {
 	DI().Database = &Database{DB: nil}
+}
+
+func (app *App) SetupCloseHandler() {
+	sig := make(chan os.Signal)
+	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-sig
+
+		// еще надо бы дождаться обработки открытых соединений
+		app.Database.Close()
+
+		os.Exit(0)
+	}()
 }
