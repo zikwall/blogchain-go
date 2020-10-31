@@ -14,7 +14,7 @@ require (
 	github.com/klauspost/compress v1.11.2 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/swag v1.6.5
-	github.com/urfave/cli v1.22.4
+	github.com/urfave/cli/v2 v2.2.0
 	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
 	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
 )

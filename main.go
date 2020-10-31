@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 	service "github.com/zikwall/blogchain/src/di"
 	"log"
 	"os"
@@ -25,10 +25,10 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:   "bind-address",
-				Value:  "localhost:3001",
-				Usage:  "Run service in host",
-				EnvVar: "SERVER_HOST",
+				Name:    "bind-address",
+				Value:   "localhost:3001",
+				Usage:   "Run service in host",
+				EnvVars: []string{"SERVER_HOST"},
 			},
 			// database
 			&cli.StringFlag{
@@ -36,35 +36,35 @@ func main() {
 				Required: true,
 				Value:    "@",
 				Usage:    "Database host",
-				EnvVar:   "DATABASE_HOST",
+				EnvVars:  []string{"DATABASE_HOST"},
 			},
 			&cli.StringFlag{
 				Name:     "database-user",
 				Required: true,
 				Value:    "blogchain",
 				Usage:    "Database user",
-				EnvVar:   "DATABASE_USER",
+				EnvVars:  []string{"DATABASE_USER"},
 			},
 			&cli.StringFlag{
 				Name:     "database-password",
 				Required: true,
 				Value:    "123456",
 				Usage:    "Database password",
-				EnvVar:   "DATABASE_PASSWORD",
+				EnvVars:  []string{"DATABASE_PASSWORD"},
 			},
 			&cli.StringFlag{
 				Name:     "database-name",
 				Required: true,
 				Value:    "blogchain",
 				Usage:    "Database name",
-				EnvVar:   "DATABASE_NAME",
+				EnvVars:  []string{"DATABASE_NAME"},
 			},
 			&cli.StringFlag{
 				Name:     "database-driver",
 				Required: true,
 				Value:    "mysql",
 				Usage:    "Database driver",
-				EnvVar:   "DATABASE_DRIVER",
+				EnvVars:  []string{"DATABASE_DRIVER"},
 			},
 		},
 	}
