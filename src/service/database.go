@@ -49,3 +49,11 @@ func (d *BlogchainDatabaseInstance) Query() *dbx.DB {
 func makeBlogchainDatabaseConnectionString(c BloghainDatabaseConfiguration) string {
 	return fmt.Sprintf("%s:%s%s/%s", c.User, c.Password, c.Host, c.Name)
 }
+
+func (d BlogchainDatabaseInstance) Close() error {
+	return d.db.Close()
+}
+
+func (d BlogchainDatabaseInstance) CloseMessage() string {
+	return "Close database"
+}

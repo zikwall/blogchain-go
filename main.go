@@ -2,7 +2,10 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/urfave/cli/v2"
+	"github.com/zikwall/blogchain/src/actions"
+	"github.com/zikwall/blogchain/src/middlewares"
 	"github.com/zikwall/blogchain/src/service"
 	"log"
 	"os"
@@ -22,7 +25,7 @@ import (
 
 // @host blogchain.io
 func main() {
-	app := &cli.App{
+	application := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "bind-address",
@@ -69,8 +72,8 @@ func main() {
 		},
 	}
 
-	app.Action = func(c *cli.Context) error {
-		_, err := service.NewBlogchainServiceInstance(
+	application.Action = func(c *cli.Context) error {
+		blogchain, err := service.NewBlogchainServiceInstance(
 			service.BlogchainServiceConfiguration{
 				BloghainDatabaseConfiguration: service.BloghainDatabaseConfiguration{
 					Host:     c.String("database-host"),
@@ -86,22 +89,66 @@ func main() {
 			return err
 		}
 
-		host := c.String("bind-address")
-
 		app := fiber.New()
+		app.Use(cors.New(cors.Config{
+			AllowOrigins:     "*",
+			AllowMethods:     "*",
+			AllowHeaders:     "*",
+			AllowCredentials: false,
+			ExposeHeaders:    "",
+			MaxAge:           0,
+		}))
 
-		InitRoutes(app)
+		app.Static("/docs", "./src/public/docs")
+		app.Static("/uploads", "./src/public/uploads")
 
-		err = app.Listen(host)
+		// only blogchain apps
+		app.Use(middlewares.XHeader)
 
-		if err != nil {
-			return err
+		// main endpoint group by `/api` prefix
+		api := app.Group("/api", middlewares.JWT)
+
+		v1 := api.Group("/v1")
+		{
+			v1.Get("/profile/:username", actions.Profile)
+			v1.Get("/content/:id", actions.GetContent)
+			v1.Get("/contents/:page?", actions.GetContents)
+			v1.Get("/tags", actions.Tags)
+			v1.Get("/contents/user/:id/:page?", actions.GetUserContents)
+			v1.Get("/tag/:tag/:page?", actions.GetContents)
 		}
+
+		// not usage JWT middleware in Login & Register endpoints
+		auth := app.Group("/auth", middlewares.Auth)
+		{
+			auth.Post("/register", actions.Register)
+			auth.Post("/login", actions.Login)
+			auth.Post("/logout", actions.Login)
+		}
+
+		// editor required authorization
+		editor := api.Group("/editor", middlewares.Authorization)
+		{
+			editor.Get("/content/:id", actions.GetEditContent)
+			editor.Post("/content/add", actions.AddContent)
+			editor.Post("/content/update/:id", actions.UpdateContent)
+		}
+
+		api.Get("/", actions.HelloWorldAction)
+
+		go func() {
+			if err := app.Listen(c.String("bind-address")); err != nil {
+				blogchain.GetInternalLogger().Error(err)
+			}
+		}()
+
+		blogchain.WaitBlogchainSystemNotify()
+		blogchain.ShutdownBlogchainServer()
 
 		return nil
 	}
 
-	err := app.Run(os.Args)
+	err := application.Run(os.Args)
 
 	if err != nil {
 		log.Fatal(err)
