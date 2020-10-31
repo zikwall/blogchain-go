@@ -10,5 +10,8 @@ tools/*
 dbconfig.yml
 
 # public
-public/uploads/*
-!public/uploads/.gitkeep
+src/public/uploads/*
+!src/public/uploads/.gitkeep
+
+# Local
+bin/run_local_*

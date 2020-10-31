@@ -4,6 +4,18 @@
   <h5>App server written in Golang</h5>
 </div>
 
+### Development
+
+```shell script
+go run . \
+  --bind-address localhost:3001 \
+  --database-host localhost \
+  --database-user blogchain \
+  --database-password 123456 \
+  --database-name blogchain \
+  --database-driver mysql
+```
+
 ### Deploy
 
 - [x] `make deploy`
@@ -30,7 +42,7 @@
 
 ### CI/CD
 
-![test](.teamcity/tests.png)
+![test](ci/.teamcity/tests.png)
 
 If TeamCity agents state is `disconected`, then run following commands from agent directory (my example, `/home/msi/test/agent/bin/` or `~/test/agent/bin/`)
 

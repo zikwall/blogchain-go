@@ -1,5 +1,5 @@
 development:
   dialect: mysql
   datasource: user:pass@/dbname?parseTime=true
-  dir: migrations
+  dir: /src/migrations
   table: migrations
