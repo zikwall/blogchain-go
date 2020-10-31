@@ -2,7 +2,7 @@ package types
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/zikwall/blogchain/models/user"
+	"github.com/zikwall/blogchain/src/models/user"
 	"time"
 )
 

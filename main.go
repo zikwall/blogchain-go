@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli"
-	service "github.com/zikwall/blogchain/di"
+	service "github.com/zikwall/blogchain/src/di"
 	"log"
 	"os"
 )
@@ -26,71 +25,68 @@ func main() {
 	app := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:   "host",
-				Value:  "localhost",
+				Name:   "bind-address",
+				Value:  "localhost:3001",
 				Usage:  "Run service in host",
 				EnvVar: "SERVER_HOST",
 			},
-			&cli.IntFlag{
-				Name:   "port",
-				Value:  3001,
-				Usage:  "Run service in port",
-				EnvVar: "SERVER_PORT",
-			},
 			// database
 			&cli.StringFlag{
-				Name:   "dbhost",
-				Value:  "@",
-				Usage:  "Database host",
-				EnvVar: "DATABASE_HOST",
+				Name:     "database-host",
+				Required: true,
+				Value:    "@",
+				Usage:    "Database host",
+				EnvVar:   "DATABASE_HOST",
 			},
 			&cli.StringFlag{
-				Name:   "dbuser",
-				Value:  "root2",
-				Usage:  "Database user",
-				EnvVar: "DATABASE_USER",
+				Name:     "database-user",
+				Required: true,
+				Value:    "blogchain",
+				Usage:    "Database user",
+				EnvVar:   "DATABASE_USER",
 			},
 			&cli.StringFlag{
-				Name:   "dbpass",
-				Value:  "prizrak211",
-				Usage:  "Database password",
-				EnvVar: "DATABASE_PASSWORD",
+				Name:     "database-password",
+				Required: true,
+				Value:    "123456",
+				Usage:    "Database password",
+				EnvVar:   "DATABASE_PASSWORD",
 			},
 			&cli.StringFlag{
-				Name:   "dbname",
-				Value:  "blogchain",
-				Usage:  "Database name",
-				EnvVar: "DATABASE_NAME",
+				Name:     "database-name",
+				Required: true,
+				Value:    "blogchain",
+				Usage:    "Database name",
+				EnvVar:   "DATABASE_NAME",
 			},
 			&cli.StringFlag{
-				Name:   "dbdriv",
-				Value:  "mysql",
-				Usage:  "Database driver",
-				EnvVar: "DATABASE_DRIVER",
+				Name:     "database-driver",
+				Required: true,
+				Value:    "mysql",
+				Usage:    "Database driver",
+				EnvVar:   "DATABASE_DRIVER",
 			},
 		},
 	}
 
 	app.Action = func(c *cli.Context) error {
-		host := c.String("host")
-		port := c.Int("port")
+		host := c.String("bind-address")
 
 		service.DI().SetupCloseHandler()
 		service.DI().Bootstrap()
 		service.DI().Database.Open(service.DBConfig{
-			Host: c.String("dbhost"),
-			User: c.String("dbuser"),
-			Pass: c.String("dbpass"),
-			Port: "",
-			Name: c.String("dbname"),
-			Driv: c.String("dbdriv"),
+			Host: c.String("database-host"),
+			User: c.String("database-user"),
+			Pass: c.String("database-password"),
+			Name: c.String("database-name"),
+			Driv: c.String("database-driver"),
 		})
 
 		app := fiber.New()
 
 		InitRoutes(app)
 
-		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
+		err := app.Listen(host)
 
 		if err != nil {
 			return err

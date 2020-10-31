@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/models/user"
+	"github.com/zikwall/blogchain/src/models/user"
 )
 
 func Authorization(c *fiber.Ctx) error {

@@ -2,9 +2,9 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	user2 "github.com/zikwall/blogchain/models/user"
-	"github.com/zikwall/blogchain/models/user/forms"
-	"github.com/zikwall/blogchain/types"
+	user2 "github.com/zikwall/blogchain/src/models/user"
+	"github.com/zikwall/blogchain/src/models/user/forms"
+	"github.com/zikwall/blogchain/src/types"
 )
 
 func Logout(c *fiber.Ctx) error {

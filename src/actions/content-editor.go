@@ -2,9 +2,9 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	content2 "github.com/zikwall/blogchain/models/content"
-	"github.com/zikwall/blogchain/models/content/forms"
-	"github.com/zikwall/blogchain/models/user"
+	content2 "github.com/zikwall/blogchain/src/models/content"
+	"github.com/zikwall/blogchain/src/models/content/forms"
+	"github.com/zikwall/blogchain/src/models/user"
 	"strconv"
 )
 

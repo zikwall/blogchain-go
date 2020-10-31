@@ -3,7 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	user2 "github.com/zikwall/blogchain/models/user"
+	user2 "github.com/zikwall/blogchain/src/models/user"
 )
 
 // HelloWorldAction godoc

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/models/user"
+	"github.com/zikwall/blogchain/src/models/user"
 	"strings"
 )
 

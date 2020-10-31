@@ -6,9 +6,9 @@ type RegisterForm struct {
 	Password       string `json:"password"`
 	PasswordRepeat string `json:"password_repeat"`
 	RegistrationIp string
-	Name		   string `json:"name"`
-	PublicEmail	   string `json:"public_email"`
-	Avatar		   string `json:"avatar"`
+	Name           string `json:"name"`
+	PublicEmail    string `json:"public_email"`
+	Avatar         string `json:"avatar"`
 }
 
 func (r *RegisterForm) ComparePasswords() bool {

@@ -25,7 +25,7 @@ test:
 
 database:
 	mysql -u${TEST_USER} -p${TEST_PASS} -e "drop database if exists ${TEST_DB}; create database ${TEST_DB};"
-	mysql -u${TEST_USER} -p${TEST_PASS} ${TEST_DB} < .teamcity/dump.sql
+	mysql -u${TEST_USER} -p${TEST_PASS} ${TEST_DB} < ci/.teamcity/dump.sql
 
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate

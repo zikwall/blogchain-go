@@ -6,11 +6,11 @@ import (
 	dbx "github.com/go-ozzo/ozzo-dbx"
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
-	"github.com/zikwall/blogchain/di"
-	"github.com/zikwall/blogchain/help"
-	"github.com/zikwall/blogchain/models/content/forms"
-	"github.com/zikwall/blogchain/models/tag"
-	"github.com/zikwall/blogchain/models/user"
+	di2 "github.com/zikwall/blogchain/src/di"
+	"github.com/zikwall/blogchain/src/help"
+	forms2 "github.com/zikwall/blogchain/src/models/content/forms"
+	tag2 "github.com/zikwall/blogchain/src/models/tag"
+	user2 "github.com/zikwall/blogchain/src/models/user"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func createImagePath(uuidv4 string) string {
 	return fmt.Sprintf("%s.png", uuidv4)
 }
 
-func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
+func CreateContent(f *forms2.ContentForm, c *fiber.Ctx) (*Content, error) {
 	content := &Content{
 		Id:      0,
 		UserId:  0,
@@ -39,7 +39,7 @@ func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
 		_ = SaveImage(content, f, c)
 	}
 
-	status, err := di.DI().Database.Query().Insert("content", dbx.Params{
+	status, err := di2.DI().Database.Query().Insert("content", dbx.Params{
 		"uuid":       content.Uuid,
 		"user_id":    content.UserId,
 		"title":      content.Title,
@@ -58,12 +58,12 @@ func CreateContent(f *forms.ContentForm, c *fiber.Ctx) (*Content, error) {
 	return content, err
 }
 
-func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
+func UpdateContent(content *Content, f *forms2.ContentForm, c *fiber.Ctx) error {
 	if f.GetImage().Err == nil {
 		_ = SaveImage(content, f, c)
 	}
 
-	_, err := di.DI().Database.Query().Update("content", dbx.Params{
+	_, err := di2.DI().Database.Query().Update("content", dbx.Params{
 		"title":      f.Title,
 		"content":    f.Content,
 		"annotation": f.Annotation,
@@ -78,7 +78,7 @@ func UpdateContent(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	return err
 }
 
-func UpsertTags(content *Content, f *forms.ContentForm, update bool) error {
+func UpsertTags(content *Content, f *forms2.ContentForm, update bool) error {
 	var err error
 
 	if f.Tags != "" {
@@ -88,14 +88,14 @@ func UpsertTags(content *Content, f *forms.ContentForm, update bool) error {
 
 			// todo calculate diff from request and existing tags (?)
 			if update {
-				_, err = di.DI().Database.Query().
+				_, err = di2.DI().Database.Query().
 					Delete("content_tag", dbx.HashExp{"content_id": content.Id}).
 					Execute()
 			}
 
 			// todo batch upsert & limited tags
 			for _, v := range tags {
-				_, err = di.DI().Database.Query().Upsert("content_tag", dbx.Params{
+				_, err = di2.DI().Database.Query().Upsert("content_tag", dbx.Params{
 					"content_id": content.Id,
 					"tag_id":     v,
 				}, "content_id=content_id", "tag_id=tag_id").Execute()
@@ -106,7 +106,7 @@ func UpsertTags(content *Content, f *forms.ContentForm, update bool) error {
 	return err
 }
 
-func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
+func SaveImage(content *Content, f *forms2.ContentForm, c *fiber.Ctx) error {
 	content.Image.String = createImagePath(content.Uuid)
 	err := c.SaveFile(f.GetImage().File, fmt.Sprintf("./public/uploads/%s", content.Image.String))
 
@@ -115,7 +115,7 @@ func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 
 func Find() *dbx.SelectQuery {
 	query :=
-		di.DI().Database.Query().
+		di2.DI().Database.Query().
 			Select(
 				"content.*",
 				"u.id as user.id",
@@ -160,11 +160,11 @@ func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
 		UserId:  0,
 		Title:   "",
 		Content: "",
-		User: user.User{
+		User: user2.User{
 			Id:       0,
 			Username: "",
 			Email:    "",
-			Profile:  user.Profile{},
+			Profile:  user2.Profile{},
 		},
 	}
 
@@ -186,11 +186,11 @@ func FindContentById(id int64) (*Content, error) {
 		UserId:  0,
 		Title:   "",
 		Content: "",
-		User: user.User{
+		User: user2.User{
 			Id:       0,
 			Username: "",
 			Email:    "",
-			Profile:  user.Profile{},
+			Profile:  user2.Profile{},
 		},
 	}
 
@@ -211,7 +211,7 @@ func FindAllContent(label string, page int64) ([]PublicContent, error, float64) 
 	query := Find()
 
 	if label != "" {
-		tag.AttachTagQuery(query, label)
+		tag2.AttachTagQuery(query, label)
 	}
 
 	var pageSize int64

@@ -1,6 +1,6 @@
 // +build integration teamcity
 
-package main
+package ci
 
 import (
 	"fmt"

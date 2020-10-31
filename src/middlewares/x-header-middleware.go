@@ -3,7 +3,7 @@ package middlewares
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/types"
+	"github.com/zikwall/blogchain/src/types"
 )
 
 func XHeader(c *fiber.Ctx) error {

@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/zikwall/blogchain/actions"
-	"github.com/zikwall/blogchain/middlewares"
+	"github.com/zikwall/blogchain/src/actions"
+	"github.com/zikwall/blogchain/src/middlewares"
 )
 
 func InitRoutes(app *fiber.App) {
@@ -17,8 +17,8 @@ func InitRoutes(app *fiber.App) {
 		MaxAge:           0,
 	}))
 
-	app.Static("/docs", "./public/docs")
-	app.Static("/uploads", "./public/uploads")
+	app.Static("/docs", "./src/public/docs")
+	app.Static("/uploads", "./src/public/uploads")
 
 	// only blogchain apps
 	app.Use(middlewares.XHeader)

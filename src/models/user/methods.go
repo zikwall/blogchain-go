@@ -3,14 +3,14 @@ package user
 import (
 	"database/sql"
 	dbx "github.com/go-ozzo/ozzo-dbx"
-	"github.com/zikwall/blogchain/di"
-	"github.com/zikwall/blogchain/models/user/forms"
+	di2 "github.com/zikwall/blogchain/src/di"
+	forms2 "github.com/zikwall/blogchain/src/models/user/forms"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
 )
 
-func CreateUser(r *forms.RegisterForm) (*User, error) {
+func CreateUser(r *forms2.RegisterForm) (*User, error) {
 	password, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
 
 	if err != nil {
@@ -28,7 +28,7 @@ func CreateUser(r *forms.RegisterForm) (*User, error) {
 	}
 	u.CreatedAt.Int64 = time.Now().Unix()
 
-	status, err := di.DI().Database.Query().Insert("user", dbx.Params{
+	status, err := di2.DI().Database.Query().Insert("user", dbx.Params{
 		"password_hash":   u.PasswordHash,
 		"email":           u.Email,
 		"username":        u.Username,
@@ -43,7 +43,7 @@ func CreateUser(r *forms.RegisterForm) (*User, error) {
 	return u, err
 }
 
-func AttachProfile(r *forms.RegisterForm, u *User) {
+func AttachProfile(r *forms2.RegisterForm, u *User) {
 	profile := Profile{
 		userId:      u.Id,
 		Name:        r.Name,
@@ -54,7 +54,7 @@ func AttachProfile(r *forms.RegisterForm, u *User) {
 		},
 	}
 
-	status, err := di.DI().Database.Query().Insert("profile", dbx.Params{
+	status, err := di2.DI().Database.Query().Insert("profile", dbx.Params{
 		"user_id":      profile.userId,
 		"name":         profile.Name,
 		"public_email": profile.PublicEmail,
@@ -73,7 +73,7 @@ func AttachProfile(r *forms.RegisterForm, u *User) {
 func FindByUsernameOrEmail(username string, email string) (*User, error) {
 	user := NewUser()
 
-	err := di.DI().Database.Query().
+	err := di2.DI().Database.Query().
 		Select("*").
 		From("user").
 		Where(dbx.Or(dbx.HashExp{"username": username}, dbx.HashExp{"email": email})).
@@ -85,7 +85,7 @@ func FindByUsernameOrEmail(username string, email string) (*User, error) {
 func FindByCredentials(credentials string) (*User, error) {
 	user := NewUser()
 
-	err := di.DI().Database.Query().
+	err := di2.DI().Database.Query().
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
 		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
@@ -98,7 +98,7 @@ func FindByCredentials(credentials string) (*User, error) {
 func FindById(id int64) (*User, error) {
 	user := NewUser()
 
-	err := di.DI().Database.Query().
+	err := di2.DI().Database.Query().
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
 		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
@@ -111,7 +111,7 @@ func FindById(id int64) (*User, error) {
 func FindByUsername(username string) (*User, error) {
 	user := NewUser()
 
-	err := di.DI().Database.Query().
+	err := di2.DI().Database.Query().
 		Select("user.username", "user.id",
 			"p.name as profile.name",
 			"p.public_email as profile.public_email",
