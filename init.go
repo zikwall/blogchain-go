@@ -1,20 +1,19 @@
 package main
 
 import (
-	"github.com/gofiber/cors"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/zikwall/blogchain/actions"
 	"github.com/zikwall/blogchain/middlewares"
 )
 
 func InitRoutes(app *fiber.App) {
 	app.Use(cors.New(cors.Config{
-		Filter:           nil,
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"*"},
-		AllowHeaders:     []string{"*"},
+		AllowOrigins:     "*",
+		AllowMethods:     "*",
+		AllowHeaders:     "*",
 		AllowCredentials: false,
-		ExposeHeaders:    nil,
+		ExposeHeaders:    "",
 		MaxAge:           0,
 	}))
 

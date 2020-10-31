@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	dbx "github.com/go-ozzo/ozzo-dbx"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/di"
 	"github.com/zikwall/blogchain/help"

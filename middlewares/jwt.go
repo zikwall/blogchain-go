@@ -3,12 +3,12 @@ package middlewares
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/models/user"
 	"strings"
 )
 
-func JWT(c *fiber.Ctx) {
+func JWT(c *fiber.Ctx) error {
 	mySigningKey := []byte("secret")
 	tokenString := c.Get("Authorization")
 	// default empty instance of user
@@ -41,5 +41,5 @@ func JWT(c *fiber.Ctx) {
 
 	// always set user instance
 	c.Locals("user", userInstance)
-	c.Next()
+	return c.Next()
 }

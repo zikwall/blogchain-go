@@ -1,21 +1,16 @@
 package middlewares
 
 import (
-	"fmt"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 )
 
-func Auth(c *fiber.Ctx) {
-	fmt.Println("Auth work!")
-
+func Auth(c *fiber.Ctx) error {
 	if c.Get("Content-Type") != "application/json" {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Wrong content type response",
 		})
-
-		return
 	}
 
-	c.Next()
+	return c.Next()
 }

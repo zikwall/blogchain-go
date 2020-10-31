@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli"
 	service "github.com/zikwall/blogchain/di"
+	"log"
 	"os"
 )
 
@@ -92,7 +93,7 @@ func main() {
 		err := app.Listen(fmt.Sprintf("%s:%d", host, port))
 
 		if err != nil {
-			fmt.Println(err)
+			return err
 		}
 
 		return nil
@@ -101,7 +102,6 @@ func main() {
 	err := app.Run(os.Args)
 
 	if err != nil {
-		// todo signal notify
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 }

@@ -1,54 +1,48 @@
 package actions
 
 import (
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	content2 "github.com/zikwall/blogchain/models/content"
 	"github.com/zikwall/blogchain/models/content/forms"
 	"github.com/zikwall/blogchain/models/user"
 	"strconv"
 )
 
-func GetEditContent(c *fiber.Ctx) {
+func GetEditContent(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	userInstance := c.Locals("user").(*user.User)
 
 	if err != nil {
-		c.Status(500).JSON(fiber.Map{
+		return c.Status(500).JSON(fiber.Map{
 			//"status":  100,
 			"message": "Content not found",
 		})
-
-		return
 	}
 
 	content, err := content2.FindContentByIdAndUser(id, userInstance.Id)
 
 	if err != nil {
-		c.Status(404).JSON(fiber.Map{
+		return c.Status(404).JSON(fiber.Map{
 			//"status":  100,
 			"message": "Content not found",
 		})
-
-		return
 	}
 
-	c.Status(200).JSON(fiber.Map{
+	return c.Status(200).JSON(fiber.Map{
 		//"status":  200,
 		"content": content.ToJSONAPI(),
 	})
 }
 
-func UpdateContent(c *fiber.Ctx) {
+func UpdateContent(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	userInstance := c.Locals("user").(*user.User)
 
 	if err != nil {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Content not found",
 		})
-
-		return
 	}
 
 	form := &forms.ContentForm{
@@ -58,34 +52,28 @@ func UpdateContent(c *fiber.Ctx) {
 	}
 
 	if err := c.BodyParser(form); err != nil {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Failed to parse your request body.",
 		})
-
-		return
 	}
 
 	form.UserId = userInstance.Id
 
 	if !form.Validate() {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Invalid request body fields.",
 		})
-
-		return
 	}
 
 	content, err := content2.FindContentByIdAndUser(id, userInstance.Id)
 
 	if err != nil {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Content not found",
 		})
-
-		return
 	}
 
 	img, err := c.FormFile("image")
@@ -94,21 +82,19 @@ func UpdateContent(c *fiber.Ctx) {
 	err = content2.UpdateContent(content, form, c)
 
 	if err != nil {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Что-то пошло не так...",
 		})
-
-		return
 	}
 
-	c.JSON(fiber.Map{
+	return c.JSON(fiber.Map{
 		"status":  200,
 		"message": "Успешно!",
 	})
 }
 
-func AddContent(c *fiber.Ctx) {
+func AddContent(c *fiber.Ctx) error {
 	userInstance := c.Locals("user").(*user.User)
 
 	form := &forms.ContentForm{
@@ -118,23 +104,19 @@ func AddContent(c *fiber.Ctx) {
 	}
 
 	if err := c.BodyParser(form); err != nil {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Failed to parse your request body.",
 		})
-
-		return
 	}
 
 	form.UserId = userInstance.Id
 
 	if !form.Validate() {
-		c.JSON(fiber.Map{
+		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Invalid request body fields.",
 		})
-
-		return
 	}
 
 	img, err := c.FormFile("image")
@@ -145,7 +127,7 @@ func AddContent(c *fiber.Ctx) {
 		panic(err)
 	}
 
-	c.JSON(fiber.Map{
+	return c.JSON(fiber.Map{
 		"status":     200,
 		"content_id": content.Id,
 		"message":    "Successfully",

@@ -1,6 +1,6 @@
 package types
 
-import "github.com/gofiber/fiber"
+import "github.com/gofiber/fiber/v2"
 
 type XHeader struct {
 	XBlogchainApp string
