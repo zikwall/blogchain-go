@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
-	service "github.com/zikwall/blogchain/src/di"
+	"github.com/zikwall/blogchain/src/service"
 	"log"
 	"os"
 )
@@ -70,23 +70,29 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		host := c.String("bind-address")
+		_, err := service.NewBlogchainServiceInstance(
+			service.BlogchainServiceConfiguration{
+				BloghainDatabaseConfiguration: service.BloghainDatabaseConfiguration{
+					Host:     c.String("database-host"),
+					User:     c.String("database-user"),
+					Password: c.String("database-password"),
+					Name:     c.String("database-name"),
+					Driver:   c.String("database-driver"),
+				},
+			},
+		)
 
-		service.DI().SetupCloseHandler()
-		service.DI().Bootstrap()
-		service.DI().Database.Open(service.DBConfig{
-			Host: c.String("database-host"),
-			User: c.String("database-user"),
-			Pass: c.String("database-password"),
-			Name: c.String("database-name"),
-			Driv: c.String("database-driver"),
-		})
+		if err != nil {
+			return err
+		}
+
+		host := c.String("bind-address")
 
 		app := fiber.New()
 
 		InitRoutes(app)
 
-		err := app.Listen(host)
+		err = app.Listen(host)
 
 		if err != nil {
 			return err

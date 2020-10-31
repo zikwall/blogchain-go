@@ -3,49 +3,48 @@ package user
 import (
 	"database/sql"
 	dbx "github.com/go-ozzo/ozzo-dbx"
-	di2 "github.com/zikwall/blogchain/src/di"
 	forms2 "github.com/zikwall/blogchain/src/models/user/forms"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"time"
 )
 
-func CreateUser(r *forms2.RegisterForm) (*User, error) {
+func (u UserModel) CreateUser(r *forms2.RegisterForm) (*User, error) {
 	password, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	u := NewUser()
+	user := NewUser()
 
-	u.PasswordHash = string(password)
-	u.Email = r.Email
-	u.Username = r.Username
-	u.RegistrationIp = sql.NullString{
+	user.PasswordHash = string(password)
+	user.Email = r.Email
+	user.Username = r.Username
+	user.RegistrationIp = sql.NullString{
 		String: r.RegistrationIp,
 		Valid:  false,
 	}
-	u.CreatedAt.Int64 = time.Now().Unix()
+	user.CreatedAt.Int64 = time.Now().Unix()
 
-	status, err := di2.DI().Database.Query().Insert("user", dbx.Params{
-		"password_hash":   u.PasswordHash,
-		"email":           u.Email,
-		"username":        u.Username,
-		"registration_ip": u.RegistrationIp,
-		"created_at":      u.ConfirmedAt,
+	status, err := u.Query().Insert("user", dbx.Params{
+		"password_hash":   user.PasswordHash,
+		"email":           user.Email,
+		"username":        user.Username,
+		"registration_ip": user.RegistrationIp,
+		"created_at":      user.ConfirmedAt,
 	}).Execute()
 
-	u.Id, err = status.LastInsertId()
+	user.Id, err = status.LastInsertId()
 
-	AttachProfile(r, u)
+	u.AttachProfile(r, user)
 
-	return u, err
+	return user, err
 }
 
-func AttachProfile(r *forms2.RegisterForm, u *User) {
+func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) {
 	profile := Profile{
-		userId:      u.Id,
+		userId:      user.Id,
 		Name:        r.Name,
 		PublicEmail: r.PublicEmail,
 		Avatar: sql.NullString{
@@ -54,7 +53,7 @@ func AttachProfile(r *forms2.RegisterForm, u *User) {
 		},
 	}
 
-	status, err := di2.DI().Database.Query().Insert("profile", dbx.Params{
+	status, err := u.Query().Insert("profile", dbx.Params{
 		"user_id":      profile.userId,
 		"name":         profile.Name,
 		"public_email": profile.PublicEmail,
@@ -67,13 +66,13 @@ func AttachProfile(r *forms2.RegisterForm, u *User) {
 		panic(err)
 	}
 
-	u.Profile = profile
+	user.Profile = profile
 }
 
-func FindByUsernameOrEmail(username string, email string) (*User, error) {
+func (u UserModel) FindByUsernameOrEmail(username string, email string) (*User, error) {
 	user := NewUser()
 
-	err := di2.DI().Database.Query().
+	err := u.Query().
 		Select("*").
 		From("user").
 		Where(dbx.Or(dbx.HashExp{"username": username}, dbx.HashExp{"email": email})).
@@ -82,10 +81,10 @@ func FindByUsernameOrEmail(username string, email string) (*User, error) {
 	return user, err
 }
 
-func FindByCredentials(credentials string) (*User, error) {
+func (u UserModel) FindByCredentials(credentials string) (*User, error) {
 	user := NewUser()
 
-	err := di2.DI().Database.Query().
+	err := u.Query().
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
 		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
@@ -95,10 +94,10 @@ func FindByCredentials(credentials string) (*User, error) {
 	return user, err
 }
 
-func FindById(id int64) (*User, error) {
+func (u UserModel) FindById(id int64) (*User, error) {
 	user := NewUser()
 
-	err := di2.DI().Database.Query().
+	err := u.Query().
 		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
 		From("user").
 		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
@@ -108,10 +107,10 @@ func FindById(id int64) (*User, error) {
 	return user, err
 }
 
-func FindByUsername(username string) (*User, error) {
+func (u UserModel) FindByUsername(username string) (*User, error) {
 	user := NewUser()
 
-	err := di2.DI().Database.Query().
+	err := u.Query().
 		Select("user.username", "user.id",
 			"p.name as profile.name",
 			"p.public_email as profile.public_email",

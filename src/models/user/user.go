@@ -2,20 +2,30 @@ package user
 
 import (
 	"database/sql"
+	"github.com/zikwall/blogchain/src/models"
 )
 
-type User struct {
-	Id             int64
-	Username       string
-	Email          string
-	PasswordHash   string
-	ConfirmedAt    sql.NullInt64
-	BlockedAt      sql.NullInt64
-	CreatedAt      sql.NullInt64
-	UpdatedAt      sql.NullInt64
-	RegistrationIp sql.NullString
+type (
+	UserModel struct {
+		models.BlogchainModel
+	}
+	User struct {
+		Id             int64
+		Username       string
+		Email          string
+		PasswordHash   string
+		ConfirmedAt    sql.NullInt64
+		BlockedAt      sql.NullInt64
+		CreatedAt      sql.NullInt64
+		UpdatedAt      sql.NullInt64
+		RegistrationIp sql.NullString
 
-	Profile Profile
+		Profile Profile
+	}
+)
+
+func NewUserModel() UserModel {
+	return UserModel{}
 }
 
 func NewUser() *User {

@@ -6,7 +6,8 @@ import (
 )
 
 func Tags(c *fiber.Ctx) error {
-	tags, _ := tag.GetTags()
+	t := tag.NewTagModel()
+	tags, _ := t.GetTags()
 
 	return c.JSON(fiber.Map{
 		"status": 200,

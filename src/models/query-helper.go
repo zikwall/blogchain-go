@@ -1,4 +1,4 @@
-package help
+package models
 
 import (
 	dbx "github.com/go-ozzo/ozzo-dbx"

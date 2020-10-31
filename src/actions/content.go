@@ -2,7 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	content2 "github.com/zikwall/blogchain/src/models/content"
+	"github.com/zikwall/blogchain/src/models/content"
 	"strconv"
 )
 
@@ -16,7 +16,8 @@ func GetContent(c *fiber.Ctx) error {
 		})
 	}
 
-	content, err := content2.FindContentById(id)
+	model := content.NewContentModel()
+	result, err := model.FindContentById(id)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -27,7 +28,7 @@ func GetContent(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{
 		//"status":  200,
-		"content": content.ToJSONAPI(),
+		"content": result.ToJSONAPI(),
 	})
 }
 
@@ -41,7 +42,8 @@ func GetContents(c *fiber.Ctx) error {
 		}
 	}
 
-	contents, err, count := content2.FindAllContent(tag, page)
+	model := content.NewContentModel()
+	contents, err, count := model.FindAllContent(tag, page)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -69,7 +71,8 @@ func GetUserContents(c *fiber.Ctx) error {
 		}
 	}
 
-	contents, err, count := content2.FindAllByUser(user, page)
+	model := content.NewContentModel()
+	contents, err, count := model.FindAllByUser(user, page)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{

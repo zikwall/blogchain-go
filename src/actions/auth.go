@@ -2,7 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	user2 "github.com/zikwall/blogchain/src/models/user"
+	"github.com/zikwall/blogchain/src/models/user"
 	"github.com/zikwall/blogchain/src/models/user/forms"
 	"github.com/zikwall/blogchain/src/types"
 )
@@ -34,16 +34,17 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	user, _ := user2.FindByCredentials(form.Username)
+	u := user.NewUserModel()
+	result, _ := u.FindByCredentials(form.Username)
 
-	if !user.Exist() || !user2.PasswordFirewall(user.PasswordHash, form.Password) {
+	if !result.Exist() || !user.PasswordFirewall(result.PasswordHash, form.Password) {
 		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "Wrong password or user not found.",
 		})
 	}
 
-	token, err := types.CreateToken(user)
+	token, err := types.CreateToken(result)
 
 	if err != nil {
 		panic(err)
@@ -52,7 +53,7 @@ func Login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status": 200,
 		"token":  token,
-		"user":   user.Properties(),
+		"user":   result.Properties(),
 	})
 }
 
@@ -79,22 +80,23 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
-	user, _ := user2.FindByUsernameOrEmail(form.Username, form.Email)
+	u := user.NewUserModel()
+	result, _ := u.FindByUsernameOrEmail(form.Username, form.Email)
 
-	if user.Exist() {
+	if result.Exist() {
 		return c.JSON(fiber.Map{
 			"status":  100,
 			"message": "This name or email already exist.",
 		})
 	}
 
-	user, err := user2.CreateUser(form)
+	result, err := u.CreateUser(form)
 
 	if err != nil {
 		panic(err)
 	}
 
-	token, err := types.CreateToken(user)
+	token, err := types.CreateToken(result)
 
 	if err != nil {
 		panic(err)
@@ -103,6 +105,6 @@ func Register(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status": 200,
 		"token":  token,
-		"user":   user.Properties(),
+		"user":   result.Properties(),
 	})
 }

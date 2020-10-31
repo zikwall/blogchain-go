@@ -6,8 +6,7 @@ import (
 	dbx "github.com/go-ozzo/ozzo-dbx"
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
-	di2 "github.com/zikwall/blogchain/src/di"
-	"github.com/zikwall/blogchain/src/help"
+	"github.com/zikwall/blogchain/src/models"
 	forms2 "github.com/zikwall/blogchain/src/models/content/forms"
 	tag2 "github.com/zikwall/blogchain/src/models/tag"
 	user2 "github.com/zikwall/blogchain/src/models/user"
@@ -18,7 +17,7 @@ func createImagePath(uuidv4 string) string {
 	return fmt.Sprintf("%s.png", uuidv4)
 }
 
-func CreateContent(f *forms2.ContentForm, c *fiber.Ctx) (*Content, error) {
+func (c ContentModel) CreateContent(f *forms2.ContentForm, ctx *fiber.Ctx) (*Content, error) {
 	content := &Content{
 		Id:      0,
 		UserId:  0,
@@ -36,10 +35,10 @@ func CreateContent(f *forms2.ContentForm, c *fiber.Ctx) (*Content, error) {
 	content.Uuid = uv4.String()
 
 	if f.GetImage().Err == nil {
-		_ = SaveImage(content, f, c)
+		_ = SaveImage(content, f, ctx)
 	}
 
-	status, err := di2.DI().Database.Query().Insert("content", dbx.Params{
+	status, err := c.Query().Insert("content", dbx.Params{
 		"uuid":       content.Uuid,
 		"user_id":    content.UserId,
 		"title":      content.Title,
@@ -52,18 +51,18 @@ func CreateContent(f *forms2.ContentForm, c *fiber.Ctx) (*Content, error) {
 	content.Id, err = status.LastInsertId()
 
 	if err == nil {
-		err = UpsertTags(content, f, true)
+		err = c.UpsertTags(content, f, true)
 	}
 
 	return content, err
 }
 
-func UpdateContent(content *Content, f *forms2.ContentForm, c *fiber.Ctx) error {
+func (c ContentModel) UpdateContent(content *Content, f *forms2.ContentForm, ctx *fiber.Ctx) error {
 	if f.GetImage().Err == nil {
-		_ = SaveImage(content, f, c)
+		_ = SaveImage(content, f, ctx)
 	}
 
-	_, err := di2.DI().Database.Query().Update("content", dbx.Params{
+	_, err := c.Query().Update("content", dbx.Params{
 		"title":      f.Title,
 		"content":    f.Content,
 		"annotation": f.Annotation,
@@ -72,13 +71,13 @@ func UpdateContent(content *Content, f *forms2.ContentForm, c *fiber.Ctx) error 
 	}, dbx.HashExp{"id": content.Id}).Execute()
 
 	if err == nil {
-		err = UpsertTags(content, f, true)
+		err = c.UpsertTags(content, f, true)
 	}
 
 	return err
 }
 
-func UpsertTags(content *Content, f *forms2.ContentForm, update bool) error {
+func (с ContentModel) UpsertTags(content *Content, f *forms2.ContentForm, update bool) error {
 	var err error
 
 	if f.Tags != "" {
@@ -88,14 +87,14 @@ func UpsertTags(content *Content, f *forms2.ContentForm, update bool) error {
 
 			// todo calculate diff from request and existing tags (?)
 			if update {
-				_, err = di2.DI().Database.Query().
+				_, err = с.Query().
 					Delete("content_tag", dbx.HashExp{"content_id": content.Id}).
 					Execute()
 			}
 
 			// todo batch upsert & limited tags
 			for _, v := range tags {
-				_, err = di2.DI().Database.Query().Upsert("content_tag", dbx.Params{
+				_, err = с.Query().Upsert("content_tag", dbx.Params{
 					"content_id": content.Id,
 					"tag_id":     v,
 				}, "content_id=content_id", "tag_id=tag_id").Execute()
@@ -113,9 +112,9 @@ func SaveImage(content *Content, f *forms2.ContentForm, c *fiber.Ctx) error {
 	return err
 }
 
-func Find() *dbx.SelectQuery {
+func (c ContentModel) Find() *dbx.SelectQuery {
 	query :=
-		di2.DI().Database.Query().
+		c.Query().
 			Select(
 				"content.*",
 				"u.id as user.id",
@@ -131,22 +130,22 @@ func Find() *dbx.SelectQuery {
 	return query
 }
 
-func FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
-	var c []Content
+func (c ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
+	var content []Content
 
-	query := Find().
+	query := c.Find().
 		Where(dbx.HashExp{"u.id": userid})
 
 	var pageSize int64
 	pageSize = 4
 
-	countPages, _ := help.QueryCount(query, pageSize)
+	countPages, _ := models.QueryCount(query, pageSize)
 	query.Offset(page * pageSize).Limit(pageSize)
 
-	err := query.All(&c)
+	err := query.All(&content)
 
 	pc := []PublicContent{}
-	for _, v := range c {
+	for _, v := range content {
 		_ = v.WithTags()
 		pc = append(pc, v.ToJSONAPI())
 	}
@@ -154,8 +153,8 @@ func FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
 	return pc, err, countPages
 }
 
-func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
-	c := &Content{
+func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
+	content := &Content{
 		Id:      0,
 		UserId:  0,
 		Title:   "",
@@ -168,20 +167,20 @@ func FindContentByIdAndUser(id int64, userid int64) (*Content, error) {
 		},
 	}
 
-	err := Find().
+	err := c.Find().
 		Where(dbx.HashExp{"content.id": id}).
 		AndWhere(dbx.HashExp{"u.id": userid}).
 		One(&c)
 
 	if err == nil {
-		err = c.WithTags()
+		err = content.WithTags()
 	}
 
-	return c, err
+	return content, err
 }
 
-func FindContentById(id int64) (*Content, error) {
-	c := &Content{
+func (c ContentModel) FindContentById(id int64) (*Content, error) {
+	content := &Content{
 		Id:      0,
 		UserId:  0,
 		Title:   "",
@@ -194,21 +193,21 @@ func FindContentById(id int64) (*Content, error) {
 		},
 	}
 
-	err := Find().
+	err := c.Find().
 		Where(dbx.HashExp{"content.id": id}).
 		One(&c)
 
 	if err == nil {
-		err = c.WithTags()
+		err = content.WithTags()
 	}
 
-	return c, err
+	return content, err
 }
 
-func FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
-	var c []Content
+func (c ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
+	var content []Content
 
-	query := Find()
+	query := c.Find()
 
 	if label != "" {
 		tag2.AttachTagQuery(query, label)
@@ -217,17 +216,17 @@ func FindAllContent(label string, page int64) ([]PublicContent, error, float64) 
 	var pageSize int64
 	pageSize = 4
 
-	countPages, _ := help.QueryCount(query, pageSize)
+	countPages, _ := models.QueryCount(query, pageSize)
 	query.Offset(page * pageSize).Limit(pageSize)
 
-	err := query.All(&c)
+	err := query.All(&content)
 
 	if err != nil {
 		return nil, err, 0
 	}
 
 	pc := []PublicContent{}
-	for _, v := range c {
+	for _, v := range content {
 		_ = v.WithTags()
 		pc = append(pc, v.ToJSONAPI())
 	}

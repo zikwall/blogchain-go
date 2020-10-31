@@ -2,41 +2,49 @@ package content
 
 import (
 	"database/sql"
-	tag2 "github.com/zikwall/blogchain/src/models/tag"
-	user2 "github.com/zikwall/blogchain/src/models/user"
+	"github.com/zikwall/blogchain/src/models"
+	"github.com/zikwall/blogchain/src/models/tag"
+	"github.com/zikwall/blogchain/src/models/user"
 )
 
-type Content struct {
-	Id         int64
-	Uuid       string
-	UserId     int64
-	Title      string
-	Annotation string
-	Content    string
-	CreatedAt  sql.NullInt64
-	UpdatedAt  sql.NullInt64
-	Image      sql.NullString
+type (
+	ContentModel struct {
+		models.BlogchainModel
+	}
+	Content struct {
+		Id         int64
+		Uuid       string
+		UserId     int64
+		Title      string
+		Annotation string
+		Content    string
+		CreatedAt  sql.NullInt64
+		UpdatedAt  sql.NullInt64
+		Image      sql.NullString
 
-	User user2.User
-	Tags []tag2.Tag
-}
+		User user.User
+		Tags []tag.Tag
+	}
+	PublicContent struct {
+		Id         int64  `json:"id"`
+		Uuid       string `json:"uuid"`
+		Title      string `json:"title"`
+		Annotation string `json:"annotation"`
+		Content    string `json:"content"`
+		CreatedAt  int64  `json:"created_at"`
+		UpdatedAt  int64  `json:"updated_at"`
+		Image      string `json:"image"`
 
-type PublicContent struct {
-	Id         int64  `json:"id"`
-	Uuid       string `json:"uuid"`
-	Title      string `json:"title"`
-	Annotation string `json:"annotation"`
-	Content    string `json:"content"`
-	CreatedAt  int64  `json:"created_at"`
-	UpdatedAt  int64  `json:"updated_at"`
-	Image      string `json:"image"`
+		Related Related `json:"related"`
+	}
+	Related struct {
+		Publisher user.PublicUser `json:"publisher"`
+		Tags      []tag.Tag       `json:"tags"`
+	}
+)
 
-	Related Related `json:"related"`
-}
-
-type Related struct {
-	Publisher user2.PublicUser `json:"publisher"`
-	Tags      []tag2.Tag       `json:"tags"`
+func NewContentModel() ContentModel {
+	return ContentModel{}
 }
 
 func (c *Content) ToJSONAPI() PublicContent {
@@ -57,7 +65,8 @@ func (c *Content) ToJSONAPI() PublicContent {
 }
 
 func (c *Content) WithTags() error {
-	tags, err := tag2.GetTagsByContent(c.Id)
+	u := tag.NewTagModel()
+	tags, err := u.GetTagsByContent(c.Id)
 
 	if err == nil {
 		c.Tags = tags

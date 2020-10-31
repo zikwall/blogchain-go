@@ -2,13 +2,12 @@ package tag
 
 import (
 	dbx "github.com/go-ozzo/ozzo-dbx"
-	di2 "github.com/zikwall/blogchain/src/di"
 )
 
-func GetTags() ([]Tag, error) {
+func (t TagModel) GetTags() ([]Tag, error) {
 	tags := []Tag{}
 
-	err := di2.DI().Database.Query().
+	err := t.Query().
 		Select("*").
 		From("tags").
 		All(&tags)
@@ -16,10 +15,10 @@ func GetTags() ([]Tag, error) {
 	return tags, err
 }
 
-func GetTagsByContent(id int64) ([]Tag, error) {
+func (t TagModel) GetTagsByContent(id int64) ([]Tag, error) {
 	tags := []Tag{}
 
-	err := di2.DI().Database.Query().
+	err := t.Query().
 		Select("tags.*").
 		From("tags").
 		LeftJoin("content_tag", dbx.NewExp("content_tag.tag_id=tags.id")).

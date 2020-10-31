@@ -2,7 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	content2 "github.com/zikwall/blogchain/src/models/content"
+	"github.com/zikwall/blogchain/src/models/content"
 	"github.com/zikwall/blogchain/src/models/content/forms"
 	"github.com/zikwall/blogchain/src/models/user"
 	"strconv"
@@ -19,7 +19,8 @@ func GetEditContent(c *fiber.Ctx) error {
 		})
 	}
 
-	content, err := content2.FindContentByIdAndUser(id, userInstance.Id)
+	model := content.NewContentModel()
+	result, err := model.FindContentByIdAndUser(id, userInstance.Id)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -30,7 +31,7 @@ func GetEditContent(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{
 		//"status":  200,
-		"content": content.ToJSONAPI(),
+		"content": result.ToJSONAPI(),
 	})
 }
 
@@ -67,7 +68,8 @@ func UpdateContent(c *fiber.Ctx) error {
 		})
 	}
 
-	content, err := content2.FindContentByIdAndUser(id, userInstance.Id)
+	model := content.NewContentModel()
+	result, err := model.FindContentByIdAndUser(id, userInstance.Id)
 
 	if err != nil {
 		return c.JSON(fiber.Map{
@@ -79,7 +81,7 @@ func UpdateContent(c *fiber.Ctx) error {
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	err = content2.UpdateContent(content, form, c)
+	err = model.UpdateContent(result, form, c)
 
 	if err != nil {
 		return c.JSON(fiber.Map{
@@ -122,14 +124,16 @@ func AddContent(c *fiber.Ctx) error {
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	content, err := content2.CreateContent(form, c)
+	model := content.NewContentModel()
+	result, err := model.CreateContent(form, c)
+
 	if err != nil {
 		panic(err)
 	}
 
 	return c.JSON(fiber.Map{
 		"status":     200,
-		"content_id": content.Id,
+		"content_id": result.Id,
 		"message":    "Successfully",
 	})
 }

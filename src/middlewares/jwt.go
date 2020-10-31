@@ -32,7 +32,8 @@ func JWT(c *fiber.Ctx) error {
 				if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 					if uuid, ok := claims["uuid"]; ok {
 						// set new instance
-						userInstance, _ = user.FindById(int64(uuid.(float64)))
+						u := user.NewUserModel()
+						userInstance, _ = u.FindById(int64(uuid.(float64)))
 					}
 				}
 			}
