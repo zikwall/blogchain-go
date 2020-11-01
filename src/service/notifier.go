@@ -34,7 +34,11 @@ func (s *BlogchainServiceInstance) WaitBlogchainSystemNotify() {
 }
 
 func (s *BlogchainServiceInstance) ShutdownBlogchainServer() {
+	s.logger.Info("Shutdown Blogchain Service via System signal")
+
 	for _, notifier := range s.notifiers {
+		s.logger.Info(notifier.CloseMessage())
+
 		if err := notifier.Close(); err != nil {
 			s.logger.Warning(err)
 		}

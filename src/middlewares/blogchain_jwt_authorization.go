@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func JWT(c *fiber.Ctx) error {
+func UseBlogchainJWTAuthorization(c *fiber.Ctx) error {
 	mySigningKey := []byte("secret")
 	tokenString := c.Get("Authorization")
 	// default empty instance of user
