@@ -27,45 +27,46 @@ func main() {
 	application := &cli.App{
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "bind-address",
-				Value:   "localhost:3001",
-				Usage:   "Run service in host",
-				EnvVars: []string{"SERVER_HOST"},
+				Name:     "bind-address",
+				Required: true,
+				Usage:    "Run service in host",
+				EnvVars:  []string{"SERVER_HOST"},
 			},
 			// database
 			&cli.StringFlag{
 				Name:     "database-host",
 				Required: true,
-				Value:    "@",
 				Usage:    "Database host",
 				EnvVars:  []string{"DATABASE_HOST"},
 			},
 			&cli.StringFlag{
 				Name:     "database-user",
 				Required: true,
-				Value:    "blogchain",
 				Usage:    "Database user",
 				EnvVars:  []string{"DATABASE_USER"},
 			},
 			&cli.StringFlag{
 				Name:     "database-password",
 				Required: true,
-				Value:    "123456",
 				Usage:    "Database password",
 				EnvVars:  []string{"DATABASE_PASSWORD"},
 			},
 			&cli.StringFlag{
 				Name:     "database-name",
 				Required: true,
-				Value:    "blogchain",
 				Usage:    "Database name",
 				EnvVars:  []string{"DATABASE_NAME"},
 			},
 			&cli.StringFlag{
 				Name:     "database-driver",
 				Required: true,
-				Value:    "mysql",
 				Usage:    "Database driver",
+				EnvVars:  []string{"DATABASE_DRIVER"},
+			},
+			&cli.StringFlag{
+				Name:     "container-secret",
+				Required: true,
+				Usage:    "Container secret key for JWT, and etc.",
 				EnvVars:  []string{"DATABASE_DRIVER"},
 			},
 		},
@@ -89,6 +90,9 @@ func main() {
 					ExposeHeaders:    "",
 					MaxAge:           0,
 				},
+				BlogchainContainer: service.BlogchainServiceContainerConfiguration{
+					Secret: c.String("container-secret"),
+				},
 			},
 		)
 
@@ -105,7 +109,7 @@ func main() {
 			middlewares.WithBlogchainXHeaderPolicy(blogchain),
 		)
 
-		api := app.Group("/api", middlewares.UseBlogchainJWTAuthorization)
+		api := app.Group("/api", middlewares.WithBlogchainJWTAuthorization(blogchain))
 		{
 			api.Get("/healthcheck", actions.HealthCheck)
 
