@@ -77,7 +77,7 @@ func (c ContentModel) UpdateContent(content *Content, f *forms2.ContentForm, ctx
 	return err
 }
 
-func (с ContentModel) UpsertTags(content *Content, f *forms2.ContentForm, update bool) error {
+func (c ContentModel) UpsertTags(content *Content, f *forms2.ContentForm, update bool) error {
 	var err error
 
 	if f.Tags != "" {
@@ -87,14 +87,14 @@ func (с ContentModel) UpsertTags(content *Content, f *forms2.ContentForm, updat
 
 			// todo calculate diff from request and existing tags (?)
 			if update {
-				_, err = с.Query().
+				_, err = c.Query().
 					Delete("content_tag", dbx.HashExp{"content_id": content.Id}).
 					Execute()
 			}
 
 			// todo batch upsert & limited tags
 			for _, v := range tags {
-				_, err = с.Query().Upsert("content_tag", dbx.Params{
+				_, err = c.Query().Upsert("content_tag", dbx.Params{
 					"content_id": content.Id,
 					"tag_id":     v,
 				}, "content_id=content_id", "tag_id=tag_id").Execute()
@@ -113,19 +113,18 @@ func SaveImage(content *Content, f *forms2.ContentForm, c *fiber.Ctx) error {
 }
 
 func (c ContentModel) Find() *dbx.SelectQuery {
-	query :=
-		c.Query().
-			Select(
-				"content.*",
-				"u.id as user.id",
-				"u.username as user.username",
-				"p.name as user.profile.name",
-				"p.public_email as user.profile.public_email",
-				"p.avatar as user.profile.avatar",
-			).
-			From("content").
-			LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
-			LeftJoin("profile p", dbx.NewExp("p.user_id=u.id"))
+	query := c.Query().
+		Select(
+			"content.*",
+			"u.id as user.id",
+			"u.username as user.username",
+			"p.name as user.profile.name",
+			"p.public_email as user.profile.public_email",
+			"p.avatar as user.profile.avatar",
+		).
+		From("content").
+		LeftJoin("user u", dbx.NewExp("u.id=content.user_id")).
+		LeftJoin("profile p", dbx.NewExp("p.user_id=u.id"))
 
 	return query
 }
@@ -179,8 +178,8 @@ func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (*Content, 
 	return content, err
 }
 
-func (c ContentModel) FindContentById(id int64) (*Content, error) {
-	content := &Content{
+func (c ContentModel) FindContentById(id int64) (Content, error) {
+	content := Content{
 		Id:      0,
 		UserId:  0,
 		Title:   "",
@@ -195,7 +194,7 @@ func (c ContentModel) FindContentById(id int64) (*Content, error) {
 
 	err := c.Find().
 		Where(dbx.HashExp{"content.id": id}).
-		One(&c)
+		One(&content)
 
 	if err == nil {
 		err = content.WithTags()
