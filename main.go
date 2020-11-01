@@ -109,7 +109,10 @@ func main() {
 			middlewares.WithBlogchainXHeaderPolicy(blogchain),
 		)
 
-		api := app.Group("/api", middlewares.WithBlogchainJWTAuthorization(blogchain))
+		api := app.Group("/api",
+			middlewares.WithBlogchainJWTAuthorization(blogchain.Container.GetContainerSecret()),
+			middlewares.UseBlogchainUserIdentity,
+		)
 		{
 			api.Get("/healthcheck", actions.HealthCheck)
 

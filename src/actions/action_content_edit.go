@@ -128,7 +128,14 @@ func AddContent(c *fiber.Ctx) error {
 	result, err := model.CreateContent(form, c)
 
 	if err != nil {
-		panic(err)
+		return c.JSON(
+			BlogchainMessageResponse{
+				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+					Status: 100,
+				},
+				Message: err.Error(),
+			},
+		)
 	}
 
 	return c.JSON(fiber.Map{

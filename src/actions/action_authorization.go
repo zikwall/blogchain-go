@@ -82,7 +82,14 @@ func Login(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
-		panic(err)
+		return c.JSON(
+			BlogchainMessageResponse{
+				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+					Status: 100,
+				},
+				Message: err.Error(),
+			},
+		)
 	}
 
 	return c.JSON(fiber.Map{
@@ -151,7 +158,14 @@ func Register(c *fiber.Ctx) error {
 	result, err = u.CreateUser(form)
 
 	if err != nil {
-		panic(err)
+		return c.JSON(
+			BlogchainMessageResponse{
+				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+					Status: 100,
+				},
+				Message: "Internal server error.",
+			},
+		)
 	}
 
 	token, err := utils.CreateJwtToken(
@@ -165,7 +179,14 @@ func Register(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
-		panic(err)
+		return c.JSON(
+			BlogchainMessageResponse{
+				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+					Status: 100,
+				},
+				Message: err.Error(),
+			},
+		)
 	}
 
 	return c.JSON(fiber.Map{
