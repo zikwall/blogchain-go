@@ -1,11 +1,10 @@
 package middlewares
 
 import (
-	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/models/user"
 	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/utils"
 	"strings"
 )
 
@@ -18,23 +17,14 @@ func WithBlogchainJWTAuthorization(blogchain *service.BlogchainServiceInstance) 
 
 		if tokenString != "" {
 			header := strings.Split(tokenString, "Bearer ")
+
 			if len(header) == 2 {
 				tokenString = header[1]
-
-				token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-					if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-						return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-					}
-					return sigin, nil
-				})
+				token, err := utils.VerifyJwtToken(tokenString, sigin)
 
 				if err == nil {
-					if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-						if uuid, ok := claims["uuid"]; ok {
-							u := user.NewUserModel()
-							instance, _ = u.FindById(int64(uuid.(float64)))
-						}
-					}
+					u := user.NewUserModel()
+					instance, _ = u.FindById(token.UUID)
 				}
 			}
 		}

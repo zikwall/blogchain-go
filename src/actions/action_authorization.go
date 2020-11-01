@@ -4,7 +4,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/models/user"
 	"github.com/zikwall/blogchain/src/models/user/forms"
-	"github.com/zikwall/blogchain/src/types"
 	"github.com/zikwall/blogchain/src/utils"
 )
 
@@ -72,7 +71,15 @@ func Login(c *fiber.Ctx) error {
 		)
 	}
 
-	token, err := types.CreateToken(result)
+	token, err := utils.CreateJwtToken(
+		utils.TokenRequiredAttributes{
+			Claims: utils.TokenClaims{
+				UUID: result.GetId(),
+			},
+			Duration: 100,
+			Secret:   "secret",
+		},
+	)
 
 	if err != nil {
 		panic(err)
@@ -147,7 +154,15 @@ func Register(c *fiber.Ctx) error {
 		panic(err)
 	}
 
-	token, err := types.CreateToken(result)
+	token, err := utils.CreateJwtToken(
+		utils.TokenRequiredAttributes{
+			Claims: utils.TokenClaims{
+				UUID: result.GetId(),
+			},
+			Duration: 100,
+			Secret:   "secret",
+		},
+	)
 
 	if err != nil {
 		panic(err)
