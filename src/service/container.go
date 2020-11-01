@@ -1,8 +1,11 @@
 package service
 
+import "time"
+
 type (
 	BlogchainServiceContainer struct {
-		secret []byte
+		secret    []byte
+		startedAt time.Time
 	}
 	BlogchainServiceContainerConfiguration struct {
 		Secret string
@@ -11,10 +14,15 @@ type (
 
 func NewBlogchainServiceContainer(c BlogchainServiceContainerConfiguration) *BlogchainServiceContainer {
 	return &BlogchainServiceContainer{
-		secret: []byte(c.Secret),
+		secret:    []byte(c.Secret),
+		startedAt: time.Now(),
 	}
 }
 
 func (c BlogchainServiceContainer) GetContainerSecret() []byte {
 	return c.secret
+}
+
+func (c BlogchainServiceContainer) GetStartedAt() time.Time {
+	return c.startedAt
 }
