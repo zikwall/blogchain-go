@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/actions"
 	"github.com/zikwall/blogchain/src/middlewares"
@@ -82,6 +81,14 @@ func main() {
 					Name:     c.String("database-name"),
 					Driver:   c.String("database-driver"),
 				},
+				BlogchainAccessControl: service.BlogchainAccessControl{
+					AllowOrigins:     "*",
+					AllowMethods:     "*",
+					AllowHeaders:     "*",
+					AllowCredentials: false,
+					ExposeHeaders:    "",
+					MaxAge:           0,
+				},
 			},
 		)
 
@@ -90,51 +97,46 @@ func main() {
 		}
 
 		app := fiber.New()
-		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "*",
-			AllowMethods:     "*",
-			AllowHeaders:     "*",
-			AllowCredentials: false,
-			ExposeHeaders:    "",
-			MaxAge:           0,
-		}))
-
 		app.Static("/docs", "./src/public/docs")
 		app.Static("/uploads", "./src/public/uploads")
 
-		// only blogchain apps
-		app.Use(middlewares.XHeader)
+		app.Use(
+			middlewares.WithBlogchainCORSPolicy(blogchain),
+			middlewares.WithBlogchainXHeaderPolicy(blogchain),
+		)
 
-		// main endpoint group by `/api` prefix
-		api := app.Group("/api", middlewares.JWT)
-
-		v1 := api.Group("/v1")
+		api := app.Group("/api", middlewares.UseBlogchainJWTAuthorization)
 		{
-			v1.Get("/profile/:username", actions.Profile)
-			v1.Get("/content/:id", actions.GetContent)
-			v1.Get("/contents/:page?", actions.GetContents)
-			v1.Get("/tags", actions.Tags)
-			v1.Get("/contents/user/:id/:page?", actions.GetUserContents)
-			v1.Get("/tag/:tag/:page?", actions.GetContents)
+			api.Get("/healthcheck", actions.HealthCheck)
+
+			v1 := api.Group("/v1")
+			{
+				v1.Get("/profile/:username", actions.Profile)
+				v1.Get("/content/:id", actions.GetContent)
+				v1.Get("/contents/:page?", actions.GetContents)
+				v1.Get("/tags", actions.Tags)
+				v1.Get("/contents/user/:id/:page?", actions.GetUserContents)
+				v1.Get("/tag/:tag/:page?", actions.GetContents)
+			}
+
+			withRequiredAuthorization := api.Use(
+				middlewares.UseBlogchainAuthorizationPolicy,
+			)
+
+			editor := withRequiredAuthorization.Group("/editor")
+			{
+				editor.Get("/content/:id", actions.GetEditContent)
+				editor.Post("/content/add", actions.AddContent)
+				editor.Post("/content/update/:id", actions.UpdateContent)
+			}
 		}
 
-		// not usage JWT middleware in Login & Register endpoints
-		auth := app.Group("/auth", middlewares.Auth)
+		auth := app.Group("/auth", middlewares.UseBlogchainSignPolicy)
 		{
 			auth.Post("/register", actions.Register)
 			auth.Post("/login", actions.Login)
 			auth.Post("/logout", actions.Login)
 		}
-
-		// editor required authorization
-		editor := api.Group("/editor", middlewares.Authorization)
-		{
-			editor.Get("/content/:id", actions.GetEditContent)
-			editor.Post("/content/add", actions.AddContent)
-			editor.Post("/content/update/:id", actions.UpdateContent)
-		}
-
-		api.Get("/", actions.HelloWorldAction)
 
 		go func() {
 			if err := app.Listen(c.String("bind-address")); err != nil {

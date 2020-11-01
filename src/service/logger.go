@@ -52,6 +52,10 @@ func (b BlogchainInternalLogger) IsDebug() bool {
 	return b.debug
 }
 
+func (b BlogchainInternalLogger) GetColorizer() BlogchainLoggerColorize {
+	return b.colorize
+}
+
 func (c BlogchainLoggerColorize) Colored(content string, color Color) string {
 	return string(color) + content + string(Reset)
 }

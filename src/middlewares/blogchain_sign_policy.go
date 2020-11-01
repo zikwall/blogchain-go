@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func Auth(c *fiber.Ctx) error {
+func UseBlogchainSignPolicy(c *fiber.Ctx) error {
 	if c.Get("Content-Type") != "application/json" {
 		return c.JSON(fiber.Map{
 			"status":  100,
