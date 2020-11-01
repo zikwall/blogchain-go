@@ -6,12 +6,14 @@ type (
 	BlogchainServiceInstance struct {
 		Notify
 		AccessControls BlogchainAccessControl
+		Container      *BlogchainServiceContainer
 		database       *BlogchainDatabaseInstance
 		logger         *BlogchainInternalLogger
 	}
 	BlogchainServiceConfiguration struct {
 		BloghainDatabaseConfiguration BloghainDatabaseConfiguration
 		BlogchainAccessControl        BlogchainAccessControl
+		BlogchainContainer            BlogchainServiceContainerConfiguration
 		IsDebug                       bool
 	}
 	BlogchainAccessControl struct {
@@ -27,6 +29,7 @@ type (
 func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainServiceInstance, error) {
 	b := new(BlogchainServiceInstance)
 	b.AccessControls = c.BlogchainAccessControl
+	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
 
 	database, err := NewBlogchainDatabaseInstance(c.BloghainDatabaseConfiguration)
 

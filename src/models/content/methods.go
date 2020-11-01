@@ -169,7 +169,7 @@ func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (*Content, 
 	err := c.Find().
 		Where(dbx.HashExp{"content.id": id}).
 		AndWhere(dbx.HashExp{"u.id": userid}).
-		One(&c)
+		One(&content)
 
 	if err == nil {
 		err = content.WithTags()
