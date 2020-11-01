@@ -3,10 +3,11 @@
 package ci
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestTeamcityDummy(t *testing.T) {
-	fmt.Println("Teamcity todo tests dummy")
+	t.Run("it should be always return true", func(t *testing.T) {
+		return true
+	})
 }
