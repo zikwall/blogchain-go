@@ -36,12 +36,12 @@ func (u UserModel) CreateUser(r *forms2.RegisterForm) (*User, error) {
 
 	user.Id, err = status.LastInsertId()
 
-	u.AttachProfile(r, user)
+	err = u.AttachProfile(r, user)
 
 	return user, err
 }
 
-func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) {
+func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
 	profile := Profile{
 		userId:      user.Id,
 		Name:        r.Name,
@@ -52,20 +52,20 @@ func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) {
 		},
 	}
 
-	status, err := u.Query().Insert("profile", dbx.Params{
+	_, err := u.Query().Insert("profile", dbx.Params{
 		"user_id":      profile.userId,
 		"name":         profile.Name,
 		"public_email": profile.PublicEmail,
 		"avatar":       profile.Avatar,
 	}).Execute()
 
-	_, err = status.LastInsertId()
-
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	user.Profile = profile
+
+	return nil
 }
 
 func (u UserModel) FindByUsernameOrEmail(username string, email string) (*User, error) {
