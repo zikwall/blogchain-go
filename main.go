@@ -123,11 +123,11 @@ func main() {
 				v1.Get("/tag/:tag/:page?", actions.GetContents)
 			}
 
-			withRequiredAuthorization := api.Use(
-				middlewares.UseBlogchainAuthorizationPolicy,
+			withPermissionControl := api.Use(
+				middlewares.UseBlogchainPermissionsControlPolicy,
 			)
 
-			editor := withRequiredAuthorization.Group("/editor")
+			editor := withPermissionControl.Group("/editor")
 			{
 				editor.Get("/content/:id", actions.GetEditContent)
 				editor.Post("/content/add", actions.AddContent)
