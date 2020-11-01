@@ -11,15 +11,6 @@ all: database test
 
 deploy: build-migration-tool migrate-up
 
-build:
-	docker build -t blogchain-go-img .
-
-run:
-	docker run -d -p 3001:3001 --name blogchain-go blogchain-go-img
-
-stop:
-	docker stop $(docker ps -q --filter ancestor=blogchain-go-img )
-
 test:
 	go test -json --tags=teamcity
 
