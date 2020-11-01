@@ -82,7 +82,7 @@ func main() {
 					Name:     c.String("database-name"),
 					Driver:   c.String("database-driver"),
 				},
-				BlogchainAccessControl: service.BlogchainAccessControl{
+				BlogchainHttpAccessControl: service.BlogchainHttpAccessControl{
 					AllowOrigins:     "*",
 					AllowMethods:     "*",
 					AllowHeaders:     "*",
@@ -123,11 +123,11 @@ func main() {
 				v1.Get("/tag/:tag/:page?", actions.GetContents)
 			}
 
-			withPermissionControl := api.Use(
-				middlewares.UseBlogchainPermissionsControlPolicy,
+			withAccessControlPolicy := api.Use(
+				middlewares.UseBlogchainAccessControlPolicy,
 			)
 
-			editor := withPermissionControl.Group("/editor")
+			editor := withAccessControlPolicy.Group("/editor")
 			{
 				editor.Get("/content/:id", actions.GetEditContent)
 				editor.Post("/content/add", actions.AddContent)

@@ -5,18 +5,18 @@ var service *BlogchainServiceInstance
 type (
 	BlogchainServiceInstance struct {
 		Notify
-		AccessControls BlogchainAccessControl
-		Container      *BlogchainServiceContainer
-		database       *BlogchainDatabaseInstance
-		logger         *BlogchainInternalLogger
+		HttpAccessControls BlogchainHttpAccessControl
+		Container          *BlogchainServiceContainer
+		database           *BlogchainDatabaseInstance
+		logger             *BlogchainInternalLogger
 	}
 	BlogchainServiceConfiguration struct {
 		BloghainDatabaseConfiguration BloghainDatabaseConfiguration
-		BlogchainAccessControl        BlogchainAccessControl
+		BlogchainHttpAccessControl    BlogchainHttpAccessControl
 		BlogchainContainer            BlogchainServiceContainerConfiguration
 		IsDebug                       bool
 	}
-	BlogchainAccessControl struct {
+	BlogchainHttpAccessControl struct {
 		AllowOrigins     string
 		AllowMethods     string
 		AllowHeaders     string
@@ -28,7 +28,7 @@ type (
 
 func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainServiceInstance, error) {
 	b := new(BlogchainServiceInstance)
-	b.AccessControls = c.BlogchainAccessControl
+	b.HttpAccessControls = c.BlogchainHttpAccessControl
 	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
 
 	database, err := NewBlogchainDatabaseInstance(c.BloghainDatabaseConfiguration)

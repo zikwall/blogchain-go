@@ -5,7 +5,7 @@ import (
 	"github.com/zikwall/blogchain/src/models/user"
 )
 
-func UseBlogchainPermissionsControlPolicy(c *fiber.Ctx) error {
+func UseBlogchainAccessControlPolicy(c *fiber.Ctx) error {
 	userInstance := c.Locals("user").(*user.User)
 
 	if userInstance.IsGuest() {
