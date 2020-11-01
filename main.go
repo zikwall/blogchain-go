@@ -110,11 +110,18 @@ func main() {
 		)
 
 		api := app.Group("/api",
-			middlewares.WithBlogchainJWTAuthorization(blogchain.Container.GetContainerSecret()),
+			middlewares.WithBlogchainJWTAuthorization(
+				blogchain.Container.GetContainerSecret(),
+			),
 			middlewares.UseBlogchainUserIdentity,
 		)
 		{
 			api.Get("/healthcheck", actions.HealthCheck)
+			api.Get("/runtime",
+				actions.BlogchainRuntimeStatistic(
+					blogchain.Container.GetStartedAt(),
+				),
+			)
 
 			v1 := api.Group("/v1")
 			{
