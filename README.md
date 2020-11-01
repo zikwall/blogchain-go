@@ -10,6 +10,33 @@
 
 - [x] [Blogchain Client, powered by Next.js](https://github.com/zikwall/blogchain)
 
+## Development
+
+- Native
+```shell script
+go run . \
+  --bind-address 0.0.0.0:3001 \
+  --database-host @ \
+  --database-user blogchain \
+  --database-password 123456 \
+  --database-name blogchain \
+  --database-driver mysql \
+  --container-secret secret
+```
+- Docker
+
+```shell script
+docker run -d --net=host \
+   -e BIND_ADDRESS='0.0.0.0:3001' \
+   -e DATABASE_HOST='<database host: @>' \
+   -e DATABASE_USER='<database username>' \
+   -e DATABASE_PASSWORD='<database password>' \
+   -e DATABASE_NAME='<database name>' \
+   -e DATABASE_DRIVER='<database username: mysql>' \
+   -e CONTAINER_SECRET='<blogchain application secret>' \
+   --name golang-blogchain-server qwx1337/blogchain-server:latest
+```
+
 ### CI/CD
 
 ![test](ci/.teamcity/tests.png)

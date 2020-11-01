@@ -30,7 +30,7 @@ func main() {
 				Name:     "bind-address",
 				Required: true,
 				Usage:    "Run service in host",
-				EnvVars:  []string{"SERVER_HOST"},
+				EnvVars:  []string{"BIND_ADDRESS"},
 			},
 			// database
 			&cli.StringFlag{
@@ -67,7 +67,7 @@ func main() {
 				Name:     "container-secret",
 				Required: true,
 				Usage:    "Container secret key for JWT, and etc.",
-				EnvVars:  []string{"DATABASE_DRIVER"},
+				EnvVars:  []string{"CONTAINER_SECRET"},
 			},
 		},
 	}
