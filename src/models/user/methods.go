@@ -4,21 +4,20 @@ import (
 	"database/sql"
 	dbx "github.com/go-ozzo/ozzo-dbx"
 	forms2 "github.com/zikwall/blogchain/src/models/user/forms"
-	"golang.org/x/crypto/bcrypt"
-	"log"
+	"github.com/zikwall/blogchain/src/utils"
 	"time"
 )
 
 func (u UserModel) CreateUser(r *forms2.RegisterForm) (*User, error) {
-	password, err := bcrypt.GenerateFromPassword([]byte(r.Password), bcrypt.DefaultCost)
+	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
 
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	user := NewUser()
 
-	user.PasswordHash = string(password)
+	user.PasswordHash = string(hash)
 	user.Email = r.Email
 	user.Username = r.Username
 	user.RegistrationIp = sql.NullString{
@@ -125,14 +124,4 @@ func (u UserModel) FindByUsername(username string) (*User, error) {
 		One(&user)
 
 	return user, err
-}
-
-func PasswordFirewall(hash string, password string) bool {
-	errf := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-
-	if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword {
-		return false
-	}
-
-	return true
 }
