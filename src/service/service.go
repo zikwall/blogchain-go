@@ -1,5 +1,12 @@
 package service
 
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"time"
+)
+
 var service *BlogchainServiceInstance
 
 type (
@@ -30,6 +37,7 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 	b := new(BlogchainServiceInstance)
 	b.HttpAccessControls = c.BlogchainHttpAccessControl
 	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
+	b.logger = NewBlogchainInternalLogger(c.IsDebug)
 
 	database, err := NewBlogchainDatabaseInstance(c.BloghainDatabaseConfiguration)
 
@@ -37,8 +45,15 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 		return nil, err
 	}
 
+	database.SetExecuteLoggerFunction(func(ctx context.Context, t time.Duration, sql string, result sql.Result, err error) {
+		b.logger.Info(fmt.Sprintf("[%.2fms] Execute SQL: %v", float64(t.Milliseconds()), sql))
+	})
+
+	database.SetQueryLoggerFunction(func(ctx context.Context, t time.Duration, sql string, rows *sql.Rows, err error) {
+		b.logger.Info(fmt.Sprintf("[%.2fms] Query SQL: %v", float64(t.Milliseconds()), sql))
+	})
+
 	b.database = database
-	b.logger = NewBlogchainInternalLogger(c.IsDebug)
 
 	b.AddNotifiers(
 		b.database,

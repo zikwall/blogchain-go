@@ -42,6 +42,14 @@ func NewBlogchainDatabaseInstance(c BloghainDatabaseConfiguration) (*BlogchainDa
 	return d, nil
 }
 
+func (d *BlogchainDatabaseInstance) SetQueryLoggerFunction(f dbx.QueryLogFunc) {
+	d.db.QueryLogFunc = f
+}
+
+func (d *BlogchainDatabaseInstance) SetExecuteLoggerFunction(f dbx.ExecLogFunc) {
+	d.db.ExecLogFunc = f
+}
+
 func (d *BlogchainDatabaseInstance) Query() *dbx.DB {
 	return d.db
 }
