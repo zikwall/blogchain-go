@@ -7,4 +7,3 @@ go run . \
   --database-password 123456 \
   --database-name blogchain \
   --database-driver mysql \
-  --container-secret secret

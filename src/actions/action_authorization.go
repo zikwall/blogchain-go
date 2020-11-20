@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/zikwall/blogchain/src/lib"
 	"github.com/zikwall/blogchain/src/models/user"
 	"github.com/zikwall/blogchain/src/models/user/forms"
 	"github.com/zikwall/blogchain/src/utils"
@@ -18,180 +19,176 @@ func Logout(c *fiber.Ctx) error {
 	)
 }
 
-func Login(c *fiber.Ctx) error {
-	form := &forms.LoginForm{
-		Username: "",
-		Password: "",
-	}
+func Login(rsa lib.RSA) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		form := &forms.LoginForm{
+			Username: "",
+			Password: "",
+		}
 
-	if err := c.BodyParser(&form); err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if err := c.BodyParser(&form); err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "Request could not be processed.",
 				},
-				Message: "Request could not be processed.",
-			},
-		)
-	}
+			)
+		}
 
-	if !form.Validate() {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if !form.Validate() {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "Invalid data entered.",
 				},
-				Message: "Invalid data entered.",
-			},
-		)
-	}
+			)
+		}
 
-	u := user.NewUserModel()
-	result, err := u.FindByCredentials(form.Username)
+		u := user.NewUserModel()
+		result, err := u.FindByCredentials(form.Username)
 
-	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: err.Error(),
 				},
-				Message: err.Error(),
-			},
-		)
-	}
+			)
+		}
 
-	if !result.Exist() || !utils.BlogchainPasswordCorrectness(result.PasswordHash, form.Password) {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if !result.Exist() || !utils.BlogchainPasswordCorrectness(result.PasswordHash, form.Password) {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "An incorrect password was entered or the user does not exist.",
 				},
-				Message: "An incorrect password was entered or the user does not exist.",
-			},
-		)
-	}
+			)
+		}
 
-	token, err := utils.CreateJwtToken(
-		utils.TokenRequiredAttributes{
-			Claims: utils.TokenClaims{
-				UUID: result.GetId(),
-			},
-			Duration: 100,
-			Secret:   "secret",
-		},
-	)
+		claims := lib.TokenClaims{
+			UUID: result.GetId(),
+		}
 
-	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		token, err := lib.CreateJwtToken(claims, 100, rsa.GetPrivateKey())
+
+		if err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: err.Error(),
 				},
-				Message: err.Error(),
-			},
-		)
-	}
+			)
+		}
 
-	return c.JSON(fiber.Map{
-		"status": 200,
-		"token":  token,
-		"user":   result.Properties(),
-	})
+		return c.JSON(fiber.Map{
+			"status": 200,
+			"token":  token,
+			"user":   result.Properties(),
+		})
+	}
 }
 
-func Register(c *fiber.Ctx) error {
-	form := &forms.RegisterForm{
-		Email:          "",
-		Username:       "",
-		Password:       "",
-		PasswordRepeat: "",
-		Name:           "",
-	}
+func Register(rsa lib.RSA) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		form := &forms.RegisterForm{
+			Email:          "",
+			Username:       "",
+			Password:       "",
+			PasswordRepeat: "",
+			Name:           "",
+		}
 
-	if err := c.BodyParser(&form); err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if err := c.BodyParser(&form); err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "Request could not be processed.",
 				},
-				Message: "Request could not be processed.",
-			},
-		)
-	}
+			)
+		}
 
-	if !form.Validate() || !form.ComparePasswords() {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if !form.Validate() || !form.ComparePasswords() {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "Invalid data entered.",
 				},
-				Message: "Invalid data entered.",
-			},
-		)
-	}
+			)
+		}
 
-	u := user.NewUserModel()
-	result, err := u.FindByUsernameOrEmail(form.Username, form.Email)
+		u := user.NewUserModel()
+		result, err := u.FindByUsernameOrEmail(form.Username, form.Email)
 
-	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: err.Error(),
 				},
-				Message: err.Error(),
-			},
-		)
-	}
+			)
+		}
 
-	if result.Exist() {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if result.Exist() {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "This name or email already exist.",
 				},
-				Message: "This name or email already exist.",
-			},
-		)
-	}
+			)
+		}
 
-	result, err = u.CreateUser(form)
+		result, err = u.CreateUser(form)
 
-	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		if err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: "Internal server error.",
 				},
-				Message: "Internal server error.",
-			},
-		)
-	}
+			)
+		}
 
-	token, err := utils.CreateJwtToken(
-		utils.TokenRequiredAttributes{
-			Claims: utils.TokenClaims{
-				UUID: result.GetId(),
-			},
-			Duration: 100,
-			Secret:   "secret",
-		},
-	)
+		claims := lib.TokenClaims{
+			UUID: result.GetId(),
+		}
 
-	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
+		token, err := lib.CreateJwtToken(claims, 100, rsa.GetPrivateKey())
+
+		if err != nil {
+			return c.JSON(
+				BlogchainMessageResponse{
+					BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+						Status: 100,
+					},
+					Message: err.Error(),
 				},
-				Message: err.Error(),
-			},
-		)
-	}
+			)
+		}
 
-	return c.JSON(fiber.Map{
-		"status": 200,
-		"token":  token,
-		"user":   result.Properties(),
-	})
+		return c.JSON(fiber.Map{
+			"status": 200,
+			"token":  token,
+			"user":   result.Properties(),
+		})
+	}
 }
