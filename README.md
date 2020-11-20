@@ -37,3 +37,7 @@ docker run -d --net=host \
    -e CONTAINER_SECRET='<blogchain application secret>' \
    --name golang-blogchain-server qwx1337/blogchain-server:latest
 ```
+
+### Tests
+
+- `$ make tests`

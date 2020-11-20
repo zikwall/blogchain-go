@@ -4,6 +4,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/actions"
+	"github.com/zikwall/blogchain/src/constants"
+	"github.com/zikwall/blogchain/src/lib"
 	"github.com/zikwall/blogchain/src/middlewares"
 	"github.com/zikwall/blogchain/src/service"
 	"log"
@@ -64,10 +66,16 @@ func main() {
 				EnvVars:  []string{"DATABASE_DRIVER"},
 			},
 			&cli.StringFlag{
-				Name:     "container-secret",
-				Required: true,
+				Name:     "rsa-public-key",
+				Required: false,
 				Usage:    "Container secret key for JWT, and etc.",
-				EnvVars:  []string{"CONTAINER_SECRET"},
+				EnvVars:  []string{"RSA_PUBLIC_KEY"},
+			},
+			&cli.StringFlag{
+				Name:     "rsa-private-key",
+				Required: false,
+				Usage:    "Container secret key for JWT, and etc.",
+				EnvVars:  []string{"RSA_PRIVATE_KEY"},
 			},
 		},
 	}
@@ -90,9 +98,7 @@ func main() {
 					ExposeHeaders:    "",
 					MaxAge:           0,
 				},
-				BlogchainContainer: service.BlogchainServiceContainerConfiguration{
-					Secret: c.String("container-secret"),
-				},
+				BlogchainContainer: service.BlogchainServiceContainerConfiguration{},
 			},
 		)
 
@@ -109,10 +115,12 @@ func main() {
 			middlewares.WithBlogchainXHeaderPolicy(blogchain),
 		)
 
+		rsa := lib.NewBlogchainRSAContainer(
+			constants.TestPublicKey, constants.TestPrivateKey,
+		)
+
 		api := app.Group("/api",
-			middlewares.WithBlogchainJWTAuthorization(
-				blogchain.Container.GetContainerSecret(),
-			),
+			middlewares.WithBlogchainJWTAuthorization(&rsa),
 			middlewares.UseBlogchainUserIdentity,
 		)
 		{
@@ -145,9 +153,9 @@ func main() {
 
 		auth := app.Group("/auth", middlewares.UseBlogchainSignPolicy)
 		{
-			auth.Post("/register", actions.Register)
-			auth.Post("/login", actions.Login)
-			auth.Post("/logout", actions.Login)
+			auth.Post("/register", actions.Register(&rsa))
+			auth.Post("/login", actions.Login(&rsa))
+			auth.Post("/logout", actions.Logout)
 		}
 
 		go func() {

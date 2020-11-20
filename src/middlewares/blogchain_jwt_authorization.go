@@ -2,24 +2,17 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/utils"
-	"strings"
+	"github.com/zikwall/blogchain/src/lib"
 )
 
-func WithBlogchainJWTAuthorization(sigin []byte) fiber.Handler {
+func WithBlogchainJWTAuthorization(rsa lib.RSA) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		tokenString := ctx.Get("Authorization")
+		token, ok := lib.ParseAuthHeader(ctx.Get(lib.AuthHeaderName))
 
-		if tokenString != "" {
-			header := strings.Split(tokenString, "Bearer ")
-
-			if len(header) == 2 {
-				tokenString = header[1]
-				token, err := utils.VerifyJwtToken(tokenString, sigin)
-
-				if err == nil {
-					ctx.Locals("claims", token)
-				}
+		if ok {
+			claims, err := lib.VerifyJwtToken(token, rsa)
+			if err == nil {
+				ctx.Locals(lib.ClaimsCtxKey, claims)
 			}
 		}
 

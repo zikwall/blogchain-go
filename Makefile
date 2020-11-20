@@ -14,6 +14,9 @@ deploy: build-migration-tool migrate-up
 test:
 	go test -json --tags=teamcity
 
+tests:
+	go test ./... -v
+
 database:
 	mysql -u${TEST_USER} -p${TEST_PASS} -e "drop database if exists ${TEST_DB}; create database ${TEST_DB};"
 	mysql -u${TEST_USER} -p${TEST_PASS} ${TEST_DB} < ci/.teamcity/dump.sql

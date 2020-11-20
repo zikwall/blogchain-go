@@ -4,23 +4,15 @@ import "time"
 
 type (
 	BlogchainServiceContainer struct {
-		secret    []byte
 		startedAt time.Time
 	}
-	BlogchainServiceContainerConfiguration struct {
-		Secret string
-	}
+	BlogchainServiceContainerConfiguration struct{}
 )
 
 func NewBlogchainServiceContainer(c BlogchainServiceContainerConfiguration) *BlogchainServiceContainer {
 	return &BlogchainServiceContainer{
-		secret:    []byte(c.Secret),
 		startedAt: time.Now(),
 	}
-}
-
-func (c BlogchainServiceContainer) GetContainerSecret() []byte {
-	return c.secret
 }
 
 func (c BlogchainServiceContainer) GetStartedAt() time.Time {

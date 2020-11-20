@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/zikwall/blogchain/src/lib"
 	"github.com/zikwall/blogchain/src/models/user"
-	"github.com/zikwall/blogchain/src/utils"
 )
 
 func UseBlogchainUserIdentity(ctx *fiber.Ctx) error {
@@ -11,7 +11,7 @@ func UseBlogchainUserIdentity(ctx *fiber.Ctx) error {
 
 	claims := ctx.Locals("claims")
 
-	if token, ok := claims.(*utils.TokenClaims); ok {
+	if token, ok := claims.(*lib.TokenClaims); ok {
 		u := user.NewUserModel()
 
 		if i, err := u.FindById(token.UUID); err == nil {

@@ -4,25 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/utils"
+	"github.com/zikwall/blogchain/src/lib"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestWithBlogchainJWTAuthorization(t *testing.T) {
-	const SECRET = "secret"
-
 	t.Run("it should be a valid token signature with middleware", func(t *testing.T) {
 		app := fiber.New()
+
+		rsa := &lib.MockRSA{}
 		test := app.Group("/test")
 		{
 			test.Get("/jwt",
-				WithBlogchainJWTAuthorization([]byte(SECRET)),
+				WithBlogchainJWTAuthorization(rsa),
 				func(c *fiber.Ctx) error {
 					valid := true
 
-					claims, ok := c.Locals("claims").(*utils.TokenClaims)
+					claims, ok := c.Locals("claims").(*lib.TokenClaims)
 
 					if !ok {
 						valid = false
@@ -36,17 +36,11 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 			)
 		}
 
-		claims := utils.TokenClaims{
+		claims := lib.TokenClaims{
 			UUID: 100,
 		}
 
-		createdToken, err := utils.CreateJwtToken(
-			utils.TokenRequiredAttributes{
-				Claims:   claims,
-				Duration: 999999,
-				Secret:   SECRET,
-			},
-		)
+		createdToken, err := lib.CreateJwtToken(claims, 999, rsa.GetPrivateKey())
 
 		if err != nil {
 			t.Fatal(err)
@@ -64,7 +58,7 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 
 		response := struct {
 			Valid  bool
-			Claims utils.TokenClaims
+			Claims lib.TokenClaims
 		}{}
 
 		if err := json.Unmarshal(body, &response); err != nil {
