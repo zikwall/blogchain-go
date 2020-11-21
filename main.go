@@ -109,6 +109,7 @@ func main() {
 		app := fiber.New()
 		app.Static("/docs", "./src/public/docs")
 		app.Static("/uploads", "./src/public/uploads")
+		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
 			middlewares.WithBlogchainCORSPolicy(blogchain),

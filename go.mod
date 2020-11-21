@@ -9,12 +9,14 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-ozzo/ozzo-dbx v1.5.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/gofiber/adaptor/v2 v2.0.3
 	github.com/gofiber/fiber v1.9.0
-	github.com/gofiber/fiber/v2 v2.1.2
-	github.com/klauspost/compress v1.11.2 // indirect
+	github.com/gofiber/fiber/v2 v2.2.0
+	github.com/klauspost/compress v1.11.3 // indirect
+	github.com/prometheus/client_golang v1.8.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/swag v1.6.5
 	github.com/urfave/cli/v2 v2.2.0
-	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71
-	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418 // indirect
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 )
