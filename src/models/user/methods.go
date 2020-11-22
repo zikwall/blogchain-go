@@ -18,6 +18,8 @@ func (self UserModel) WithProfile(query *builder.SelectDataset) *builder.SelectD
 			builder.I("profile.name").As(builder.C("profile.name")),
 			builder.I("profile.public_email").As(builder.C("profile.public_email")),
 			builder.I("profile.avatar").As(builder.C("profile.avatar")),
+			builder.I("profile.location").As(builder.C("profile.location")),
+			builder.I("profile.description").As(builder.C("profile.description")),
 		).
 		LeftJoin(
 			builder.T("profile"),
