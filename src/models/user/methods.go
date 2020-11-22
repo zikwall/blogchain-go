@@ -68,9 +68,18 @@ func (self UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	).Executor()
 
 	status, err := insert.Exec()
-	user.Id, err = status.LastInsertId()
 
-	err = self.AttachProfile(r, &user)
+	if err != nil {
+		return User{}, err
+	}
+
+	if user.Id, err = status.LastInsertId(); err != nil {
+		return User{}, err
+	}
+
+	if err = self.AttachProfile(r, &user); err != nil {
+		return User{}, err
+	}
 
 	return user, err
 }
