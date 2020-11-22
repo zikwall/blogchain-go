@@ -17,7 +17,7 @@ func (content *Content) WithTags(tags []tag.Tag) {
 	if tags != nil && len(tags) > 0 {
 		content.Tags = tags
 	} else {
-		// ToDo: fix in client side
+		// ToDo: Пофиксить эту шляпу на сторону клиента
 		content.Tags = []tag.Tag{}
 	}
 }
@@ -90,9 +90,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		),
 	)
 
-	_, err := query.ScanStruct(&content)
-
-	if err != nil {
+	if _, err := query.ScanStruct(&content); err != nil {
 		return Content{}, err
 	}
 
@@ -118,6 +116,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 	uv4 := uuid.Must(uuid.NewV4(), err)
 	content.Uuid = uv4.String()
 
+	// ToDo: проверка ошибок
 	if f.GetImage().Err == nil {
 		if err = SaveImage(&content, f, ctx); err != nil {
 			return Content{}, err
@@ -156,6 +155,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 }
 
 func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
+	// ToDo: проверка ошибок
 	if f.GetImage().Err == nil {
 		if err := SaveImage(&content, f, ctx); err != nil {
 			return err
@@ -226,6 +226,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 	return nil
 }
 
+// ToDo: нажо что-то сделать с этим методом, он ни туда ни сюда...
 func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	content.Image.String = utils.CreateImagePath(content.Uuid)
 	path := fmt.Sprintf("./src/public/uploads/%s", content.Image.String)
@@ -244,7 +245,9 @@ func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicConten
 		return nil, err, 0
 	}
 
+	// ToDo: данный учосток кода дублируется, можно вынести отдельно в метод
 	for _, v := range content {
+		// ToDo: надо сделать пакетную выборку и убрать дубли
 		if tags, err := v.GetTags(); err == nil {
 			v.WithTags(tags)
 		}
@@ -333,7 +336,9 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 		return nil, err, 0
 	}
 
+	// ToDo: данный учосток кода дублируется, можно вынести отдельно в метод
 	for _, v := range content {
+		// ToDo: надо сделать пакетную выборку
 		if tags, err := v.GetTags(); err == nil {
 			v.WithTags(tags)
 		}

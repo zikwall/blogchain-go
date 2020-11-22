@@ -7,6 +7,7 @@ import (
 
 type BlogchainModel struct{}
 
+// ToDo: вынести отсюда нахер в констуркторы моделей
 func (model BlogchainModel) QueryBuilder() *goqu.Database {
 	return service.GetBlogchainServiceInstance().GetBlogchainDatabaseInstance().Builder()
 }
