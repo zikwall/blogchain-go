@@ -5,7 +5,7 @@ import (
 	"github.com/zikwall/blogchain/src/models/tag"
 )
 
-func Tags(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) Tags(c *fiber.Ctx) error {
 	t := tag.NewTagModel()
 	tags, _ := t.All()
 

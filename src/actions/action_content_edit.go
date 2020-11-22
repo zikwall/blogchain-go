@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func GetEditContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentInformation(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	userInstance := c.Locals("user").(*user.User)
 
@@ -35,7 +35,7 @@ func GetEditContent(c *fiber.Ctx) error {
 	})
 }
 
-func UpdateContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentUpdate(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	userInstance := c.Locals("user").(*user.User)
 
@@ -94,7 +94,7 @@ func UpdateContent(c *fiber.Ctx) error {
 	})
 }
 
-func AddContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentCreate(c *fiber.Ctx) error {
 	userInstance := c.Locals("user").(*user.User)
 
 	form := &forms.ContentForm{

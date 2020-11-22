@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func GetContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) Content(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 
 	if err != nil {
@@ -32,7 +32,7 @@ func GetContent(c *fiber.Ctx) error {
 	})
 }
 
-func GetContents(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
 	tag := c.Params("tag")
 	var page int64
 
@@ -61,7 +61,7 @@ func GetContents(c *fiber.Ctx) error {
 	})
 }
 
-func GetUserContents(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
 	user, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	var page int64
 
