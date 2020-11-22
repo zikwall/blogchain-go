@@ -70,6 +70,13 @@ func (self ContentModel) WithUserProfile(query *builder.SelectDataset) *builder.
 		)
 }
 
+func (self ContentModel) WithPagination(query *builder.SelectDataset, page, size uint) (*builder.SelectDataset, float64) {
+	countPages, _ := models.QueryCount(query, size)
+	query = query.Offset(page * size).Limit(size)
+
+	return query, countPages
+}
+
 func (self ContentModel) UserContent(contentId int64, id int64) (Content, error) {
 	var content Content
 
@@ -186,28 +193,32 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 	if f.Tags != "" {
 		tags := []int{}
 
-		if err := json.Unmarshal([]byte(f.Tags), &tags); err == nil {
-			if update {
-				executor := self.QueryBuilder().Delete("content_tag").Where(
-					builder.C("content_id").Eq(content.Id),
-				).Executor()
+		if err := json.Unmarshal([]byte(f.Tags), &tags); err != nil {
+			return err
+		}
 
-				_, err = executor.Exec()
+		if update {
+			executor := self.QueryBuilder().Delete("content_tag").Where(
+				builder.C("content_id").Eq(content.Id),
+			).Executor()
+
+			if _, err := executor.Exec(); err != nil {
+				return err
 			}
+		}
 
-			// ToDo: Batch Insert
-			executor := self.QueryBuilder()
-			for _, v := range tags {
-				insert := executor.Insert("content_tag").Rows(
-					builder.Record{
-						"content_id": content.Id,
-						"tag_id":     v,
-					},
-				).Executor()
+		// ToDo: Batch Insert
+		executor := self.QueryBuilder()
+		for _, v := range tags {
+			insert := executor.Insert("content_tag").Rows(
+				builder.Record{
+					"content_id": content.Id,
+					"tag_id":     v,
+				},
+			).Executor()
 
-				if _, err = insert.Exec(); err != nil {
-					return err
-				}
+			if _, err := insert.Exec(); err != nil {
+				return err
 			}
 		}
 	}
@@ -224,18 +235,15 @@ func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 
 func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
 	var content []Content
+	var pc []PublicContent
 
 	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
+	query, count := self.WithPagination(query, uint(page), 4)
 
-	var pageSize uint
-	pageSize = 4
+	if err := query.ScanStructs(&content); err != nil {
+		return nil, err, 0
+	}
 
-	countPages, _ := models.QueryCount(query, pageSize)
-	query.Offset(uint(page) * pageSize).Limit(pageSize)
-
-	err := query.ScanStructs(&content)
-
-	pc := []PublicContent{}
 	for _, v := range content {
 		if tags, err := v.GetTags(); err == nil {
 			v.WithTags(tags)
@@ -244,47 +252,49 @@ func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicConten
 		pc = append(pc, v.Response())
 	}
 
-	return pc, err, countPages
+	return pc, nil, count
 }
 
 func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
 	content := Content{}
 
-	_, err := self.FindWith().
+	query := self.FindWith().
 		Where(
 			builder.And(
 				builder.I("content.id").Eq(id),
 				builder.I("user.id").Eq(userid),
 			),
-		).
-		ScanStruct(&content)
+		)
 
-	if err == nil {
-		if tags, err := content.GetTags(); err == nil {
-			content.WithTags(tags)
-		}
+	if _, err := query.ScanStruct(&content); err != nil {
+		return Content{}, err
 	}
 
-	return content, err
+	if tags, err := content.GetTags(); err == nil {
+		content.WithTags(tags)
+	}
+
+	return content, nil
 }
 
 func (self ContentModel) FindContentById(id int64) (Content, error) {
 	content := Content{}
 	query := self.FindWith().Where(builder.I("content.id").Eq(id))
 
-	_, err := query.ScanStruct(&content)
-
-	if err == nil {
-		if tags, err := content.GetTags(); err == nil {
-			content.WithTags(tags)
-		}
+	if _, err := query.ScanStruct(&content); err != nil {
+		return Content{}, err
 	}
 
-	return content, err
+	if tags, err := content.GetTags(); err == nil {
+		content.WithTags(tags)
+	}
+
+	return content, nil
 }
 
 func (self ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
 	var content []Content
+	var pc []PublicContent
 
 	query := self.FindWith()
 
@@ -317,19 +327,11 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 		query = onTagCondition(query, label)
 	}
 
-	var pageSize uint
-	pageSize = 4
+	query, count := self.WithPagination(query, uint(page), 4)
 
-	countPages, _ := models.QueryCount(query, pageSize)
-	query = query.Offset(uint(page) * pageSize).Limit(pageSize)
-
-	err := query.ScanStructs(&content)
-
-	if err != nil {
+	if err := query.ScanStructs(&content); err != nil {
 		return nil, err, 0
 	}
-
-	pc := []PublicContent{}
 
 	for _, v := range content {
 		if tags, err := v.GetTags(); err == nil {
@@ -339,5 +341,5 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 		pc = append(pc, v.Response())
 	}
 
-	return pc, err, countPages
+	return pc, nil, count
 }
