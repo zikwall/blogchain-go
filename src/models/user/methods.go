@@ -9,7 +9,7 @@ import (
 )
 
 func (self UserModel) Find() *builder.SelectDataset {
-	return self.QueryBuilder().Select("user.*").From("user")
+	return self.Builder().Select("user.*").From("user")
 }
 
 func (self UserModel) WithProfile(query *builder.SelectDataset) *builder.SelectDataset {
@@ -57,7 +57,7 @@ func (self UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	insert := self.QueryBuilder().Insert("user").Rows(
+	insert := self.Builder().Insert("user").Rows(
 		builder.Record{
 			"password_hash":   user.PasswordHash,
 			"email":           user.Email,
@@ -95,7 +95,7 @@ func (self UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 		},
 	}
 
-	insert := self.QueryBuilder().Insert("profile").Rows(
+	insert := self.Builder().Insert("profile").Rows(
 		builder.Record{
 			"user_id":      profile.userId,
 			"name":         profile.Name,

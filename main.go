@@ -120,14 +120,14 @@ func main() {
 			constants.TestPublicKey, constants.TestPrivateKey,
 		)
 
-		actionProvider := actions.NewBlogchainActionProvider(
-			&rsa,
-			blogchain.GetBlogchainDatabaseInstance(),
-		)
+		actionProvider := actions.NewBlogchainActionProvider(actions.ActionsRequiredInstances{
+			RSA: &rsa,
+			Db:  blogchain.GetBlogchainDatabaseInstance(),
+		})
 
 		api := app.Group("/api",
 			middlewares.WithBlogchainJWTAuthorization(&rsa),
-			middlewares.UseBlogchainUserIdentity,
+			middlewares.WithBlogchainUserIdentity(blogchain),
 		)
 		{
 			api.Get("/healthcheck", actions.HealthCheck)

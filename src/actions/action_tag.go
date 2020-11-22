@@ -6,7 +6,7 @@ import (
 )
 
 func (a BlogchainActionProvider) Tags(c *fiber.Ctx) error {
-	t := tag.NewTagModel()
+	t := tag.NewTagModel(a.db)
 	tags, _ := t.All()
 
 	return c.JSON(fiber.Map{

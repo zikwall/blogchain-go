@@ -47,7 +47,7 @@ func (a BlogchainActionProvider) Login(c *fiber.Ctx) error {
 		)
 	}
 
-	u := user.NewUserModel()
+	u := user.NewUserModel(a.db)
 	result, err := u.FindByCredentials(form.Username)
 
 	if err != nil {
@@ -127,7 +127,7 @@ func (a BlogchainActionProvider) Register(c *fiber.Ctx) error {
 		)
 	}
 
-	u := user.NewUserModel()
+	u := user.NewUserModel(a.db)
 	result, err := u.FindByUsernameOrEmail(form.Username, form.Email)
 
 	if err != nil {

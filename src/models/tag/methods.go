@@ -5,7 +5,7 @@ import (
 )
 
 func (self TagModel) Find() *builder.SelectDataset {
-	return self.QueryBuilder().Select("tags.*").From("tags")
+	return self.Builder().Select("tags.*").From("tags")
 }
 
 func (self TagModel) All() ([]Tag, error) {

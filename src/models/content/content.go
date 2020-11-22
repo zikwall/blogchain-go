@@ -5,6 +5,7 @@ import (
 	"github.com/zikwall/blogchain/src/models"
 	"github.com/zikwall/blogchain/src/models/tag"
 	"github.com/zikwall/blogchain/src/models/user"
+	"github.com/zikwall/blogchain/src/service"
 )
 
 type (
@@ -43,8 +44,13 @@ type (
 	}
 )
 
-func NewContentModel() ContentModel {
-	return ContentModel{}
+func NewContentModel(conn *service.BlogchainDatabaseInstance) ContentModel {
+	return ContentModel{struct {
+		Connection *service.BlogchainDatabaseInstance
+	}{
+		Connection: conn,
+	},
+	}
 }
 
 func (c *Content) Response() PublicContent {
