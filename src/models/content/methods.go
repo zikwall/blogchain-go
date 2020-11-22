@@ -9,47 +9,12 @@ import (
 	"github.com/zikwall/blogchain/src/models"
 	"github.com/zikwall/blogchain/src/models/content/forms"
 	"github.com/zikwall/blogchain/src/models/tag"
-	"github.com/zikwall/blogchain/src/models/user"
 	"github.com/zikwall/blogchain/src/utils"
 	"time"
 )
 
-type Contents struct {
-	Content      `json:"content"`
-	user.User    `json:"user"`
-	user.Profile `json:"profile"`
-}
-
-func (contents Contents) Response() PublicContent {
-	return PublicContent{
-		Id:         contents.Content.Id,
-		Uuid:       contents.Uuid,
-		Title:      contents.Title,
-		Annotation: contents.Annotation,
-		Content:    contents.Content.Content,
-		CreatedAt:  contents.Content.CreatedAt.Int64,
-		UpdatedAt:  contents.Content.UpdatedAt.Int64,
-		Image:      contents.Image.String,
-		Related: Related{
-			Publisher: user.PublicUser{
-				Id:       contents.UserId,
-				Username: contents.User.Username,
-				Profile: user.PublicProfile{
-					Name:        contents.Profile.Name,
-					Email:       contents.Profile.PublicEmail,
-					Avatar:      contents.Profile.Avatar.String,
-					Location:    contents.Profile.Location.String,
-					Status:      contents.Profile.Status.String,
-					Description: contents.Profile.Description.String,
-				},
-			},
-			Tags: contents.Tags,
-		},
-	}
-}
-
-func (contents *Contents) WithTags(tags []tag.Tag) {
-	contents.Tags = tags
+func (content *Content) WithTags(tags []tag.Tag) {
+	content.Tags = tags
 }
 
 func (content Content) GetTags() ([]tag.Tag, error) {
@@ -74,7 +39,8 @@ func (c ContentModel) FindWith() *builder.SelectDataset {
 func (self ContentModel) WithUser(query *builder.SelectDataset) *builder.SelectDataset {
 	return query.
 		SelectAppend(
-			"user.username",
+			builder.I("user.id").As(builder.C("user.id")),
+			builder.I("user.username").As(builder.C("user.username")),
 		).
 		LeftJoin(
 			builder.T("user"),
@@ -87,10 +53,9 @@ func (self ContentModel) WithUser(query *builder.SelectDataset) *builder.SelectD
 func (self ContentModel) WithUserProfile(query *builder.SelectDataset) *builder.SelectDataset {
 	return query.
 		SelectAppend(
-			"profile.user_id",
-			"profile.name",
-			"profile.public_email",
-			"profile.avatar",
+			builder.I("profile.name").As(builder.C("user.profile.name")),
+			builder.I("profile.public_email").As(builder.C("user.profile.public_email")),
+			builder.I("profile.avatar").As(builder.C("user.profile.avatar")),
 		).
 		LeftJoin(
 			builder.T("profile"),
@@ -100,8 +65,8 @@ func (self ContentModel) WithUserProfile(query *builder.SelectDataset) *builder.
 		)
 }
 
-func (self ContentModel) UserContent(contentId int64, id int64) (Contents, error) {
-	var content Contents
+func (self ContentModel) UserContent(contentId int64, id int64) (Content, error) {
+	var content Content
 
 	query := self.Find()
 	query = self.WithUser(query)
@@ -234,7 +199,7 @@ func SaveImage(content Content, f *forms.ContentForm, c *fiber.Ctx) error {
 }
 
 func (c ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
-	var content []Contents
+	var content []Content
 
 	query := c.FindWith().Where(builder.I("user.id").Eq(userid))
 
@@ -262,8 +227,8 @@ func (c ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, 
 	return pc, err, countPages
 }
 
-func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (*Contents, error) {
-	content := &Contents{}
+func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
+	content := Content{}
 
 	_, err := c.FindWith().
 		Where(
@@ -283,8 +248,8 @@ func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (*Contents,
 	return content, err
 }
 
-func (c ContentModel) FindContentById(id int64) (Contents, error) {
-	content := Contents{}
+func (c ContentModel) FindContentById(id int64) (Content, error) {
+	content := Content{}
 	query := c.FindWith().Where(builder.I("content.id").Eq(id))
 
 	_, err := query.ScanStruct(&content)
@@ -299,7 +264,7 @@ func (c ContentModel) FindContentById(id int64) (Contents, error) {
 }
 
 func (c ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
-	var content []Contents
+	var content []Content
 
 	query := c.FindWith()
 

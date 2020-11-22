@@ -46,3 +46,20 @@ type (
 func NewContentModel() ContentModel {
 	return ContentModel{}
 }
+
+func (c *Content) Response() PublicContent {
+	return PublicContent{
+		Id:         c.Id,
+		Uuid:       c.Uuid,
+		Title:      c.Title,
+		Annotation: c.Annotation,
+		Content:    c.Content,
+		CreatedAt:  c.CreatedAt.Int64,
+		UpdatedAt:  c.UpdatedAt.Int64,
+		Image:      c.Image.String,
+		Related: Related{
+			Publisher: c.User.Properties(),
+			Tags:      c.Tags,
+		},
+	}
+}

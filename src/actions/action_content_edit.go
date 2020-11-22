@@ -81,7 +81,7 @@ func UpdateContent(c *fiber.Ctx) error {
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	err = model.UpdateContent(res.Content, form, c)
+	err = model.UpdateContent(res, form, c)
 
 	if err != nil {
 		return c.JSON(fiber.Map{
