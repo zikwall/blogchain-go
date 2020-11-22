@@ -62,8 +62,8 @@ func main() {
 			&cli.StringFlag{
 				Name:     "database-dialect",
 				Required: true,
-				Usage:    "Database driver",
-				EnvVars:  []string{"DATABASE_DRIVER"},
+				Usage:    "Database dialect: mysql, postgres, sqlite3, sqlserver etc",
+				EnvVars:  []string{"DATABASE_DIALECT"},
 			},
 			&cli.StringFlag{
 				Name:     "rsa-public-key",
