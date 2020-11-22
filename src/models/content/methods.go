@@ -181,7 +181,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 		return Content{}, err
 	}
 
-	if err = self.UpsertTags(content, f, true); err != nil {
+	if err = self.UpsertTags(content, f, false); err != nil {
 		return Content{}, err
 	}
 
