@@ -1,12 +1,5 @@
 package service
 
-import (
-	"context"
-	"database/sql"
-	"fmt"
-	"time"
-)
-
 var service *BlogchainServiceInstance
 
 type (
@@ -45,13 +38,12 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 		return nil, err
 	}
 
-	database.SetExecuteLoggerFunction(func(ctx context.Context, t time.Duration, sql string, result sql.Result, err error) {
-		b.logger.Info(fmt.Sprintf("[%.2fms] Execute SQL: %v", float64(t.Milliseconds()), sql))
+	dbLogger := BlogchainDatabaseLogger{}
+	dbLogger.SetCallback(func(format string, v ...interface{}) {
+		b.logger.Info(v)
 	})
 
-	database.SetQueryLoggerFunction(func(ctx context.Context, t time.Duration, sql string, rows *sql.Rows, err error) {
-		b.logger.Info(fmt.Sprintf("[%.2fms] Query SQL: %v", float64(t.Milliseconds()), sql))
-	})
+	database.SetLogger(dbLogger)
 
 	b.database = database
 
