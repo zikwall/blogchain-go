@@ -3,9 +3,8 @@ package user
 import (
 	"database/sql"
 	builder "github.com/doug-martin/goqu/v9"
-	dbx "github.com/go-ozzo/ozzo-dbx"
 	"github.com/zikwall/blogchain/src/models"
-	forms2 "github.com/zikwall/blogchain/src/models/user/forms"
+	"github.com/zikwall/blogchain/src/models/user/forms"
 	"github.com/zikwall/blogchain/src/utils"
 	"time"
 )
@@ -39,7 +38,7 @@ func (self UserModel) onCredentialsCondition(query *builder.SelectDataset, usern
 		)
 }
 
-func (u UserModel) CreateUser(r *forms2.RegisterForm) (User, error) {
+func (u UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
 
 	if err != nil {
@@ -57,14 +56,17 @@ func (u UserModel) CreateUser(r *forms2.RegisterForm) (User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	status, err := u.Query().Insert("user", dbx.Params{
-		"password_hash":   user.PasswordHash,
-		"email":           user.Email,
-		"username":        user.Username,
-		"registration_ip": user.RegistrationIp,
-		"created_at":      user.ConfirmedAt,
-	}).Execute()
+	insert := models.QueryBuilder().Insert("user").Rows(
+		builder.Record{
+			"password_hash":   user.PasswordHash,
+			"email":           user.Email,
+			"username":        user.Username,
+			"registration_ip": user.RegistrationIp,
+			"created_at":      user.ConfirmedAt,
+		},
+	).Executor()
 
+	status, err := insert.Exec()
 	user.Id, err = status.LastInsertId()
 
 	err = u.AttachProfile(r, &user)
@@ -72,7 +74,7 @@ func (u UserModel) CreateUser(r *forms2.RegisterForm) (User, error) {
 	return user, err
 }
 
-func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
+func (u UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 	profile := Profile{
 		userId:      user.Id,
 		Name:        r.Name,
@@ -83,14 +85,16 @@ func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
 		},
 	}
 
-	_, err := u.Query().Insert("profile", dbx.Params{
-		"user_id":      profile.userId,
-		"name":         profile.Name,
-		"public_email": profile.PublicEmail,
-		"avatar":       profile.Avatar,
-	}).Execute()
+	insert := models.QueryBuilder().Insert("profile").Rows(
+		builder.Record{
+			"user_id":      profile.userId,
+			"name":         profile.Name,
+			"public_email": profile.PublicEmail,
+			"avatar":       profile.Avatar,
+		},
+	).Executor()
 
-	if err != nil {
+	if _, err := insert.Exec(); err != nil {
 		return err
 	}
 
@@ -101,7 +105,6 @@ func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
 
 func (self UserModel) FindByUsernameOrEmail(username string, email string) (User, error) {
 	user := User{}
-
 	query := self.Find()
 	query = self.onCredentialsCondition(query, username, email)
 
@@ -112,9 +115,7 @@ func (self UserModel) FindByUsernameOrEmail(username string, email string) (User
 
 func (self UserModel) FindByCredentials(credentials string) (User, error) {
 	user := User{}
-
 	query := self.Find()
-
 	query = self.WithProfile(query)
 	query = self.onCredentialsCondition(query, credentials, credentials)
 
