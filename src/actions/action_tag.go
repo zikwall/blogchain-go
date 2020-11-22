@@ -7,7 +7,7 @@ import (
 
 func Tags(c *fiber.Ctx) error {
 	t := tag.NewTagModel()
-	tags, _ := t.GetTags()
+	tags, _ := t.All()
 
 	return c.JSON(fiber.Map{
 		"status": 200,

@@ -88,7 +88,7 @@ func main() {
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
 					Name:     c.String("database-name"),
-					Driver:   c.String("database-driver"),
+					Dialect:  c.String("database-driver"),
 				},
 				BlogchainHttpAccessControl: service.BlogchainHttpAccessControl{
 					AllowOrigins:     "*",

@@ -7,10 +7,9 @@ require (
 	github.com/andybalholm/brotli v1.0.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/go-ozzo/ozzo-dbx v1.5.0
+	github.com/doug-martin/goqu/v9 v9.10.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofiber/adaptor/v2 v2.0.3
-	github.com/gofiber/fiber v1.9.0
 	github.com/gofiber/fiber/v2 v2.2.0
 	github.com/klauspost/compress v1.11.3 // indirect
 	github.com/prometheus/client_golang v1.8.0

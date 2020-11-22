@@ -2,20 +2,51 @@ package user
 
 import (
 	"database/sql"
-	dbx "github.com/go-ozzo/ozzo-dbx"
-	forms2 "github.com/zikwall/blogchain/src/models/user/forms"
+	builder "github.com/doug-martin/goqu/v9"
+	"github.com/zikwall/blogchain/src/models/user/forms"
 	"github.com/zikwall/blogchain/src/utils"
 	"time"
 )
 
-func (u UserModel) CreateUser(r *forms2.RegisterForm) (*User, error) {
+func (self UserModel) Find() *builder.SelectDataset {
+	return self.QueryBuilder().Select("user.*").From("user")
+}
+
+func (self UserModel) WithProfile(query *builder.SelectDataset) *builder.SelectDataset {
+	return query.
+		SelectAppend(
+			builder.I("profile.name").As(builder.C("profile.name")),
+			builder.I("profile.public_email").As(builder.C("profile.public_email")),
+			builder.I("profile.avatar").As(builder.C("profile.avatar")),
+			builder.I("profile.location").As(builder.C("profile.location")),
+			builder.I("profile.description").As(builder.C("profile.description")),
+		).
+		LeftJoin(
+			builder.T("profile"),
+			builder.On(
+				builder.I("profile.user_id").Eq(builder.I("user.id")),
+			),
+		)
+}
+
+func (self UserModel) onCredentialsCondition(query *builder.SelectDataset, username, email string) *builder.SelectDataset {
+	return query.
+		Where(
+			builder.Or(
+				builder.C("username").Eq(username),
+				builder.C("email").Eq(email),
+			),
+		)
+}
+
+func (self UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
 
 	if err != nil {
-		return nil, err
+		return User{}, err
 	}
 
-	user := NewUser()
+	user := User{}
 
 	user.PasswordHash = string(hash)
 	user.Email = r.Email
@@ -26,22 +57,34 @@ func (u UserModel) CreateUser(r *forms2.RegisterForm) (*User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	status, err := u.Query().Insert("user", dbx.Params{
-		"password_hash":   user.PasswordHash,
-		"email":           user.Email,
-		"username":        user.Username,
-		"registration_ip": user.RegistrationIp,
-		"created_at":      user.ConfirmedAt,
-	}).Execute()
+	insert := self.QueryBuilder().Insert("user").Rows(
+		builder.Record{
+			"password_hash":   user.PasswordHash,
+			"email":           user.Email,
+			"username":        user.Username,
+			"registration_ip": user.RegistrationIp,
+			"created_at":      user.ConfirmedAt,
+		},
+	).Executor()
 
-	user.Id, err = status.LastInsertId()
+	status, err := insert.Exec()
 
-	err = u.AttachProfile(r, user)
+	if err != nil {
+		return User{}, err
+	}
+
+	if user.Id, err = status.LastInsertId(); err != nil {
+		return User{}, err
+	}
+
+	if err = self.AttachProfile(r, &user); err != nil {
+		return User{}, err
+	}
 
 	return user, err
 }
 
-func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
+func (self UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 	profile := Profile{
 		userId:      user.Id,
 		Name:        r.Name,
@@ -52,14 +95,16 @@ func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
 		},
 	}
 
-	_, err := u.Query().Insert("profile", dbx.Params{
-		"user_id":      profile.userId,
-		"name":         profile.Name,
-		"public_email": profile.PublicEmail,
-		"avatar":       profile.Avatar,
-	}).Execute()
+	insert := self.QueryBuilder().Insert("profile").Rows(
+		builder.Record{
+			"user_id":      profile.userId,
+			"name":         profile.Name,
+			"public_email": profile.PublicEmail,
+			"avatar":       profile.Avatar,
+		},
+	).Executor()
 
-	if err != nil {
+	if _, err := insert.Exec(); err != nil {
 		return err
 	}
 
@@ -68,60 +113,42 @@ func (u UserModel) AttachProfile(r *forms2.RegisterForm, user *User) error {
 	return nil
 }
 
-func (u UserModel) FindByUsernameOrEmail(username string, email string) (*User, error) {
-	user := NewUser()
+func (self UserModel) FindByUsernameOrEmail(username string, email string) (User, error) {
+	user := User{}
+	query := self.Find()
+	query = self.onCredentialsCondition(query, username, email)
 
-	err := u.Query().
-		Select("*").
-		From("user").
-		Where(dbx.Or(dbx.HashExp{"username": username}, dbx.HashExp{"email": email})).
-		One(&user)
+	_, err := query.ScanStruct(&user)
 
 	return user, err
 }
 
-func (u UserModel) FindByCredentials(credentials string) (*User, error) {
-	user := NewUser()
+func (self UserModel) FindByCredentials(credentials string) (User, error) {
+	user := User{}
+	query := self.Find()
+	query = self.WithProfile(query)
+	query = self.onCredentialsCondition(query, credentials, credentials)
 
-	err := u.Query().
-		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
-		From("user").
-		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
-		Where(dbx.Or(dbx.HashExp{"user.username": credentials}, dbx.HashExp{"user.email": credentials})).
-		One(&user)
+	_, err := query.ScanStruct(&user)
 
 	return user, err
 }
 
-func (u UserModel) FindById(id int64) (*User, error) {
-	user := NewUser()
+func (self UserModel) FindById(id int64) (User, error) {
+	user := User{}
+	query := self.Find().Where(builder.C("id").Eq(id))
 
-	err := u.Query().
-		Select("user.*", "p.name as profile.name", "p.public_email as profile.public_email", "p.avatar as profile.avatar").
-		From("user").
-		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
-		Where(dbx.HashExp{"user.id": id}).
-		One(&user)
+	_, err := query.ScanStruct(&user)
 
 	return user, err
 }
 
-func (u UserModel) FindByUsername(username string) (*User, error) {
-	user := NewUser()
+func (self UserModel) FindByUsername(username string) (User, error) {
+	user := User{}
+	query := self.Find().Where(builder.C("username").Eq(username))
+	query = self.WithProfile(query)
 
-	err := u.Query().
-		Select("user.username", "user.id",
-			"p.name as profile.name",
-			"p.public_email as profile.public_email",
-			"p.avatar as profile.avatar",
-			"p.location as profile.location",
-			"p.status as profile.status",
-			"p.description as profile.description",
-		).
-		From("user").
-		LeftJoin("profile p", dbx.NewExp("p.user_id=user.id")).
-		Where(dbx.HashExp{"username": username}).
-		One(&user)
+	_, err := query.ScanStruct(&user)
 
 	return user, err
 }

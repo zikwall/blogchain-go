@@ -12,17 +12,17 @@ type (
 		models.BlogchainModel
 	}
 	Content struct {
-		Id         int64
-		Uuid       string
-		UserId     int64
-		Title      string
-		Annotation string
-		Content    string
-		CreatedAt  sql.NullInt64
-		UpdatedAt  sql.NullInt64
-		Image      sql.NullString
+		Id         int64          `db:"id"`
+		Uuid       string         `db:"uuid"`
+		UserId     int64          `db:"user_id"`
+		Title      string         `db:"title"`
+		Annotation string         `db:"annotation"`
+		Content    string         `db:"content"`
+		CreatedAt  sql.NullInt64  `db:"created_at"`
+		UpdatedAt  sql.NullInt64  `db:"updated_at"`
+		Image      sql.NullString `db:"image"`
 
-		User user.User
+		User user.User `db:"user"`
 		Tags []tag.Tag
 	}
 	PublicContent struct {
@@ -47,7 +47,7 @@ func NewContentModel() ContentModel {
 	return ContentModel{}
 }
 
-func (c *Content) ToJSONAPI() PublicContent {
+func (c *Content) Response() PublicContent {
 	return PublicContent{
 		Id:         c.Id,
 		Uuid:       c.Uuid,
@@ -62,15 +62,4 @@ func (c *Content) ToJSONAPI() PublicContent {
 			Tags:      c.Tags,
 		},
 	}
-}
-
-func (c *Content) WithTags() error {
-	u := tag.NewTagModel()
-	tags, err := u.GetTagsByContent(c.Id)
-
-	if err == nil {
-		c.Tags = tags
-	}
-
-	return err
 }

@@ -77,7 +77,7 @@ func Login(rsa lib.RSA) fiber.Handler {
 			UUID: result.GetId(),
 		}
 
-		token, err := lib.CreateJwtToken(claims, 100, rsa.GetPrivateKey())
+		token, err := lib.CreateJwtToken(claims, 1000, rsa.GetPrivateKey())
 
 		if err != nil {
 			return c.JSON(
