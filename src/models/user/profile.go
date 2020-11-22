@@ -3,7 +3,7 @@ package user
 import "database/sql"
 
 type Profile struct {
-	userId      int64          `db:"user_id"`
+	userId      int64
 	Name        string         `db:"name"`
 	PublicEmail string         `db:"public_email"`
 	Avatar      sql.NullString `db:"avatar"`
@@ -19,28 +19,4 @@ type PublicProfile struct {
 	Location    string `json:"location"`
 	Status      string `json:"status"`
 	Description string `json:"description"`
-}
-
-func NewProfile() Profile {
-	return Profile{
-		userId:      0,
-		Name:        "",
-		PublicEmail: "",
-		Avatar: sql.NullString{
-			String: "",
-			Valid:  false,
-		},
-		Location: sql.NullString{
-			String: "",
-			Valid:  false,
-		},
-		Status: sql.NullString{
-			String: "",
-			Valid:  false,
-		},
-		Description: sql.NullString{
-			String: "",
-			Valid:  false,
-		},
-	}
 }

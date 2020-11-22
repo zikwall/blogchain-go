@@ -28,36 +28,6 @@ func NewUserModel() UserModel {
 	return UserModel{}
 }
 
-func NewUser() *User {
-	return &User{
-		Id:           0,
-		Username:     "",
-		Email:        "",
-		PasswordHash: "",
-		ConfirmedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		BlockedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		CreatedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		UpdatedAt: sql.NullInt64{
-			Int64: 0,
-			Valid: false,
-		},
-		RegistrationIp: sql.NullString{
-			String: "",
-			Valid:  false,
-		},
-		Profile: NewProfile(),
-	}
-}
-
 type PublicUser struct {
 	Id       int64         `json:"id"`
 	Username string        `json:"username"`
