@@ -120,9 +120,14 @@ func main() {
 			constants.TestPublicKey, constants.TestPrivateKey,
 		)
 
+		actionProvider := actions.NewBlogchainActionProvider(actions.ActionsRequiredInstances{
+			RSA: &rsa,
+			Db:  blogchain.GetBlogchainDatabaseInstance(),
+		})
+
 		api := app.Group("/api",
 			middlewares.WithBlogchainJWTAuthorization(&rsa),
-			middlewares.UseBlogchainUserIdentity,
+			middlewares.WithBlogchainUserIdentity(blogchain),
 		)
 		{
 			api.Get("/healthcheck", actions.HealthCheck)
@@ -132,12 +137,12 @@ func main() {
 
 			v1 := api.Group("/v1")
 			{
-				v1.Get("/profile/:username", actions.Profile)
-				v1.Get("/content/:id", actions.GetContent)
-				v1.Get("/contents/:page?", actions.GetContents)
-				v1.Get("/tags", actions.Tags)
-				v1.Get("/contents/user/:id/:page?", actions.GetUserContents)
-				v1.Get("/tag/:tag/:page?", actions.GetContents)
+				v1.Get("/profile/:username", actionProvider.Profile)
+				v1.Get("/content/:id", actionProvider.Content)
+				v1.Get("/contents/:page?", actionProvider.Contents)
+				v1.Get("/tag/:tag/:page?", actionProvider.Contents)
+				v1.Get("/tags", actionProvider.Tags)
+				v1.Get("/contents/user/:id/:page?", actionProvider.ContentsUser)
 			}
 
 			withAccessControlPolicy := api.Use(
@@ -146,17 +151,17 @@ func main() {
 
 			editor := withAccessControlPolicy.Group("/editor")
 			{
-				editor.Get("/content/:id", actions.GetEditContent)
-				editor.Post("/content/add", actions.AddContent)
-				editor.Post("/content/update/:id", actions.UpdateContent)
+				editor.Get("/content/:id", actionProvider.ContentInformation)
+				editor.Post("/content/add", actionProvider.ContentCreate)
+				editor.Post("/content/update/:id", actionProvider.ContentUpdate)
 			}
 		}
 
 		auth := app.Group("/auth", middlewares.UseBlogchainSignPolicy)
 		{
-			auth.Post("/register", actions.Register(&rsa))
-			auth.Post("/login", actions.Login(&rsa))
-			auth.Post("/logout", actions.Logout)
+			auth.Post("/register", actionProvider.Register)
+			auth.Post("/login", actionProvider.Login)
+			auth.Post("/logout", actionProvider.Logout)
 		}
 
 		go func() {

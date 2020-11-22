@@ -5,9 +5,15 @@ import (
 	"github.com/zikwall/blogchain/src/service"
 )
 
-type BlogchainModel struct{}
+type (
+	QueryInterface interface {
+		Builder() *goqu.Database
+	}
+	BlogchainModel struct {
+		Connection *service.BlogchainDatabaseInstance
+	}
+)
 
-// ToDo: вынести отсюда нахер в констуркторы моделей
-func (model BlogchainModel) QueryBuilder() *goqu.Database {
-	return service.GetBlogchainServiceInstance().GetBlogchainDatabaseInstance().Builder()
+func (model BlogchainModel) Builder() *goqu.Database {
+	return model.Connection.Builder()
 }

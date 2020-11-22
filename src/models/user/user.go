@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"github.com/zikwall/blogchain/src/models"
+	"github.com/zikwall/blogchain/src/service"
 )
 
 type (
@@ -24,8 +25,10 @@ type (
 	}
 )
 
-func NewUserModel() UserModel {
-	return UserModel{}
+func NewUserModel(conn *service.BlogchainDatabaseInstance) UserModel {
+	return UserModel{struct {
+		Connection *service.BlogchainDatabaseInstance
+	}{Connection: conn}}
 }
 
 type PublicUser struct {

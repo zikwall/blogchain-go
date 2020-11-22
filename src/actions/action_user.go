@@ -5,8 +5,8 @@ import (
 	"github.com/zikwall/blogchain/src/models/user"
 )
 
-func Profile(c *fiber.Ctx) error {
-	u := user.NewUserModel()
+func (a BlogchainActionProvider) Profile(c *fiber.Ctx) error {
+	u := user.NewUserModel(a.db)
 
 	result, err := u.FindByUsername(c.Params("username"))
 

@@ -1,6 +1,9 @@
 package tag
 
-import "github.com/zikwall/blogchain/src/models"
+import (
+	"github.com/zikwall/blogchain/src/models"
+	"github.com/zikwall/blogchain/src/service"
+)
 
 type (
 	TagModel struct {
@@ -18,6 +21,8 @@ type (
 	}
 )
 
-func NewTagModel() TagModel {
-	return TagModel{}
+func NewTagModel(conn *service.BlogchainDatabaseInstance) TagModel {
+	return TagModel{struct {
+		Connection *service.BlogchainDatabaseInstance
+	}{Connection: conn}}
 }

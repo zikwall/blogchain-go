@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func GetEditContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentInformation(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	userInstance := c.Locals("user").(*user.User)
 
@@ -19,7 +19,7 @@ func GetEditContent(c *fiber.Ctx) error {
 		})
 	}
 
-	model := content.NewContentModel()
+	model := content.NewContentModel(a.db)
 	result, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
@@ -35,7 +35,7 @@ func GetEditContent(c *fiber.Ctx) error {
 	})
 }
 
-func UpdateContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentUpdate(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	userInstance := c.Locals("user").(*user.User)
 
@@ -68,7 +68,7 @@ func UpdateContent(c *fiber.Ctx) error {
 		})
 	}
 
-	model := content.NewContentModel()
+	model := content.NewContentModel(a.db)
 	res, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
@@ -94,7 +94,7 @@ func UpdateContent(c *fiber.Ctx) error {
 	})
 }
 
-func AddContent(c *fiber.Ctx) error {
+func (a BlogchainActionProvider) ContentCreate(c *fiber.Ctx) error {
 	userInstance := c.Locals("user").(*user.User)
 
 	form := &forms.ContentForm{
@@ -122,7 +122,7 @@ func AddContent(c *fiber.Ctx) error {
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	model := content.NewContentModel()
+	model := content.NewContentModel(a.db)
 	result, err := model.CreateContent(form, c)
 
 	if err != nil {

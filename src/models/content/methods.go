@@ -9,6 +9,7 @@ import (
 	"github.com/zikwall/blogchain/src/models"
 	"github.com/zikwall/blogchain/src/models/content/forms"
 	"github.com/zikwall/blogchain/src/models/tag"
+	"github.com/zikwall/blogchain/src/service"
 	"github.com/zikwall/blogchain/src/utils"
 	"time"
 )
@@ -22,15 +23,15 @@ func (content *Content) WithTags(tags []tag.Tag) {
 	}
 }
 
-func (content Content) GetTags() ([]tag.Tag, error) {
-	u := tag.NewTagModel()
+func (content Content) GetTags(conn *service.BlogchainDatabaseInstance) ([]tag.Tag, error) {
+	u := tag.NewTagModel(conn)
 	tags, err := u.ContentTags(content.Id)
 
 	return tags, err
 }
 
 func (self ContentModel) Find() *builder.SelectDataset {
-	return self.QueryBuilder().Select("content.*").From("content")
+	return self.Builder().Select("content.*").From("content")
 }
 
 func (c ContentModel) FindWith() *builder.SelectDataset {
@@ -87,7 +88,7 @@ func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicConten
 		idx = append(idx, fmt.Sprintf("%v", content.Id))
 	}
 
-	t := tag.NewTagModel()
+	t := tag.NewTagModel(self.Connection)
 
 	tags, err := t.ContentGroupedTags(idx...)
 
@@ -127,7 +128,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		return Content{}, err
 	}
 
-	tags, err := content.GetTags()
+	tags, err := content.GetTags(self.Connection)
 
 	if err != nil {
 		return Content{}, err
@@ -156,7 +157,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 		}
 	}
 
-	insert := self.QueryBuilder().
+	insert := self.Builder().
 		Insert("content").
 		Rows(
 			builder.Record{
@@ -195,7 +196,7 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 		}
 	}
 
-	update := self.QueryBuilder().
+	update := self.Builder().
 		Update("content").
 		Set(
 			builder.Record{
@@ -231,7 +232,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 		}
 
 		if update {
-			executor := self.QueryBuilder().Delete("content_tag").Where(
+			executor := self.Builder().Delete("content_tag").Where(
 				builder.C("content_id").Eq(content.Id),
 			).Executor()
 
@@ -241,7 +242,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 		}
 
 		// ToDo: Batch Insert
-		executor := self.QueryBuilder()
+		executor := self.Builder()
 		for _, v := range tags {
 			insert := executor.Insert("content_tag").Rows(
 				builder.Record{
@@ -301,7 +302,7 @@ func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content
 		return Content{}, err
 	}
 
-	if tags, err := content.GetTags(); err == nil {
+	if tags, err := content.GetTags(self.Connection); err == nil {
 		content.WithTags(tags)
 	}
 
@@ -316,7 +317,7 @@ func (self ContentModel) FindContentById(id int64) (Content, error) {
 		return Content{}, err
 	}
 
-	if tags, err := content.GetTags(); err == nil {
+	if tags, err := content.GetTags(self.Connection); err == nil {
 		content.WithTags(tags)
 	}
 
