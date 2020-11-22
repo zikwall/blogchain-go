@@ -81,8 +81,16 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 	_, err := query.ScanStruct(&content)
 
 	if err != nil {
-		return content, err
+		return Content{}, err
 	}
+
+	tags, err := content.GetTags()
+
+	if err != nil {
+		return Content{}, err
+	}
+
+	content.WithTags(tags)
 
 	return content, nil
 }
