@@ -2,11 +2,10 @@ package tag
 
 import (
 	builder "github.com/doug-martin/goqu/v9"
-	"github.com/zikwall/blogchain/src/models"
 )
 
 func (self TagModel) Find() *builder.SelectDataset {
-	return models.QueryBuilder().Select("tags.*").From("tags")
+	return self.QueryBuilder().Select("tags.*").From("tags")
 }
 
 func (self TagModel) All() ([]Tag, error) {

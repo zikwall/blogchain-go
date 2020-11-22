@@ -3,14 +3,13 @@ package user
 import (
 	"database/sql"
 	builder "github.com/doug-martin/goqu/v9"
-	"github.com/zikwall/blogchain/src/models"
 	"github.com/zikwall/blogchain/src/models/user/forms"
 	"github.com/zikwall/blogchain/src/utils"
 	"time"
 )
 
 func (self UserModel) Find() *builder.SelectDataset {
-	return models.QueryBuilder().Select("user.*").From("user")
+	return self.QueryBuilder().Select("user.*").From("user")
 }
 
 func (self UserModel) WithProfile(query *builder.SelectDataset) *builder.SelectDataset {
@@ -38,7 +37,7 @@ func (self UserModel) onCredentialsCondition(query *builder.SelectDataset, usern
 		)
 }
 
-func (u UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
+func (self UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
 
 	if err != nil {
@@ -56,7 +55,7 @@ func (u UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	insert := models.QueryBuilder().Insert("user").Rows(
+	insert := self.QueryBuilder().Insert("user").Rows(
 		builder.Record{
 			"password_hash":   user.PasswordHash,
 			"email":           user.Email,
@@ -69,12 +68,12 @@ func (u UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 	status, err := insert.Exec()
 	user.Id, err = status.LastInsertId()
 
-	err = u.AttachProfile(r, &user)
+	err = self.AttachProfile(r, &user)
 
 	return user, err
 }
 
-func (u UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
+func (self UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 	profile := Profile{
 		userId:      user.Id,
 		Name:        r.Name,
@@ -85,7 +84,7 @@ func (u UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 		},
 	}
 
-	insert := models.QueryBuilder().Insert("profile").Rows(
+	insert := self.QueryBuilder().Insert("profile").Rows(
 		builder.Record{
 			"user_id":      profile.userId,
 			"name":         profile.Name,

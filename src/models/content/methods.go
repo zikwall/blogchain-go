@@ -14,7 +14,12 @@ import (
 )
 
 func (content *Content) WithTags(tags []tag.Tag) {
-	content.Tags = tags
+	if tags != nil && len(tags) > 0 {
+		content.Tags = tags
+	} else {
+		// ToDo: fix in client side
+		content.Tags = []tag.Tag{}
+	}
 }
 
 func (content Content) GetTags() ([]tag.Tag, error) {
@@ -25,7 +30,7 @@ func (content Content) GetTags() ([]tag.Tag, error) {
 }
 
 func (self ContentModel) Find() *builder.SelectDataset {
-	return models.QueryBuilder().Select("content.*").From("content")
+	return self.QueryBuilder().Select("content.*").From("content")
 }
 
 func (c ContentModel) FindWith() *builder.SelectDataset {
@@ -95,7 +100,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 	return content, nil
 }
 
-func (c ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, error) {
+func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, error) {
 	content := Content{}
 	content.Content = f.Content
 	content.Title = f.Title
@@ -107,10 +112,12 @@ func (c ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Conte
 	content.Uuid = uv4.String()
 
 	if f.GetImage().Err == nil {
-		_ = SaveImage(content, f, ctx)
+		if err = SaveImage(content, f, ctx); err != nil {
+			return Content{}, err
+		}
 	}
 
-	insert := models.QueryBuilder().
+	insert := self.QueryBuilder().
 		Insert("content").
 		Rows(
 			builder.Record{
@@ -125,21 +132,30 @@ func (c ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Conte
 		).Executor()
 
 	status, err := insert.Exec()
-	content.Id, err = status.LastInsertId()
 
-	if err == nil {
-		err = c.UpsertTags(content, f, true)
+	if err != nil {
+		return Content{}, err
+	}
+
+	if content.Id, err = status.LastInsertId(); err != nil {
+		return Content{}, err
+	}
+
+	if err = self.UpsertTags(content, f, true); err != nil {
+		return Content{}, err
 	}
 
 	return content, err
 }
 
-func (c ContentModel) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
+func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
 	if f.GetImage().Err == nil {
-		_ = SaveImage(content, f, ctx)
+		if err := SaveImage(content, f, ctx); err != nil {
+			return err
+		}
 	}
 
-	update := models.QueryBuilder().
+	update := self.QueryBuilder().
 		Update("content").
 		Set(
 			builder.Record{
@@ -155,34 +171,32 @@ func (c ContentModel) UpdateContent(content Content, f *forms.ContentForm, ctx *
 		).
 		Executor()
 
-	_, err := update.Exec()
-
-	if err == nil {
-		err = c.UpsertTags(content, f, true)
+	if _, err := update.Exec(); err != nil {
+		return err
 	}
 
-	return err
+	if err := self.UpsertTags(content, f, true); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (c ContentModel) UpsertTags(content Content, f *forms.ContentForm, update bool) error {
-	var err error
-
+func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, update bool) error {
 	if f.Tags != "" {
 		tags := []int{}
 
 		if err := json.Unmarshal([]byte(f.Tags), &tags); err == nil {
-
-			// todo calculate diff from request and existing tags (?)
 			if update {
-				executor := models.QueryBuilder().Delete("content_tag").Where(
+				executor := self.QueryBuilder().Delete("content_tag").Where(
 					builder.C("content_id").Eq(content.Id),
 				).Executor()
 
 				_, err = executor.Exec()
 			}
 
-			// todo batch upsert & limited tags
-			executor := models.QueryBuilder()
+			// ToDo: Batch Insert
+			executor := self.QueryBuilder()
 			for _, v := range tags {
 				insert := executor.Insert("content_tag").Rows(
 					builder.Record{
@@ -191,12 +205,14 @@ func (c ContentModel) UpsertTags(content Content, f *forms.ContentForm, update b
 					},
 				).Executor()
 
-				_, err = insert.Exec()
+				if _, err = insert.Exec(); err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	return err
+	return nil
 }
 
 func SaveImage(content Content, f *forms.ContentForm, c *fiber.Ctx) error {
@@ -206,14 +222,10 @@ func SaveImage(content Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	return utils.SaveFile(c, f.GetImage().File, path)
 }
 
-func (c ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
+func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
 	var content []Content
 
-	query := c.FindWith().Where(builder.I("user.id").Eq(userid))
-
-	raw, _, _ := query.ToSQL()
-
-	fmt.Println(raw)
+	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
 
 	var pageSize uint
 	pageSize = 4
@@ -235,10 +247,10 @@ func (c ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, 
 	return pc, err, countPages
 }
 
-func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
+func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
 	content := Content{}
 
-	_, err := c.FindWith().
+	_, err := self.FindWith().
 		Where(
 			builder.And(
 				builder.I("content.id").Eq(id),
@@ -256,9 +268,9 @@ func (c ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, e
 	return content, err
 }
 
-func (c ContentModel) FindContentById(id int64) (Content, error) {
+func (self ContentModel) FindContentById(id int64) (Content, error) {
 	content := Content{}
-	query := c.FindWith().Where(builder.I("content.id").Eq(id))
+	query := self.FindWith().Where(builder.I("content.id").Eq(id))
 
 	_, err := query.ScanStruct(&content)
 
@@ -271,10 +283,10 @@ func (c ContentModel) FindContentById(id int64) (Content, error) {
 	return content, err
 }
 
-func (c ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
+func (self ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
 	var content []Content
 
-	query := c.FindWith()
+	query := self.FindWith()
 
 	if label != "" {
 		onTagCondition := func(query *builder.SelectDataset, tag string) *builder.SelectDataset {

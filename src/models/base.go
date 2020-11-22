@@ -7,6 +7,6 @@ import (
 
 type BlogchainModel struct{}
 
-func QueryBuilder() *goqu.Database {
+func (model BlogchainModel) QueryBuilder() *goqu.Database {
 	return service.GetBlogchainServiceInstance().GetBlogchainDatabaseInstance().Builder()
 }
