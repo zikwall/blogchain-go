@@ -112,7 +112,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 	content.Uuid = uv4.String()
 
 	if f.GetImage().Err == nil {
-		if err = SaveImage(content, f, ctx); err != nil {
+		if err = SaveImage(&content, f, ctx); err != nil {
 			return Content{}, err
 		}
 	}
@@ -150,7 +150,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 
 func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
 	if f.GetImage().Err == nil {
-		if err := SaveImage(content, f, ctx); err != nil {
+		if err := SaveImage(&content, f, ctx); err != nil {
 			return err
 		}
 	}
@@ -159,8 +159,8 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 		Update("content").
 		Set(
 			builder.Record{
-				"title":      content.Title,
-				"content":    content.Content,
+				"title":      f.Title,
+				"content":    f.Content,
 				"annotation": f.Annotation,
 				"image":      content.Image.String,
 				"updated_at": time.Now().Unix(),
@@ -215,7 +215,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 	return nil
 }
 
-func SaveImage(content Content, f *forms.ContentForm, c *fiber.Ctx) error {
+func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	content.Image.String = utils.CreateImagePath(content.Uuid)
 	path := fmt.Sprintf("./public/uploads/%s", content.Image.String)
 
