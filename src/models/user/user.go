@@ -10,17 +10,17 @@ type (
 		models.BlogchainModel
 	}
 	User struct {
-		Id             int64
-		Username       string
-		Email          string
-		PasswordHash   string
-		ConfirmedAt    sql.NullInt64
-		BlockedAt      sql.NullInt64
-		CreatedAt      sql.NullInt64
-		UpdatedAt      sql.NullInt64
-		RegistrationIp sql.NullString
+		Id             int64          `db:"id"`
+		Username       string         `db:"username"`
+		Email          string         `db:"email"`
+		PasswordHash   string         `db:"password_hash"`
+		ConfirmedAt    sql.NullInt64  `db:"confirmed_at"`
+		BlockedAt      sql.NullInt64  `db:"blocked_at"`
+		CreatedAt      sql.NullInt64  `db:"created_at"`
+		UpdatedAt      sql.NullInt64  `db:"updated_at"`
+		RegistrationIp sql.NullString `db:"registration_ip"`
 
-		Profile Profile
+		Profile Profile `db:"profile"`
 	}
 )
 

@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/models/content"
 	"github.com/zikwall/blogchain/src/models/content/forms"
@@ -20,7 +21,12 @@ func GetEditContent(c *fiber.Ctx) error {
 	}
 
 	model := content.NewContentModel()
-	result, err := model.FindContentByIdAndUser(id, userInstance.Id)
+	result, err := model.UserContent(id, userInstance.Id)
+
+	fmt.Println(userInstance.Id)
+	fmt.Println(id)
+
+	fmt.Println(result)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
@@ -31,7 +37,7 @@ func GetEditContent(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(fiber.Map{
 		//"status":  200,
-		"content": result.ToJSONAPI(),
+		"content": result.Response(),
 	})
 }
 
@@ -69,7 +75,7 @@ func UpdateContent(c *fiber.Ctx) error {
 	}
 
 	model := content.NewContentModel()
-	result, err := model.FindContentByIdAndUser(id, userInstance.Id)
+	res, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
 		return c.JSON(fiber.Map{
@@ -81,7 +87,7 @@ func UpdateContent(c *fiber.Ctx) error {
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	err = model.UpdateContent(result, form, c)
+	err = model.UpdateContent(res.Content, form, c)
 
 	if err != nil {
 		return c.JSON(fiber.Map{

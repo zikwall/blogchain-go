@@ -1,35 +1,48 @@
 package tag
 
 import (
-	dbx "github.com/go-ozzo/ozzo-dbx"
+	builder "github.com/doug-martin/goqu/v9"
+	"github.com/zikwall/blogchain/src/models"
 )
 
-func (t TagModel) GetTags() ([]Tag, error) {
-	tags := []Tag{}
-
-	err := t.Query().
-		Select("*").
-		From("tags").
-		All(&tags)
-
-	return tags, err
+func (self TagModel) Find() *builder.SelectDataset {
+	return models.QueryBuilder().Select("tags.*").From("tags")
 }
 
-func (t TagModel) GetTagsByContent(id int64) ([]Tag, error) {
-	tags := []Tag{}
+func (self TagModel) All() ([]Tag, error) {
+	var tags []Tag
 
-	err := t.Query().
-		Select("tags.*").
-		From("tags").
-		LeftJoin("content_tag", dbx.NewExp("content_tag.tag_id=tags.id")).
-		Where(dbx.HashExp{"content_tag.content_id": id}).
-		All(&tags)
+	query := self.Find()
 
-	return tags, err
+	if err := query.ScanStructs(&tags); err != nil {
+		return nil, err
+	}
+
+	return tags, nil
 }
 
-func AttachTagQuery(query *dbx.SelectQuery, tag string) {
-	query.LeftJoin("content_tag", dbx.NewExp("content_tag.content_id=content.id")).
-		LeftJoin("tags", dbx.NewExp("content_tag.tag_id=tags.id")).
-		Where(dbx.HashExp{"tags.label": tag})
+func (self TagModel) OnContentCondition(query *builder.SelectDataset, id int64) *builder.SelectDataset {
+	return query.
+		LeftJoin(
+			builder.T("content_tag"),
+			builder.On(
+				builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
+			),
+		).
+		Where(
+			builder.I("content_tag.content_id").Eq(id),
+		)
+}
+
+func (self TagModel) ContentTags(id int64) ([]Tag, error) {
+	var tags []Tag
+
+	query := self.Find()
+	query = self.OnContentCondition(query, id)
+
+	if err := query.ScanStructs(&tags); err != nil {
+		return nil, err
+	}
+
+	return tags, nil
 }

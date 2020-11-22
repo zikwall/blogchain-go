@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+type UserProfile struct {
+	User    `db:"user"`
+	Profile `db:"profile"`
+}
+
 func (u UserModel) CreateUser(r *forms2.RegisterForm) (*User, error) {
 	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
 

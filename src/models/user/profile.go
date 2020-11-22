@@ -3,13 +3,13 @@ package user
 import "database/sql"
 
 type Profile struct {
-	userId      int64
-	Name        string
-	PublicEmail string
-	Avatar      sql.NullString
-	Location    sql.NullString
-	Status      sql.NullString
-	Description sql.NullString
+	userId      int64          `db:"user_id"`
+	Name        string         `db:"name"`
+	PublicEmail string         `db:"public_email"`
+	Avatar      sql.NullString `db:"avatar"`
+	Location    sql.NullString `db:"location"`
+	Status      sql.NullString `db:"status"`
+	Description sql.NullString `db:"description"`
 }
 
 type PublicProfile struct {

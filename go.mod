@@ -7,6 +7,7 @@ require (
 	github.com/andybalholm/brotli v1.0.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/doug-martin/goqu/v9 v9.10.0
 	github.com/go-ozzo/ozzo-dbx v1.5.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofiber/adaptor/v2 v2.0.3
