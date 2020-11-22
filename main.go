@@ -60,7 +60,7 @@ func main() {
 				EnvVars:  []string{"DATABASE_NAME"},
 			},
 			&cli.StringFlag{
-				Name:     "database-driver",
+				Name:     "database-dialect",
 				Required: true,
 				Usage:    "Database driver",
 				EnvVars:  []string{"DATABASE_DRIVER"},
@@ -88,7 +88,7 @@ func main() {
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
 					Name:     c.String("database-name"),
-					Dialect:  c.String("database-driver"),
+					Dialect:  c.String("database-dialect"),
 				},
 				BlogchainHttpAccessControl: service.BlogchainHttpAccessControl{
 					AllowOrigins:     "*",
