@@ -217,7 +217,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 
 func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	content.Image.String = utils.CreateImagePath(content.Uuid)
-	path := fmt.Sprintf("./public/uploads/%s", content.Image.String)
+	path := fmt.Sprintf("./src/public/uploads/%s", content.Image.String)
 
 	return utils.SaveFile(c, f.GetImage().File, path)
 }
