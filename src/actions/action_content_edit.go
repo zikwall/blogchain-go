@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/models/content"
 	"github.com/zikwall/blogchain/src/models/content/forms"
@@ -22,11 +21,6 @@ func GetEditContent(c *fiber.Ctx) error {
 
 	model := content.NewContentModel()
 	result, err := model.UserContent(id, userInstance.Id)
-
-	fmt.Println(userInstance.Id)
-	fmt.Println(id)
-
-	fmt.Println(result)
 
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{

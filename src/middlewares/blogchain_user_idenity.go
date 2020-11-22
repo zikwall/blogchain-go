@@ -15,7 +15,7 @@ func UseBlogchainUserIdentity(ctx *fiber.Ctx) error {
 		u := user.NewUserModel()
 
 		if i, err := u.FindById(token.UUID); err == nil {
-			instance = i
+			instance = &i
 		}
 	}
 
