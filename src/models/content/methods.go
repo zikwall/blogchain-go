@@ -77,6 +77,39 @@ func (self ContentModel) WithPagination(query *builder.SelectDataset, page, size
 	return query, countPages
 }
 
+func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicContent, error) {
+	idx := make([]interface{}, 0, len(contents))
+	contentMap := make(map[int64]*Content, len(contents))
+
+	for _, content := range contents {
+		c := content
+		contentMap[content.Id] = &c
+		idx = append(idx, fmt.Sprintf("%v", content.Id))
+	}
+
+	t := tag.NewTagModel()
+
+	tags, err := t.ContentGroupedTags(idx...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for id, value := range tags {
+		if _, ok := contentMap[id]; ok {
+
+			contentMap[id].WithTags(value)
+		}
+	}
+
+	var pc []PublicContent
+	for _, content := range contentMap {
+		pc = append(pc, content.Response())
+	}
+
+	return pc, nil
+}
+
 func (self ContentModel) UserContent(contentId int64, id int64) (Content, error) {
 	var content Content
 
@@ -236,7 +269,6 @@ func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 
 func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
 	var content []Content
-	var pc []PublicContent
 
 	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
 	query, count := self.WithPagination(query, uint(page), 4)
@@ -245,17 +277,13 @@ func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicConten
 		return nil, err, 0
 	}
 
-	// ToDo: данный учосток кода дублируется, можно вынести отдельно в метод
-	for _, v := range content {
-		// ToDo: надо сделать пакетную выборку и убрать дубли
-		if tags, err := v.GetTags(); err == nil {
-			v.WithTags(tags)
-		}
+	response, err := self.WithMutableResponse(content)
 
-		pc = append(pc, v.Response())
+	if err != nil {
+		return nil, err, 0
 	}
 
-	return pc, nil, count
+	return response, nil, count
 }
 
 func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
@@ -297,7 +325,6 @@ func (self ContentModel) FindContentById(id int64) (Content, error) {
 
 func (self ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
 	var content []Content
-	var pc []PublicContent
 
 	query := self.FindWith()
 
@@ -336,15 +363,11 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 		return nil, err, 0
 	}
 
-	// ToDo: данный учосток кода дублируется, можно вынести отдельно в метод
-	for _, v := range content {
-		// ToDo: надо сделать пакетную выборку
-		if tags, err := v.GetTags(); err == nil {
-			v.WithTags(tags)
-		}
+	response, err := self.WithMutableResponse(content)
 
-		pc = append(pc, v.Response())
+	if err != nil {
+		return nil, err, 0
 	}
 
-	return pc, nil, count
+	return response, nil, count
 }
