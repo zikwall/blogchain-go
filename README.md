@@ -33,7 +33,7 @@ docker run -d --net=host \
    -e DATABASE_USER='<database username>' \
    -e DATABASE_PASSWORD='<database password>' \
    -e DATABASE_NAME='<database name>' \
-   -e DATABASE_DRIVER='<database username: mysql>' \
+   -e DATABASE_DIALECT='<database dialect: mysql>' \
    -e CONTAINER_SECRET='<blogchain application secret>' \
    --name golang-blogchain-server qwx1337/blogchain-server:latest
 ```
