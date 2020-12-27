@@ -2,6 +2,7 @@ package content
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	builder "github.com/doug-martin/goqu/v9"
 	"github.com/gofiber/fiber/v2"
@@ -298,8 +299,10 @@ func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content
 			),
 		)
 
-	if _, err := query.ScanStruct(&content); err != nil {
+	if ok, err := query.ScanStruct(&content); err != nil {
 		return Content{}, err
+	} else if !ok {
+		return content, errors.New("Content with the required ID was not found")
 	}
 
 	if tags, err := content.GetTags(self.Connection); err == nil {
@@ -313,8 +316,10 @@ func (self ContentModel) FindContentById(id int64) (Content, error) {
 	content := Content{}
 	query := self.FindWith().Where(builder.I("content.id").Eq(id))
 
-	if _, err := query.ScanStruct(&content); err != nil {
-		return Content{}, err
+	if ok, err := query.ScanStruct(&content); err != nil {
+		return content, err
+	} else if !ok {
+		return content, errors.New("Content with the required ID was not found")
 	}
 
 	if tags, err := content.GetTags(self.Connection); err == nil {
