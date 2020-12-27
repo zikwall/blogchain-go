@@ -9,6 +9,7 @@
 ### Related Projects
 
 - [x] [Blogchain Client, powered by Next.js](https://github.com/zikwall/blogchain)
+- [x] [Blogchain Client, powered by Sevelte](https://github.com/zikwall/blogchain-svelte)
 - [x] [Docker Compose (Blogchain Compose)](https://github.com/zikwall/blogchain-compose)
 
 ## Development
