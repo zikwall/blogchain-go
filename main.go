@@ -83,7 +83,7 @@ func main() {
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.NewBlogchainServiceInstance(
 			service.BlogchainServiceConfiguration{
-				BloghainDatabaseConfiguration: service.BloghainDatabaseConfiguration{
+				BlogchainDatabaseConfiguration: service.BlogchainDatabaseConfiguration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),

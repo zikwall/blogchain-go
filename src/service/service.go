@@ -11,10 +11,10 @@ type (
 		logger             *BlogchainInternalLogger
 	}
 	BlogchainServiceConfiguration struct {
-		BloghainDatabaseConfiguration BloghainDatabaseConfiguration
-		BlogchainHttpAccessControl    BlogchainHttpAccessControl
-		BlogchainContainer            BlogchainServiceContainerConfiguration
-		IsDebug                       bool
+		BlogchainDatabaseConfiguration BlogchainDatabaseConfiguration
+		BlogchainHttpAccessControl     BlogchainHttpAccessControl
+		BlogchainContainer             BlogchainServiceContainerConfiguration
+		IsDebug                        bool
 	}
 	BlogchainHttpAccessControl struct {
 		AllowOrigins     string
@@ -32,7 +32,7 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
 	b.logger = NewBlogchainInternalLogger(c.IsDebug)
 
-	database, err := NewBlogchainDatabaseInstance(c.BloghainDatabaseConfiguration)
+	database, err := NewBlogchainDatabaseInstance(c.BlogchainDatabaseConfiguration)
 
 	if err != nil {
 		return nil, err

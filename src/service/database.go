@@ -12,7 +12,7 @@ type (
 	BlogchainDatabaseInstance struct {
 		db *builder.Database
 	}
-	BloghainDatabaseConfiguration struct {
+	BlogchainDatabaseConfiguration struct {
 		Host     string
 		User     string
 		Password string
@@ -33,7 +33,7 @@ func (logger BlogchainDatabaseLogger) Printf(format string, v ...interface{}) {
 	logger.callback(format, v)
 }
 
-func NewBlogchainDatabaseInstance(c BloghainDatabaseConfiguration) (*BlogchainDatabaseInstance, error) {
+func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainDatabaseInstance, error) {
 	d := new(BlogchainDatabaseInstance)
 
 	if c.Dialect == "" {
@@ -64,7 +64,7 @@ func (d *BlogchainDatabaseInstance) Builder() *builder.Database {
 	return d.db
 }
 
-func makeBlogchainDatabaseConnectionString(c BloghainDatabaseConfiguration) string {
+func makeBlogchainDatabaseConnectionString(c BlogchainDatabaseConfiguration) string {
 	return fmt.Sprintf("%s:%s%s/%s", c.User, c.Password, c.Host, c.Name)
 }
 
