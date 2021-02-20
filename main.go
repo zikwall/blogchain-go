@@ -107,8 +107,8 @@ func main() {
 		}
 
 		app := fiber.New()
-		app.Static("/docs", "./src/public/docs")
-		app.Static("/uploads", "./src/public/uploads")
+		app.Static("/docs", "./src/app/public/docs")
+		app.Static("/uploads", "./src/app/public/uploads")
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
