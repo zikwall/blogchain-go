@@ -1,8 +1,8 @@
 package actions
 
 import (
-	"github.com/zikwall/blogchain/src/lib"
-	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/platform/service"
 )
 
 type (

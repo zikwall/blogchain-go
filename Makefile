@@ -21,20 +21,20 @@ database:
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate
 	cd ./sql-migrate/sql-migrate && go build && cd ../..
-	mv ./sql-migrate/sql-migrate/sql-migrate ./tools
+	mv ./sql-migrate/sql-migrate/sql-migrate ./src/cmd
 	rm -rf ./sql-migrate
 
 migrate-up:
-	./tools/sql-migrate up
+	./src/cmd/sql-migrate up -config=./src/cmd/dbconfig.yml
 
 migrate-down:
-	./tools/sql-migrate down
+	./src/cmd/sql-migrate down -config=./src/cmd/dbconfig.yml
 
 migrate-status:
-	./tools/sql-migrate status
+	./src/cmd/sql-migrate status -config=./src/cmd/dbconfig.yml
 
 migrate-new:
-	./tools/sql-migrate new $(name)
+	./src/cmd/sql-migrate new $(name) -config=./src/cmd/dbconfig.yml
 
 help:
 	@echo -e "Usage: make [target] ...\n"

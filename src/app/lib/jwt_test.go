@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"github.com/zikwall/blogchain/src/constants"
+	"github.com/zikwall/blogchain/src/platform/constants"
 	"testing"
 	"time"
 )

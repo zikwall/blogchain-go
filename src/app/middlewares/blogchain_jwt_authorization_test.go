@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/lib"
+	"github.com/zikwall/blogchain/src/app/lib"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"

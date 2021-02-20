@@ -3,7 +3,7 @@ package middlewares
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/platform/service"
 )
 
 const (

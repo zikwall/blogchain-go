@@ -3,8 +3,8 @@ package user
 import (
 	"database/sql"
 	builder "github.com/doug-martin/goqu/v9"
-	"github.com/zikwall/blogchain/src/models/user/forms"
-	"github.com/zikwall/blogchain/src/utils"
+	"github.com/zikwall/blogchain/src/app/models/user/forms"
+	"github.com/zikwall/blogchain/src/app/utils"
 	"time"
 )
 

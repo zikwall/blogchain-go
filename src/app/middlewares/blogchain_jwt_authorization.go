@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/lib"
+	"github.com/zikwall/blogchain/src/app/lib"
 )
 
 func WithBlogchainJWTAuthorization(rsa lib.RSA) fiber.Handler {

@@ -3,7 +3,7 @@ package middlewares
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/platform/service"
 )
 
 func WithBlogchainCORSPolicy(blogchain *service.BlogchainServiceInstance) fiber.Handler {

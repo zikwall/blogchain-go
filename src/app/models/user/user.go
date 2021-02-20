@@ -2,8 +2,8 @@ package user
 
 import (
 	"database/sql"
-	"github.com/zikwall/blogchain/src/models"
-	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/app/models"
+	"github.com/zikwall/blogchain/src/platform/service"
 )
 
 type (

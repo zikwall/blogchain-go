@@ -3,7 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/models/user"
+	"github.com/zikwall/blogchain/src/app/models/user"
 )
 
 // HealthCheckAction godoc

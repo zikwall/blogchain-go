@@ -1,8 +1,8 @@
 package lib
 
 import (
-	"github.com/zikwall/blogchain/src/constants"
-	"github.com/zikwall/blogchain/src/utils"
+	"github.com/zikwall/blogchain/src/app/utils"
+	"github.com/zikwall/blogchain/src/platform/constants"
 )
 
 // ToDo: Create service for automatic synchronize & update RSA public keys

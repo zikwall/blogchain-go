@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
-	"github.com/zikwall/blogchain/src/actions"
-	"github.com/zikwall/blogchain/src/constants"
-	"github.com/zikwall/blogchain/src/lib"
-	"github.com/zikwall/blogchain/src/middlewares"
-	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/app/actions"
+	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/app/middlewares"
+	"github.com/zikwall/blogchain/src/platform/constants"
+	"github.com/zikwall/blogchain/src/platform/service"
 	"log"
 	"os"
 )

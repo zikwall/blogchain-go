@@ -2,7 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/models/tag"
+	"github.com/zikwall/blogchain/src/app/models/tag"
 )
 
 func (a BlogchainActionProvider) Tags(c *fiber.Ctx) error {

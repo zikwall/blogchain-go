@@ -7,11 +7,11 @@ import (
 	builder "github.com/doug-martin/goqu/v9"
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
-	"github.com/zikwall/blogchain/src/models"
-	"github.com/zikwall/blogchain/src/models/content/forms"
-	"github.com/zikwall/blogchain/src/models/tag"
-	"github.com/zikwall/blogchain/src/service"
-	"github.com/zikwall/blogchain/src/utils"
+	"github.com/zikwall/blogchain/src/app/models"
+	"github.com/zikwall/blogchain/src/app/models/content/forms"
+	"github.com/zikwall/blogchain/src/app/models/tag"
+	"github.com/zikwall/blogchain/src/app/utils"
+	"github.com/zikwall/blogchain/src/platform/service"
 	"time"
 )
 

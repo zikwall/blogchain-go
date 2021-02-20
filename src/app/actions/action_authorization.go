@@ -2,10 +2,10 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/lib"
-	"github.com/zikwall/blogchain/src/models/user"
-	"github.com/zikwall/blogchain/src/models/user/forms"
-	"github.com/zikwall/blogchain/src/utils"
+	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/app/models/user"
+	"github.com/zikwall/blogchain/src/app/models/user/forms"
+	"github.com/zikwall/blogchain/src/app/utils"
 )
 
 func (a BlogchainActionProvider) Logout(c *fiber.Ctx) error {

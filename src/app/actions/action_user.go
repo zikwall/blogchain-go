@@ -2,7 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/models/user"
+	"github.com/zikwall/blogchain/src/app/models/user"
 )
 
 func (a BlogchainActionProvider) Profile(c *fiber.Ctx) error {

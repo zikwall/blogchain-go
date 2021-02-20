@@ -2,9 +2,9 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/lib"
-	"github.com/zikwall/blogchain/src/models/user"
-	"github.com/zikwall/blogchain/src/service"
+	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/app/models/user"
+	"github.com/zikwall/blogchain/src/platform/service"
 )
 
 func WithBlogchainUserIdentity(blogchain *service.BlogchainServiceInstance) fiber.Handler {
