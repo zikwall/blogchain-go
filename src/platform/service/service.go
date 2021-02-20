@@ -1,7 +1,5 @@
 package service
 
-var service *BlogchainServiceInstance
-
 type (
 	BlogchainServiceInstance struct {
 		Notify
@@ -52,13 +50,7 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 		b.logger,
 	)
 
-	service = b
-
 	return b, nil
-}
-
-func GetBlogchainServiceInstance() *BlogchainServiceInstance {
-	return service
 }
 
 func (b *BlogchainServiceInstance) GetBlogchainDatabaseInstance() *BlogchainDatabaseInstance {
