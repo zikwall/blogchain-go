@@ -25,5 +25,5 @@ func Warning(message interface{}) {
 }
 
 func Error(message interface{}) {
-	log.Fatal("%s: %v \n", Colored("[BLOGCHAIN WARNING]", Red), message)
+	log.Fatalf("%s: %v \n", Colored("[BLOGCHAIN WARNING]", Red), message)
 }
