@@ -11,9 +11,6 @@ all: database test
 
 deploy: build-migration-tool migrate-up
 
-test:
-	go test -json --tags=teamcity
-
 tests:
 	go test ./... -v
 
