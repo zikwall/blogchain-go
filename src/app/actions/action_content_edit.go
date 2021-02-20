@@ -19,7 +19,7 @@ func (a BlogchainActionProvider) ContentInformation(c *fiber.Ctx) error {
 		})
 	}
 
-	model := content.NewContentModel(a.db)
+	model := content.CreateContentConnection(a.db)
 	result, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (a BlogchainActionProvider) ContentUpdate(c *fiber.Ctx) error {
 		})
 	}
 
-	model := content.NewContentModel(a.db)
+	model := content.CreateContentConnection(a.db)
 	res, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
@@ -122,7 +122,7 @@ func (a BlogchainActionProvider) ContentCreate(c *fiber.Ctx) error {
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	model := content.NewContentModel(a.db)
+	model := content.CreateContentConnection(a.db)
 	result, err := model.CreateContent(form, c)
 
 	if err != nil {

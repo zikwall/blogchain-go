@@ -7,6 +7,7 @@ import (
 	"github.com/zikwall/blogchain/src/app/lib"
 	"github.com/zikwall/blogchain/src/app/middlewares"
 	"github.com/zikwall/blogchain/src/platform/constants"
+	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/service"
 	"os"
@@ -83,7 +84,7 @@ func main() {
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.NewBlogchainServiceInstance(
 			service.BlogchainServiceConfiguration{
-				BlogchainDatabaseConfiguration: service.BlogchainDatabaseConfiguration{
+				BlogchainDatabaseConfiguration: database.BlogchainDatabaseConfiguration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),

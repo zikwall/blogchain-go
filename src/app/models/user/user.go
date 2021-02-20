@@ -2,13 +2,12 @@ package user
 
 import (
 	"database/sql"
-	"github.com/zikwall/blogchain/src/app/models"
-	"github.com/zikwall/blogchain/src/platform/service"
+	"github.com/zikwall/blogchain/src/platform/database"
 )
 
 type (
 	UserModel struct {
-		models.BlogchainModel
+		connection *database.BlogchainDatabaseInstance
 	}
 	User struct {
 		Id             int64          `db:"id"`
@@ -25,10 +24,14 @@ type (
 	}
 )
 
-func NewUserModel(conn *service.BlogchainDatabaseInstance) UserModel {
-	return UserModel{struct {
-		Connection *service.BlogchainDatabaseInstance
-	}{Connection: conn}}
+func CreateUserConnection(connection *database.BlogchainDatabaseInstance) UserModel {
+	return UserModel{
+		connection: connection,
+	}
+}
+
+func (u UserModel) Connection() *database.BlogchainDatabaseInstance {
+	return u.connection
 }
 
 type PublicUser struct {

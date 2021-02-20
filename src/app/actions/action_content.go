@@ -16,7 +16,7 @@ func (a BlogchainActionProvider) Content(c *fiber.Ctx) error {
 		})
 	}
 
-	model := content.NewContentModel(a.db)
+	model := content.CreateContentConnection(a.db)
 	result, err := model.FindContentById(id)
 
 	if err != nil {
@@ -42,7 +42,7 @@ func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
 		}
 	}
 
-	model := content.NewContentModel(a.db)
+	model := content.CreateContentConnection(a.db)
 	contents, err, count := model.FindAllContent(tag, page)
 
 	if err != nil {
@@ -71,7 +71,7 @@ func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
 		}
 	}
 
-	model := content.NewContentModel(a.db)
+	model := content.CreateContentConnection(a.db)
 	contents, err, count := model.FindAllByUser(user, page)
 
 	if err != nil {

@@ -14,7 +14,7 @@ func WithBlogchainUserIdentity(blogchain *service.BlogchainServiceInstance) fibe
 		claims := ctx.Locals("claims")
 
 		if token, ok := claims.(*lib.TokenClaims); ok {
-			u := user.NewUserModel(blogchain.GetBlogchainDatabaseInstance())
+			u := user.CreateUserConnection(blogchain.GetBlogchainDatabaseInstance())
 
 			if i, err := u.FindById(token.UUID); err == nil {
 				instance = &i

@@ -6,7 +6,7 @@ import (
 )
 
 func (a BlogchainActionProvider) Profile(c *fiber.Ctx) error {
-	u := user.NewUserModel(a.db)
+	u := user.CreateUserConnection(a.db)
 
 	result, err := u.FindByUsername(c.Params("username"))
 

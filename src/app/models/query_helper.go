@@ -17,3 +17,10 @@ func QueryCount(query *goqu.SelectDataset, pageSize uint) (float64, error) {
 
 	return countPages, err
 }
+
+func WithPagination(query *goqu.SelectDataset, page, size uint) (*goqu.SelectDataset, float64) {
+	countPages, _ := QueryCount(query, size)
+	query = query.Offset(page * size).Limit(size)
+
+	return query, countPages
+}

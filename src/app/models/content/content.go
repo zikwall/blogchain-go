@@ -2,15 +2,14 @@ package content
 
 import (
 	"database/sql"
-	"github.com/zikwall/blogchain/src/app/models"
 	"github.com/zikwall/blogchain/src/app/models/tag"
 	"github.com/zikwall/blogchain/src/app/models/user"
-	"github.com/zikwall/blogchain/src/platform/service"
+	"github.com/zikwall/blogchain/src/platform/database"
 )
 
 type (
 	ContentModel struct {
-		models.BlogchainModel
+		connection *database.BlogchainDatabaseInstance
 	}
 	Content struct {
 		Id         int64          `db:"id"`
@@ -44,13 +43,14 @@ type (
 	}
 )
 
-func NewContentModel(conn *service.BlogchainDatabaseInstance) ContentModel {
-	return ContentModel{struct {
-		Connection *service.BlogchainDatabaseInstance
-	}{
-		Connection: conn,
-	},
+func CreateContentConnection(connection *database.BlogchainDatabaseInstance) ContentModel {
+	return ContentModel{
+		connection: connection,
 	}
+}
+
+func (self ContentModel) Connection() *database.BlogchainDatabaseInstance {
+	return self.connection
 }
 
 func (c *Content) Response() PublicContent {

@@ -1,13 +1,12 @@
 package tag
 
 import (
-	"github.com/zikwall/blogchain/src/app/models"
-	"github.com/zikwall/blogchain/src/platform/service"
+	"github.com/zikwall/blogchain/src/platform/database"
 )
 
 type (
 	TagModel struct {
-		models.BlogchainModel
+		connection *database.BlogchainDatabaseInstance
 	}
 	Tag struct {
 		Id    int64  `json:"id"`
@@ -21,8 +20,12 @@ type (
 	}
 )
 
-func NewTagModel(conn *service.BlogchainDatabaseInstance) TagModel {
-	return TagModel{struct {
-		Connection *service.BlogchainDatabaseInstance
-	}{Connection: conn}}
+func CreateTagConnection(connection *database.BlogchainDatabaseInstance) TagModel {
+	return TagModel{
+		connection: connection,
+	}
+}
+
+func (t TagModel) Connection() *database.BlogchainDatabaseInstance {
+	return t.connection
 }

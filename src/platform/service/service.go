@@ -1,16 +1,19 @@
 package service
 
-import "github.com/zikwall/blogchain/src/platform/log"
+import (
+	"github.com/zikwall/blogchain/src/platform/database"
+	"github.com/zikwall/blogchain/src/platform/log"
+)
 
 type (
 	BlogchainServiceInstance struct {
 		Notify
 		HttpAccessControls BlogchainHttpAccessControl
 		Container          *BlogchainServiceContainer
-		database           *BlogchainDatabaseInstance
+		database           *database.BlogchainDatabaseInstance
 	}
 	BlogchainServiceConfiguration struct {
-		BlogchainDatabaseConfiguration BlogchainDatabaseConfiguration
+		BlogchainDatabaseConfiguration database.BlogchainDatabaseConfiguration
 		BlogchainHttpAccessControl     BlogchainHttpAccessControl
 		BlogchainContainer             BlogchainServiceContainerConfiguration
 		IsDebug                        bool
@@ -30,20 +33,20 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 	b.HttpAccessControls = c.BlogchainHttpAccessControl
 	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
 
-	database, err := NewBlogchainDatabaseInstance(c.BlogchainDatabaseConfiguration)
+	db, err := database.NewBlogchainDatabaseInstance(c.BlogchainDatabaseConfiguration)
 
 	if err != nil {
 		return nil, err
 	}
 
-	dbLogger := BlogchainDatabaseLogger{}
+	dbLogger := database.BlogchainDatabaseLogger{}
 	dbLogger.SetCallback(func(format string, v ...interface{}) {
 		log.Info(v)
 	})
 
-	database.SetLogger(dbLogger)
+	db.SetLogger(dbLogger)
 
-	b.database = database
+	b.database = db
 
 	b.AddNotifiers(
 		b.database,
@@ -52,6 +55,6 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 	return b, nil
 }
 
-func (b *BlogchainServiceInstance) GetBlogchainDatabaseInstance() *BlogchainDatabaseInstance {
+func (b *BlogchainServiceInstance) GetBlogchainDatabaseInstance() *database.BlogchainDatabaseInstance {
 	return b.database
 }
