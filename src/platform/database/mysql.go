@@ -6,6 +6,7 @@ import (
 	builder "github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"strings"
 )
 
 type (
@@ -42,6 +43,14 @@ func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainD
 
 	if c.Host == "" {
 		c.Host = "@"
+	}
+
+	if strings.EqualFold(c.Host, "") {
+		c.Host = "@"
+	} else {
+		if !strings.Contains(c.Host, "@") {
+			c.Host = fmt.Sprintf("@tcp(%s)", c.Host)
+		}
 	}
 
 	db, err := sql.Open(c.Dialect, makeBlogchainDatabaseConnectionString(c))
