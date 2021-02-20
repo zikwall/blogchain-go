@@ -170,9 +170,10 @@ func main() {
 			}
 		}()
 
-		blogchain.WaitBlogchainSystemNotify()
-		blogchain.ShutdownBlogchainServer(func(err error) {
-			log.Info(err)
+		wait(func() {
+			blogchain.ShutdownBlogchainServer(func(err error) {
+				log.Info(err)
+			})
 		})
 
 		return nil
