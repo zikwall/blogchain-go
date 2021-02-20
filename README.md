@@ -3,17 +3,17 @@
 <div align="center">
   <img width="150" height="150" src="https://github.com/zikwall/blogchain/blob/master/screenshots/bc_go_300.png">
   <h1>Blog Chain</h1>
-  <h5>Simple, Powerful and productive server written in Go</h5>
+  <h5>Simple, Powerful and Productive blogging server written in Go</h5>
 </div>
 
-### Related Projects
+#### Related Projects
 
 - [x] [Blogchain Client, powered by Next.js](https://github.com/zikwall/blogchain)
 - [x] [Blogchain Client, powered by Sevelte](https://github.com/zikwall/blogchain-svelte)
 - [x] [Blogchain Server, powered by Rust](https://github.com/zikwall/blogchain-rust)
 - [x] [Docker Compose (Blogchain Compose)](https://github.com/zikwall/blogchain-compose)
 
-## Development
+#### Development
 
 - Native
 ```shell script

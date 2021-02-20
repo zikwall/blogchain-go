@@ -3,12 +3,12 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
-	"github.com/zikwall/blogchain/src/actions"
-	"github.com/zikwall/blogchain/src/constants"
-	"github.com/zikwall/blogchain/src/lib"
-	"github.com/zikwall/blogchain/src/middlewares"
-	"github.com/zikwall/blogchain/src/service"
-	"log"
+	"github.com/zikwall/blogchain/src/app/actions"
+	"github.com/zikwall/blogchain/src/app/middlewares"
+	"github.com/zikwall/blogchain/src/platform/container"
+	"github.com/zikwall/blogchain/src/platform/database"
+	"github.com/zikwall/blogchain/src/platform/log"
+	"github.com/zikwall/blogchain/src/platform/service"
 	"os"
 )
 
@@ -83,7 +83,7 @@ func main() {
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.NewBlogchainServiceInstance(
 			service.BlogchainServiceConfiguration{
-				BlogchainDatabaseConfiguration: service.BlogchainDatabaseConfiguration{
+				BlogchainDatabaseConfiguration: database.BlogchainDatabaseConfiguration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
@@ -98,7 +98,7 @@ func main() {
 					ExposeHeaders:    "",
 					MaxAge:           0,
 				},
-				BlogchainContainer: service.BlogchainServiceContainerConfiguration{},
+				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
 			},
 		)
 
@@ -107,8 +107,8 @@ func main() {
 		}
 
 		app := fiber.New()
-		app.Static("/docs", "./src/public/docs")
-		app.Static("/uploads", "./src/public/uploads")
+		app.Static("/docs", "./src/app/public/docs")
+		app.Static("/uploads", "./src/app/public/uploads")
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
@@ -116,8 +116,8 @@ func main() {
 			middlewares.WithBlogchainXHeaderPolicy(blogchain),
 		)
 
-		rsa := lib.NewBlogchainRSAContainer(
-			constants.TestPublicKey, constants.TestPrivateKey,
+		rsa := container.NewBlogchainRSAContainer(
+			container.TestPublicKey, container.TestPrivateKey,
 		)
 
 		actionProvider := actions.NewBlogchainActionProvider(actions.ActionsRequiredInstances{
@@ -166,19 +166,20 @@ func main() {
 
 		go func() {
 			if err := app.Listen(c.String("bind-address")); err != nil {
-				blogchain.GetInternalLogger().Error(err)
+				log.Error(err)
 			}
 		}()
 
-		blogchain.WaitBlogchainSystemNotify()
-		blogchain.ShutdownBlogchainServer()
+		wait(func() {
+			blogchain.ShutdownBlogchainServer(func(err error) {
+				log.Info(err)
+			})
+		})
 
 		return nil
 	}
 
-	err := application.Run(os.Args)
-
-	if err != nil {
-		log.Fatal(err)
+	if err := application.Run(os.Args); err != nil {
+		log.Error(err)
 	}
 }
