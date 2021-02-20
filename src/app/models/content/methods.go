@@ -72,13 +72,6 @@ func (self ContentModel) WithUserProfile(query *builder.SelectDataset) *builder.
 		)
 }
 
-func (self ContentModel) WithPagination(query *builder.SelectDataset, page, size uint) (*builder.SelectDataset, float64) {
-	countPages, _ := models.QueryCount(query, size)
-	query = query.Offset(page * size).Limit(size)
-
-	return query, countPages
-}
-
 func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicContent, error) {
 	idx := make([]interface{}, 0, len(contents))
 	contentMap := make(map[int64]*Content, len(contents))
@@ -273,7 +266,7 @@ func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicConten
 	var content []Content
 
 	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
-	query, count := self.WithPagination(query, uint(page), 4)
+	query, count := models.WithPagination(query, uint(page), 4)
 
 	if err := query.ScanStructs(&content); err != nil {
 		return nil, err, 0
@@ -363,7 +356,7 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 		query = onTagCondition(query, label)
 	}
 
-	query, count := self.WithPagination(query, uint(page), 4)
+	query, count := models.WithPagination(query, uint(page), 4)
 
 	if err := query.ScanStructs(&content); err != nil {
 		return nil, err, 0
