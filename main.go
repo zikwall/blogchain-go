@@ -179,9 +179,7 @@ func main() {
 		return nil
 	}
 
-	err := application.Run(os.Args)
-
-	if err != nil {
+	if err := application.Run(os.Args); err != nil {
 		log.Error(err)
 	}
 }
