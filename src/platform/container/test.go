@@ -1,4 +1,4 @@
-package constants
+package container
 
 const TestPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICXAIBAAKBgQDLZ8LRgXIEg/VfpyAqhe6y5/LTtXBvoAethfMFaoiLKVNQ4M+E

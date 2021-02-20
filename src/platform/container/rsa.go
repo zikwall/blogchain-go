@@ -1,8 +1,7 @@
-package lib
+package container
 
 import (
-	"github.com/zikwall/blogchain/src/app/utils"
-	"github.com/zikwall/blogchain/src/platform/constants"
+	"strings"
 )
 
 // ToDo: Create service for automatic synchronize & update RSA public keys
@@ -34,7 +33,7 @@ func (r RSAContainer) GetPublicKey() string {
 }
 
 func (r *RSAContainer) SetPublicKey(key string) {
-	r.publicKey = utils.EscapeNewLine(key)
+	r.publicKey = escapeNewLine(key)
 }
 
 func (r RSAContainer) GetPrivateKey() string {
@@ -42,17 +41,25 @@ func (r RSAContainer) GetPrivateKey() string {
 }
 
 func (r *RSAContainer) SetPrivateKey(key string) {
-	r.privateKey = utils.EscapeNewLine(key)
+	r.privateKey = escapeNewLine(key)
 }
 
 type MockRSA struct{}
 
 func (r MockRSA) GetPublicKey() string {
-	return constants.TestPublicKey
+	return TestPublicKey
 }
 
 func (r MockRSA) GetPrivateKey() string {
-	return constants.TestPrivateKey
+	return TestPrivateKey
 }
+
 func (r *MockRSA) SetPublicKey(key string)  {}
 func (r *MockRSA) SetPrivateKey(key string) {}
+
+// It's possible that your "\n" is actually the escaped version of a line break character.
+// You can replace these with real line breaks by searching for the escaped version
+// and replacing with the non escaped version
+func escapeNewLine(s string) string {
+	return strings.ReplaceAll(s, `\n`, "\n")
+}

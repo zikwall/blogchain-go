@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/log"
 )
@@ -9,13 +10,13 @@ type (
 	BlogchainServiceInstance struct {
 		Notify
 		HttpAccessControls BlogchainHttpAccessControl
-		Container          *BlogchainServiceContainer
+		Container          *container.BlogchainServiceContainer
 		database           *database.BlogchainDatabaseInstance
 	}
 	BlogchainServiceConfiguration struct {
 		BlogchainDatabaseConfiguration database.BlogchainDatabaseConfiguration
 		BlogchainHttpAccessControl     BlogchainHttpAccessControl
-		BlogchainContainer             BlogchainServiceContainerConfiguration
+		BlogchainContainer             container.BlogchainServiceContainerConfiguration
 		IsDebug                        bool
 	}
 	BlogchainHttpAccessControl struct {
@@ -31,7 +32,7 @@ type (
 func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainServiceInstance, error) {
 	b := new(BlogchainServiceInstance)
 	b.HttpAccessControls = c.BlogchainHttpAccessControl
-	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
+	b.Container = container.NewBlogchainServiceContainer(c.BlogchainContainer)
 
 	db, err := database.NewBlogchainDatabaseInstance(c.BlogchainDatabaseConfiguration)
 

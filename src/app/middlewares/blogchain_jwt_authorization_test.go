@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/platform/container"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
@@ -14,7 +15,7 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 	t.Run("it should be a valid token signature with middleware", func(t *testing.T) {
 		app := fiber.New()
 
-		rsa := &lib.MockRSA{}
+		rsa := &container.MockRSA{}
 		test := app.Group("/test")
 		{
 			test.Get("/jwt",

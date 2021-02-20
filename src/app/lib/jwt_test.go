@@ -1,7 +1,7 @@
 package lib
 
 import (
-	"github.com/zikwall/blogchain/src/platform/constants"
+	"github.com/zikwall/blogchain/src/platform/container"
 	"testing"
 	"time"
 )
@@ -12,13 +12,13 @@ func TestJwtToken(t *testing.T) {
 			UUID: 100,
 		}
 
-		createdToken, err := CreateJwtToken(claims, 99999999, constants.TestPrivateKey)
+		createdToken, err := CreateJwtToken(claims, 99999999, container.TestPrivateKey)
 
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		parsedClaims, err := VerifyJwtToken(createdToken, &MockRSA{})
+		parsedClaims, err := VerifyJwtToken(createdToken, &container.MockRSA{})
 
 		if err != nil {
 			t.Fatal(err)
@@ -34,7 +34,7 @@ func TestJwtToken(t *testing.T) {
 			UUID: 100,
 		}
 
-		createdToken, err := CreateJwtToken(claims, 1, constants.TestPrivateKey)
+		createdToken, err := CreateJwtToken(claims, 1, container.TestPrivateKey)
 
 		if err != nil {
 			t.Fatal(err)
@@ -42,7 +42,7 @@ func TestJwtToken(t *testing.T) {
 
 		time.Sleep(2000 * time.Millisecond)
 
-		_, err = VerifyJwtToken(createdToken, &MockRSA{})
+		_, err = VerifyJwtToken(createdToken, &container.MockRSA{})
 
 		if err == nil {
 			t.Fatal("The token should have expired")

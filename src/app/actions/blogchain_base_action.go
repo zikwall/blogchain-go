@@ -1,17 +1,17 @@
 package actions
 
 import (
-	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
 )
 
 type (
 	BlogchainActionProvider struct {
-		rsa lib.RSA
+		rsa container.RSA
 		db  *database.BlogchainDatabaseInstance
 	}
 	ActionsRequiredInstances struct {
-		RSA lib.RSA
+		RSA container.RSA
 		Db  *database.BlogchainDatabaseInstance
 	}
 )

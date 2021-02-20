@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/zikwall/blogchain/src/platform/container"
 	"strings"
 	"time"
 )
@@ -51,7 +52,7 @@ func CreateJwtToken(claims TokenClaims, duration int64, private string) (string,
 	return withClaimsToken.SignedString(key)
 }
 
-func VerifyJwtToken(token string, r RSA) (*TokenClaims, error) {
+func VerifyJwtToken(token string, r container.RSA) (*TokenClaims, error) {
 	withClaimsToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(
 			r.GetPublicKey(),

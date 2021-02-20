@@ -4,9 +4,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
-	"github.com/zikwall/blogchain/src/app/lib"
 	"github.com/zikwall/blogchain/src/app/middlewares"
-	"github.com/zikwall/blogchain/src/platform/constants"
+	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/service"
@@ -99,7 +98,7 @@ func main() {
 					ExposeHeaders:    "",
 					MaxAge:           0,
 				},
-				BlogchainContainer: service.BlogchainServiceContainerConfiguration{},
+				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
 			},
 		)
 
@@ -117,8 +116,8 @@ func main() {
 			middlewares.WithBlogchainXHeaderPolicy(blogchain),
 		)
 
-		rsa := lib.NewBlogchainRSAContainer(
-			constants.TestPublicKey, constants.TestPrivateKey,
+		rsa := container.NewBlogchainRSAContainer(
+			container.TestPublicKey, container.TestPrivateKey,
 		)
 
 		actionProvider := actions.NewBlogchainActionProvider(actions.ActionsRequiredInstances{
