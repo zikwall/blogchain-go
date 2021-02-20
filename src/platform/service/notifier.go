@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/zikwall/blogchain/src/platform/log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,14 +34,14 @@ func (s *BlogchainServiceInstance) WaitBlogchainSystemNotify() {
 	<-sig
 }
 
-func (s *BlogchainServiceInstance) ShutdownBlogchainServer() {
-	s.logger.Info("Shutdown Blogchain Service via System signal")
+func (s *BlogchainServiceInstance) ShutdownBlogchainServer(onError func(error)) {
+	log.Info("Shutdown Blogchain Service via System signal")
 
 	for _, notifier := range s.notifiers {
-		s.logger.Info(notifier.CloseMessage())
+		log.Info(notifier.CloseMessage())
 
 		if err := notifier.Close(); err != nil {
-			s.logger.Warning(err)
+			onError(err)
 		}
 	}
 }

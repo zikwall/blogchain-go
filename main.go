@@ -7,8 +7,8 @@ import (
 	"github.com/zikwall/blogchain/src/app/lib"
 	"github.com/zikwall/blogchain/src/app/middlewares"
 	"github.com/zikwall/blogchain/src/platform/constants"
+	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/service"
-	"log"
 	"os"
 )
 
@@ -166,12 +166,14 @@ func main() {
 
 		go func() {
 			if err := app.Listen(c.String("bind-address")); err != nil {
-				blogchain.GetInternalLogger().Error(err)
+				log.Error(err)
 			}
 		}()
 
 		blogchain.WaitBlogchainSystemNotify()
-		blogchain.ShutdownBlogchainServer()
+		blogchain.ShutdownBlogchainServer(func(err error) {
+			log.Info(err)
+		})
 
 		return nil
 	}
@@ -179,6 +181,6 @@ func main() {
 	err := application.Run(os.Args)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 }

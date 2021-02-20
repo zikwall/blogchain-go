@@ -1,12 +1,13 @@
 package service
 
+import "github.com/zikwall/blogchain/src/platform/log"
+
 type (
 	BlogchainServiceInstance struct {
 		Notify
 		HttpAccessControls BlogchainHttpAccessControl
 		Container          *BlogchainServiceContainer
 		database           *BlogchainDatabaseInstance
-		logger             *BlogchainInternalLogger
 	}
 	BlogchainServiceConfiguration struct {
 		BlogchainDatabaseConfiguration BlogchainDatabaseConfiguration
@@ -28,7 +29,6 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 	b := new(BlogchainServiceInstance)
 	b.HttpAccessControls = c.BlogchainHttpAccessControl
 	b.Container = NewBlogchainServiceContainer(c.BlogchainContainer)
-	b.logger = NewBlogchainInternalLogger(c.IsDebug)
 
 	database, err := NewBlogchainDatabaseInstance(c.BlogchainDatabaseConfiguration)
 
@@ -38,7 +38,7 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 
 	dbLogger := BlogchainDatabaseLogger{}
 	dbLogger.SetCallback(func(format string, v ...interface{}) {
-		b.logger.Info(v)
+		log.Info(v)
 	})
 
 	database.SetLogger(dbLogger)
@@ -47,7 +47,6 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 
 	b.AddNotifiers(
 		b.database,
-		b.logger,
 	)
 
 	return b, nil
@@ -55,8 +54,4 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 
 func (b *BlogchainServiceInstance) GetBlogchainDatabaseInstance() *BlogchainDatabaseInstance {
 	return b.database
-}
-
-func (b *BlogchainServiceInstance) GetInternalLogger() *BlogchainInternalLogger {
-	return b.logger
 }

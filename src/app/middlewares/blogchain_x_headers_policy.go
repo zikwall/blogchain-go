@@ -3,6 +3,7 @@ package middlewares
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/service"
 )
 
@@ -31,11 +32,9 @@ func (x BlogchainXHeaders) IsBlogchainOriginalApp() bool {
 
 func WithBlogchainXHeaderPolicy(blogchain *service.BlogchainServiceInstance) fiber.Handler {
 	formatted := func(request, platform, version string) string {
-		colorizer := blogchain.GetInternalLogger().GetColorizer()
-
-		request = colorizer.Colored(request, service.Yellow)
-		platform = colorizer.Colored(platform, service.Cyan)
-		version = colorizer.Colored(version, service.Green)
+		request = log.Colored(request, log.Yellow)
+		platform = log.Colored(platform, log.Cyan)
+		version = log.Colored(version, log.Green)
 
 		return fmt.Sprintf(XHeaderLogFormat, request, platform, version)
 	}
@@ -50,7 +49,7 @@ func WithBlogchainXHeaderPolicy(blogchain *service.BlogchainServiceInstance) fib
 		}
 
 		if x.IsBlogchainOriginalApp() {
-			blogchain.GetInternalLogger().Info(
+			log.Info(
 				formatted(ctx.Path(), x.xPlatform, x.xAppVersion),
 			)
 		}
