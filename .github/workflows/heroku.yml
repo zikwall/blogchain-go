@@ -15,4 +15,5 @@ jobs:
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           usedocker: true
           justlogin: true
+      - run: echo Hello world $HEROKU_API_KEY
       - run: heroku auth:whoami
