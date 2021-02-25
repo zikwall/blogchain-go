@@ -10,6 +10,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/service"
 	"os"
+	"strings"
 )
 
 // @title Blog Chain swagger documentation for Go service
@@ -32,7 +33,7 @@ func main() {
 				Name:     "bind-address",
 				Required: true,
 				Usage:    "Run service in host",
-				EnvVars:  []string{"BIND_ADDRESS"},
+				EnvVars:  []string{"BIND_ADDRESS", "PORT"},
 			},
 			// database
 			&cli.StringFlag{
@@ -165,7 +166,13 @@ func main() {
 		}
 
 		go func() {
-			if err := app.Listen(c.String("bind-address")); err != nil {
+			addr := c.String("bind-address")
+
+			if !strings.Contains(addr, ":") {
+				addr = ":" + addr
+			}
+
+			if err := app.Listen(addr); err != nil {
 				log.Error(err)
 			}
 		}()
