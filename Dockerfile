@@ -1,4 +1,5 @@
 FROM golang:alpine
+RUN apk update && apk add bash
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
