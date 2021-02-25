@@ -15,4 +15,4 @@ jobs:
           heroku_email: ${{secrets.HEROKU_EMAIL}}
           usedocker: true
           justlogin: true
-        - run: heroku auth:whoami
+      - run: heroku auth:whoami
