@@ -12,6 +12,7 @@ import (
 	"github.com/zikwall/blogchain/src/app/models/tag"
 	"github.com/zikwall/blogchain/src/app/utils"
 	"github.com/zikwall/blogchain/src/platform/database"
+	"path/filepath"
 	"time"
 )
 
@@ -257,9 +258,15 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 // ToDo: нажо что-то сделать с этим методом, он ни туда ни сюда...
 func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	content.Image.String = utils.CreateImagePath(content.Uuid)
-	path := fmt.Sprintf("./src/public/uploads/%s", content.Image.String)
+	path := fmt.Sprintf("./src/app/public/uploads/%s", content.Image.String)
 
-	return utils.SaveFile(c, f.GetImage().File, path)
+	absolutePath, err := filepath.Abs(path)
+
+	if err != nil {
+		return err
+	}
+
+	return utils.SaveFile(c, f.GetImage().File, absolutePath)
 }
 
 func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
