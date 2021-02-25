@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Test
         env:
-          HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+          HEROKU_API_KEY: aaaa
         run: echo Hello world $HEROKU_API_KEY
 
       - uses: actions/checkout@v2
