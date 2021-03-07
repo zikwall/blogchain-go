@@ -6,4 +6,5 @@ go run . \
   --database-user blogchain \
   --database-password 123456 \
   --database-name blogchain \
-  --database-dialect mysql
+  --database-dialect mysql \
+  --debug

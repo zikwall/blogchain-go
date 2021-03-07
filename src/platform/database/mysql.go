@@ -6,6 +6,7 @@ import (
 	builder "github.com/doug-martin/goqu/v9"
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/zikwall/blogchain/src/platform/log"
 	"strings"
 )
 
@@ -20,17 +21,18 @@ type (
 		Port     string
 		Name     string
 		Dialect  string
+		Debug    bool
 	}
-	BlogchainDatabaseLogger struct {
+	DatabaseLogger struct {
 		callback func(format string, v ...interface{})
 	}
 )
 
-func (logger *BlogchainDatabaseLogger) SetCallback(callbak func(format string, v ...interface{})) {
+func (logger *DatabaseLogger) SetCallback(callbak func(format string, v ...interface{})) {
 	logger.callback = callbak
 }
 
-func (logger BlogchainDatabaseLogger) Printf(format string, v ...interface{}) {
+func (logger DatabaseLogger) Printf(format string, v ...interface{}) {
 	logger.callback(format, v)
 }
 
@@ -61,6 +63,15 @@ func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainD
 
 	dialect := builder.Dialect(c.Dialect)
 	d.db = dialect.DB(db)
+
+	if c.Debug {
+		dbLogger := DatabaseLogger{}
+		dbLogger.SetCallback(func(format string, v ...interface{}) {
+			log.Info(v)
+		})
+
+		d.SetLogger(dbLogger)
+	}
 
 	return d, nil
 }

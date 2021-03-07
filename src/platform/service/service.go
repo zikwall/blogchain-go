@@ -3,7 +3,6 @@ package service
 import (
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
-	"github.com/zikwall/blogchain/src/platform/log"
 )
 
 type (
@@ -39,13 +38,6 @@ func CreateService(c ServiceConfiguration) (*ServiceInstance, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	dbLogger := database.BlogchainDatabaseLogger{}
-	dbLogger.SetCallback(func(format string, v ...interface{}) {
-		log.Info(v)
-	})
-
-	db.SetLogger(dbLogger)
 
 	b.database = db
 

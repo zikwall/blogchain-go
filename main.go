@@ -78,6 +78,11 @@ func main() {
 				Usage:    "Container secret key for JWT, and etc.",
 				EnvVars:  []string{"RSA_PRIVATE_KEY"},
 			},
+			&cli.BoolFlag{
+				Name:    "debug",
+				Usage:   "Debug mode - details the stages of operation of the service, also in this mode, all logs are sent to stdout",
+				EnvVars: []string{"DEBUG"},
+			},
 		},
 	}
 
@@ -90,6 +95,7 @@ func main() {
 					Password: c.String("database-password"),
 					Name:     c.String("database-name"),
 					Dialect:  c.String("database-dialect"),
+					Debug:    c.Bool("debug"),
 				},
 				BlogchainHttpAccessControl: service.BlogchainHttpAccessControl{
 					AllowOrigins:     "*",
