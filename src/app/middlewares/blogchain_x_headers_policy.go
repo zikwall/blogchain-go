@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/platform/log"
-	"github.com/zikwall/blogchain/src/platform/service"
 )
 
 const (
@@ -30,7 +29,7 @@ func (x BlogchainXHeaders) IsBlogchainOriginalApp() bool {
 	return len(x.xBlogchainApp) != 0
 }
 
-func WithBlogchainXHeaderPolicy(blogchain *service.BlogchainServiceInstance) fiber.Handler {
+func WithBlogchainXHeaderPolicy() fiber.Handler {
 	formatted := func(request, platform, version string) string {
 		request = log.Colored(request, log.Yellow)
 		platform = log.Colored(platform, log.Cyan)

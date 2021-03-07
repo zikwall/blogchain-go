@@ -82,8 +82,8 @@ func main() {
 	}
 
 	application.Action = func(c *cli.Context) error {
-		blogchain, err := service.NewBlogchainServiceInstance(
-			service.BlogchainServiceConfiguration{
+		blogchain, err := service.CreateService(
+			service.ServiceConfiguration{
 				BlogchainDatabaseConfiguration: database.BlogchainDatabaseConfiguration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
@@ -107,14 +107,21 @@ func main() {
 			return err
 		}
 
+		defer func() {
+			blogchain.Shutdown(func(err error) {
+				log.Info(err)
+			})
+			blogchain.Stacktrace()
+		}()
+
 		app := fiber.New()
 		app.Static("/docs", "./src/app/public/docs")
 		app.Static("/uploads", "./src/app/public/uploads")
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
-			middlewares.WithBlogchainCORSPolicy(blogchain),
-			middlewares.WithBlogchainXHeaderPolicy(blogchain),
+			middlewares.WithBlogchainCORSPolicy(blogchain.HttpAccessControls),
+			middlewares.WithBlogchainXHeaderPolicy(),
 		)
 
 		rsa := container.NewBlogchainRSAContainer(
@@ -178,9 +185,7 @@ func main() {
 		}()
 
 		wait(func() {
-			blogchain.ShutdownBlogchainServer(func(err error) {
-				log.Info(err)
-			})
+			log.Info("Signal received, stopping server")
 		})
 
 		return nil

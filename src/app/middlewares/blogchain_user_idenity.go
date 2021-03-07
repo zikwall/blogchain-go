@@ -7,7 +7,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/service"
 )
 
-func WithBlogchainUserIdentity(blogchain *service.BlogchainServiceInstance) fiber.Handler {
+func WithBlogchainUserIdentity(blogchain *service.ServiceInstance) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		instance := &user.User{}
 

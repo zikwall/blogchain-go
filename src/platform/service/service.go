@@ -7,13 +7,13 @@ import (
 )
 
 type (
-	BlogchainServiceInstance struct {
+	ServiceInstance struct {
 		Notify
 		HttpAccessControls BlogchainHttpAccessControl
 		Container          *container.BlogchainServiceContainer
 		database           *database.BlogchainDatabaseInstance
 	}
-	BlogchainServiceConfiguration struct {
+	ServiceConfiguration struct {
 		BlogchainDatabaseConfiguration database.BlogchainDatabaseConfiguration
 		BlogchainHttpAccessControl     BlogchainHttpAccessControl
 		BlogchainContainer             container.BlogchainServiceContainerConfiguration
@@ -29,8 +29,8 @@ type (
 	}
 )
 
-func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainServiceInstance, error) {
-	b := new(BlogchainServiceInstance)
+func CreateService(c ServiceConfiguration) (*ServiceInstance, error) {
+	b := new(ServiceInstance)
 	b.HttpAccessControls = c.BlogchainHttpAccessControl
 	b.Container = container.NewBlogchainServiceContainer(c.BlogchainContainer)
 
@@ -56,6 +56,6 @@ func NewBlogchainServiceInstance(c BlogchainServiceConfiguration) (*BlogchainSer
 	return b, nil
 }
 
-func (b *BlogchainServiceInstance) GetBlogchainDatabaseInstance() *database.BlogchainDatabaseInstance {
+func (b *ServiceInstance) GetBlogchainDatabaseInstance() *database.BlogchainDatabaseInstance {
 	return b.database
 }

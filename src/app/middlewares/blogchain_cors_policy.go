@@ -6,15 +6,15 @@ import (
 	"github.com/zikwall/blogchain/src/platform/service"
 )
 
-func WithBlogchainCORSPolicy(blogchain *service.BlogchainServiceInstance) fiber.Handler {
+func WithBlogchainCORSPolicy(http service.BlogchainHttpAccessControl) fiber.Handler {
 	return cors.New(
 		cors.Config{
-			AllowOrigins:     blogchain.HttpAccessControls.AllowOrigins,
-			AllowMethods:     blogchain.HttpAccessControls.AllowMethods,
-			AllowHeaders:     blogchain.HttpAccessControls.AllowHeaders,
-			AllowCredentials: blogchain.HttpAccessControls.AllowCredentials,
-			ExposeHeaders:    blogchain.HttpAccessControls.ExposeHeaders,
-			MaxAge:           blogchain.HttpAccessControls.MaxAge,
+			AllowOrigins:     http.AllowOrigins,
+			AllowMethods:     http.AllowMethods,
+			AllowHeaders:     http.AllowHeaders,
+			AllowCredentials: http.AllowCredentials,
+			ExposeHeaders:    http.ExposeHeaders,
+			MaxAge:           http.MaxAge,
 		},
 	)
 }
