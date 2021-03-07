@@ -13,6 +13,11 @@ func (a BlogchainActionProvider) Logout(c *fiber.Ctx) error {
 	return c.JSON(a.message("Successfully logout"))
 }
 
+type AuthResponse struct {
+	Token string          `json:"token"`
+	User  user.PublicUser `json:"user"`
+}
+
 func (a BlogchainActionProvider) Login(c *fiber.Ctx) error {
 	form := &forms.LoginForm{}
 
@@ -45,11 +50,10 @@ func (a BlogchainActionProvider) Login(c *fiber.Ctx) error {
 		return c.JSON(a.error(err))
 	}
 
-	return c.JSON(fiber.Map{
-		"status": 200,
-		"token":  token,
-		"user":   result.Properties(),
-	})
+	return c.JSON(a.response(AuthResponse{
+		Token: token,
+		User:  result.Properties(),
+	}))
 }
 
 func (a BlogchainActionProvider) Register(c *fiber.Ctx) error {
@@ -90,9 +94,8 @@ func (a BlogchainActionProvider) Register(c *fiber.Ctx) error {
 		return c.JSON(a.error(err))
 	}
 
-	return c.JSON(fiber.Map{
-		"status": 200,
-		"token":  token,
-		"user":   result.Properties(),
-	})
+	return c.JSON(a.response(AuthResponse{
+		Token: token,
+		User:  result.Properties(),
+	}))
 }

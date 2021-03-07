@@ -6,6 +6,19 @@ import (
 	"strconv"
 )
 
+type (
+	ContentResponse struct {
+		Content content.PublicContent `json:"content"`
+	}
+	ContentsResponse struct {
+		Contents []content.PublicContent `json:"contents"`
+		Meta     Meta                    `json:"meta"`
+	}
+	Meta struct {
+		Pages float64 `json:"pages"`
+	}
+)
+
 func (a BlogchainActionProvider) Content(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 
@@ -20,9 +33,9 @@ func (a BlogchainActionProvider) Content(c *fiber.Ctx) error {
 		return c.Status(404).JSON(a.error(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		"content": result.Response(),
-	})
+	return c.Status(200).JSON(a.response(ContentResponse{
+		Content: result.Response(),
+	}))
 }
 
 func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
@@ -31,7 +44,8 @@ func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
 
 	if c.Params("page") != "" {
 		if p, err := strconv.ParseInt(c.Params("page"), 10, 64); err == nil {
-			page = p
+			// client page 1 === 0 in server side
+			page = p - 1
 		}
 	}
 
@@ -42,12 +56,12 @@ func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
 		return c.Status(404).JSON(a.error(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		"contents": contents,
-		"meta": fiber.Map{
-			"pages": count,
+	return c.Status(200).JSON(a.response(ContentsResponse{
+		Contents: contents,
+		Meta: Meta{
+			Pages: count,
 		},
-	})
+	}))
 }
 
 func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
@@ -56,7 +70,8 @@ func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
 
 	if c.Params("page") != "" {
 		if p, err := strconv.ParseInt(c.Params("page"), 10, 64); err == nil {
-			page = p
+			// client page 1 === 0 in server side
+			page = p - 1
 		}
 	}
 
@@ -67,10 +82,10 @@ func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
 		return c.Status(404).JSON(a.error(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		"contents": contents,
-		"meta": fiber.Map{
-			"pages": count,
+	return c.Status(200).JSON(a.response(ContentsResponse{
+		Contents: contents,
+		Meta: Meta{
+			Pages: count,
 		},
-	})
+	}))
 }

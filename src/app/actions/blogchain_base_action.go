@@ -34,6 +34,12 @@ func (a BlogchainActionProvider) _common(status uint8, message string) Blogchain
 	}
 }
 
+func (a BlogchainActionProvider) response(response interface{}) BlogchainResponse {
+	return BlogchainResponse{
+		Response: response,
+	}
+}
+
 func (a BlogchainActionProvider) message(message string) BlogchainMessageResponse {
 	return a._common(200, message)
 }
