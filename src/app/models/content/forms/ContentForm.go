@@ -31,8 +31,8 @@ func (c *ContentForm) SetImage(image FormImage) {
 // todo temporary
 func (c *ContentForm) Validate() error {
 	if c.UserId > 0 && (c.Title != "" && len(c.Title) <= 200) && c.Content != "" {
-		return errors.New("Invalid data entered")
+		return nil
 	}
 
-	return nil
+	return errors.New("Invalid data entered")
 }

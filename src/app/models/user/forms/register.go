@@ -35,16 +35,16 @@ func (r *RegisterForm) Validate() error {
 
 func (r *RegisterForm) required() error {
 	if r.Email != "" && r.Username != "" && r.Password != "" && r.Name != "" {
-		return errors.New("Email, username or password is empty")
+		return nil
 	}
 
-	return nil
+	return errors.New("Email, username or password is empty")
 }
 
 func (r *RegisterForm) minLengths() error {
 	if len(r.Username) > 5 && len(r.Password) > 8 {
-		return errors.New("Username or password must be at least in length 5 and 8 characters")
+		return nil
 	}
 
-	return nil
+	return errors.New("Username or password must be at least in length 5 and 8 characters")
 }

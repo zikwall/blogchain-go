@@ -9,8 +9,8 @@ type LoginForm struct {
 
 func (l *LoginForm) Validate() error {
 	if l.Username != "" && l.Password != "" {
-		return errors.New("Username or password is empty")
+		return nil
 	}
 
-	return nil
+	return errors.New("Username or password is empty")
 }
