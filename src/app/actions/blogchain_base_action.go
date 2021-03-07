@@ -24,3 +24,20 @@ func NewBlogchainActionProvider(conf ActionsRequiredInstances) BlogchainActionPr
 
 	return a
 }
+
+func (a BlogchainActionProvider) _common(status uint8, message string) BlogchainMessageResponse {
+	return BlogchainMessageResponse{
+		BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
+			Status: status,
+		},
+		Message: message,
+	}
+}
+
+func (a BlogchainActionProvider) message(message string) BlogchainMessageResponse {
+	return a._common(200, message)
+}
+
+func (a BlogchainActionProvider) error(err error) BlogchainMessageResponse {
+	return a._common(100, err.Error())
+}

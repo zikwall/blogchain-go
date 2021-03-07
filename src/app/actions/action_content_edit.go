@@ -40,83 +40,51 @@ func (a BlogchainActionProvider) ContentUpdate(c *fiber.Ctx) error {
 	userInstance := c.Locals("user").(*user.User)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Content not found",
-		})
+		return c.JSON(a.error(err))
 	}
 
-	form := &forms.ContentForm{
-		UserId:  0,
-		Title:   "",
-		Content: "",
-	}
+	form := &forms.ContentForm{}
 
 	if err := c.BodyParser(form); err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Failed to parse your request body.",
-		})
+		return c.JSON(a.error(err))
 	}
 
 	form.UserId = userInstance.Id
 
-	if !form.Validate() {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Invalid request body fields.",
-		})
+	if err := form.Validate(); err != nil {
+		return c.JSON(a.error(err))
 	}
 
 	model := content.CreateContentConnection(a.db)
 	res, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Content not found",
-		})
+		return c.JSON(a.error(err))
 	}
 
 	img, err := c.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	if err = model.UpdateContent(res, form, c); err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Что-то пошло не так...",
-		})
+	if err := model.UpdateContent(res, form, c); err != nil {
+		return c.JSON(a.error(err))
 	}
 
-	return c.JSON(fiber.Map{
-		"status":  200,
-		"message": "Успешно!",
-	})
+	return c.JSON(a.message("Successfully!"))
 }
 
 func (a BlogchainActionProvider) ContentCreate(c *fiber.Ctx) error {
 	userInstance := c.Locals("user").(*user.User)
 
-	form := &forms.ContentForm{
-		UserId:  0,
-		Title:   "",
-		Content: "",
-	}
+	form := &forms.ContentForm{}
 
 	if err := c.BodyParser(form); err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Failed to parse your request body.",
-		})
+		return c.JSON(a.error(err))
 	}
 
 	form.UserId = userInstance.Id
 
-	if !form.Validate() {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Invalid request body fields.",
-		})
+	if err := form.Validate(); err != nil {
+		return c.JSON(a.error(err))
 	}
 
 	img, err := c.FormFile("image")
@@ -126,14 +94,7 @@ func (a BlogchainActionProvider) ContentCreate(c *fiber.Ctx) error {
 	result, err := model.CreateContent(form, c)
 
 	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
-				},
-				Message: err.Error(),
-			},
-		)
+		return c.JSON(a.error(err))
 	}
 
 	return c.JSON(fiber.Map{

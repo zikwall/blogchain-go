@@ -11,10 +11,7 @@ func (a BlogchainActionProvider) Profile(c *fiber.Ctx) error {
 	result, err := u.FindByUsername(c.Params("username"))
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{
-			"status":  100,
-			"message": "Что-то пошло не так...",
-		})
+		return c.Status(404).JSON(a.error(err))
 	}
 
 	return c.Status(200).JSON(fiber.Map{
