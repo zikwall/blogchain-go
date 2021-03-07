@@ -10,7 +10,6 @@ type (
 		Message string `json:"message"`
 	}
 	BlogchainResponse struct {
-		BlogchainCommonResponseAttributes
-		Data interface{} `json:"data"`
+		Response interface{} `json:"response"`
 	}
 )

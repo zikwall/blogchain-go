@@ -1,10 +1,16 @@
 package forms
 
+import "errors"
+
 type LoginForm struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func (l *LoginForm) Validate() bool {
-	return l.Username != "" && l.Password != ""
+func (l *LoginForm) Validate() error {
+	if l.Username != "" && l.Password != "" {
+		return nil
+	}
+
+	return errors.New("Username or password is empty")
 }

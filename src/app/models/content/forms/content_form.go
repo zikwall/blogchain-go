@@ -1,6 +1,7 @@
 package forms
 
 import (
+	"errors"
 	"mime/multipart"
 )
 
@@ -28,6 +29,10 @@ func (c *ContentForm) SetImage(image FormImage) {
 }
 
 // todo temporary
-func (c *ContentForm) Validate() bool {
-	return c.UserId > 0 && (c.Title != "" && len(c.Title) <= 200) && c.Content != ""
+func (c *ContentForm) Validate() error {
+	if c.UserId > 0 && (c.Title != "" && len(c.Title) <= 200) && c.Content != "" {
+		return nil
+	}
+
+	return errors.New("Invalid data entered")
 }

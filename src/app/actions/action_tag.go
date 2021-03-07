@@ -5,12 +5,15 @@ import (
 	"github.com/zikwall/blogchain/src/app/models/tag"
 )
 
-func (a BlogchainActionProvider) Tags(c *fiber.Ctx) error {
+type TagResponse struct {
+	Tags []tag.Tag `json:"tags"`
+}
+
+func (a BlogchainActionProvider) Tags(ctx *fiber.Ctx) error {
 	t := tag.CreateTagConnection(a.db)
 	tags, _ := t.All()
 
-	return c.JSON(fiber.Map{
-		"status": 200,
-		"tags":   tags,
-	})
+	return ctx.JSON(a.response(TagResponse{
+		Tags: tags,
+	}))
 }

@@ -6,39 +6,46 @@ import (
 	"strconv"
 )
 
-func (a BlogchainActionProvider) Content(c *fiber.Ctx) error {
-	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+type (
+	ContentResponse struct {
+		Content content.PublicContent `json:"content"`
+	}
+	ContentsResponse struct {
+		Contents []content.PublicContent `json:"contents"`
+		Meta     Meta                    `json:"meta"`
+	}
+	Meta struct {
+		Pages float64 `json:"pages"`
+	}
+)
+
+func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			//"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.Status(500).JSON(a.error(err))
 	}
 
 	model := content.CreateContentConnection(a.db)
 	result, err := model.FindContentById(id)
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{
-			//"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.Status(404).JSON(a.error(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		//"status":  200,
-		"content": result.Response(),
-	})
+	return ctx.Status(200).JSON(a.response(ContentResponse{
+		Content: result.Response(),
+	}))
 }
 
-func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
-	tag := c.Params("tag")
+func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
+	tag := ctx.Params("tag")
 	var page int64
 
-	if c.Params("page") != "" {
-		if p, err := strconv.ParseInt(c.Params("page"), 10, 64); err == nil {
-			page = p
+	if ctx.Params("page") != "" {
+		if p, err := strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
+			// client page 1 === 0 in server side
+			page = p - 1
 		}
 	}
 
@@ -46,28 +53,25 @@ func (a BlogchainActionProvider) Contents(c *fiber.Ctx) error {
 	contents, err, count := model.FindAllContent(tag, page)
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{
-			//"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.Status(404).JSON(a.error(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		//"status":   200,
-		"contents": contents,
-		"meta": fiber.Map{
-			"pages": count,
+	return ctx.Status(200).JSON(a.response(ContentsResponse{
+		Contents: contents,
+		Meta: Meta{
+			Pages: count,
 		},
-	})
+	}))
 }
 
-func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
-	user, err := strconv.ParseInt(c.Params("id"), 10, 64)
+func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
+	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 	var page int64
 
-	if c.Params("page") != "" {
-		if p, err := strconv.ParseInt(c.Params("page"), 10, 64); err == nil {
-			page = p
+	if ctx.Params("page") != "" {
+		if p, err := strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
+			// client page 1 === 0 in server side
+			page = p - 1
 		}
 	}
 
@@ -75,15 +79,13 @@ func (a BlogchainActionProvider) ContentsUser(c *fiber.Ctx) error {
 	contents, err, count := model.FindAllByUser(user, page)
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{
-			"message": "Content not found",
-		})
+		return ctx.Status(404).JSON(a.error(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		"contents": contents,
-		"meta": fiber.Map{
-			"pages": count,
+	return ctx.Status(200).JSON(a.response(ContentsResponse{
+		Contents: contents,
+		Meta: Meta{
+			Pages: count,
 		},
-	})
+	}))
 }

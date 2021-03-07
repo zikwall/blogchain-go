@@ -8,137 +8,95 @@ import (
 	"strconv"
 )
 
-func (a BlogchainActionProvider) ContentInformation(c *fiber.Ctx) error {
-	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
-	userInstance := c.Locals("user").(*user.User)
+type (
+	ContentCreatedResponse struct {
+		ContentId int64 `json:"content_id"`
+	}
+)
+
+func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	userInstance := ctx.Locals("user").(*user.User)
 
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			//"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.Status(500).JSON(a.response(err))
 	}
 
 	model := content.CreateContentConnection(a.db)
 	result, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{
-			//"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.Status(404).JSON(a.response(err))
 	}
 
-	return c.Status(200).JSON(fiber.Map{
-		//"status":  200,
-		"content": result.Response(),
-	})
+	return ctx.Status(200).JSON(a.response(ContentResponse{
+		Content: result.Response(),
+	}))
 }
 
-func (a BlogchainActionProvider) ContentUpdate(c *fiber.Ctx) error {
-	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
-	userInstance := c.Locals("user").(*user.User)
+func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
+	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+	userInstance := ctx.Locals("user").(*user.User)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.JSON(a.error(err))
 	}
 
-	form := &forms.ContentForm{
-		UserId:  0,
-		Title:   "",
-		Content: "",
-	}
+	form := &forms.ContentForm{}
 
-	if err := c.BodyParser(form); err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Failed to parse your request body.",
-		})
+	if err := ctx.BodyParser(form); err != nil {
+		return ctx.JSON(a.error(err))
 	}
 
 	form.UserId = userInstance.Id
 
-	if !form.Validate() {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Invalid request body fields.",
-		})
+	if err := form.Validate(); err != nil {
+		return ctx.JSON(a.error(err))
 	}
 
 	model := content.CreateContentConnection(a.db)
 	res, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Content not found",
-		})
+		return ctx.JSON(a.error(err))
 	}
 
-	img, err := c.FormFile("image")
+	img, err := ctx.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
-	if err = model.UpdateContent(res, form, c); err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Что-то пошло не так...",
-		})
+	if err := model.UpdateContent(res, form, ctx); err != nil {
+		return ctx.JSON(a.error(err))
 	}
 
-	return c.JSON(fiber.Map{
-		"status":  200,
-		"message": "Успешно!",
-	})
+	return ctx.Status(200).JSON(a.message("Successfully!"))
 }
 
-func (a BlogchainActionProvider) ContentCreate(c *fiber.Ctx) error {
-	userInstance := c.Locals("user").(*user.User)
+func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
+	userInstance := ctx.Locals("user").(*user.User)
 
-	form := &forms.ContentForm{
-		UserId:  0,
-		Title:   "",
-		Content: "",
-	}
+	form := &forms.ContentForm{}
 
-	if err := c.BodyParser(form); err != nil {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Failed to parse your request body.",
-		})
+	if err := ctx.BodyParser(form); err != nil {
+		return ctx.JSON(a.error(err))
 	}
 
 	form.UserId = userInstance.Id
 
-	if !form.Validate() {
-		return c.JSON(fiber.Map{
-			"status":  100,
-			"message": "Invalid request body fields.",
-		})
+	if err := form.Validate(); err != nil {
+		return ctx.JSON(a.error(err))
 	}
 
-	img, err := c.FormFile("image")
+	img, err := ctx.FormFile("image")
 	form.SetImage(forms.FormImage{img, err})
 
 	model := content.CreateContentConnection(a.db)
-	result, err := model.CreateContent(form, c)
+	result, err := model.CreateContent(form, ctx)
 
 	if err != nil {
-		return c.JSON(
-			BlogchainMessageResponse{
-				BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-					Status: 100,
-				},
-				Message: err.Error(),
-			},
-		)
+		return ctx.JSON(a.error(err))
 	}
 
-	return c.JSON(fiber.Map{
-		"status":     200,
-		"content_id": result.Id,
-		"message":    "Successfully",
-	})
+	return ctx.Status(200).JSON(a.response(ContentCreatedResponse{
+		ContentId: result.Id,
+	}))
 }
