@@ -5,7 +5,6 @@ import "github.com/zikwall/blogchain/src/platform/clickhouse"
 var postStatsTable = clickhouse.Table{Name: "post_stats", Columns: []string{
 	"post_id",
 	"owner_id",
-	"hostname",
 	"os",
 	"browser",
 	"platform",
@@ -19,9 +18,9 @@ var postStatsTable = clickhouse.Table{Name: "post_stats", Columns: []string{
 type PostStats struct {
 	PostId   uint64 `json:"post_id"`
 	OwnerId  uint64 `json:"owner_id"`
-	Os       string `json:"os"`
-	Browser  string `json:"browser"`
-	Platform string `json:"platform"`
+	Os       string `json:"-"`
+	Browser  string `json:"-"`
+	Platform string `json:"-"`
 	Ip       string `json:"-"`
 	Country  string `json:"-"`
 	Region   string `json:"-"`
