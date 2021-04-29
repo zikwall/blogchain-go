@@ -1,13 +1,17 @@
 package main
 
 import (
+	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
 	"github.com/zikwall/blogchain/src/app/middlewares"
+	"github.com/zikwall/blogchain/src/app/statistic"
+	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/log"
+	"github.com/zikwall/blogchain/src/platform/maxmind"
 	"github.com/zikwall/blogchain/src/platform/service"
 	"os"
 	"strings"
@@ -78,6 +82,43 @@ func main() {
 				Usage:    "Container secret key for JWT, and etc.",
 				EnvVars:  []string{"RSA_PRIVATE_KEY"},
 			},
+
+			// clickhouse
+			&cli.StringFlag{
+				Name:     "clickhouse-address",
+				Usage:    "Clickhouse server address",
+				Required: true,
+				EnvVars:  []string{"CLICKHOUSE_ADDRESS"},
+				FilePath: "/srv/bc_secret/clickhouse_address",
+			},
+			&cli.StringFlag{
+				Name:     "clickhouse-user",
+				Usage:    "Clickhouse server user",
+				EnvVars:  []string{"CLICKHOUSE_USER"},
+				FilePath: "/srv/bc_secret/clickhouse_user",
+			},
+			&cli.StringFlag{
+				Name:     "clickhouse-password",
+				Usage:    "Clickhouse server user password",
+				EnvVars:  []string{"CLICKHOUSE_PASSWORD"},
+				FilePath: "/srv/bc_secret/clickhouse_password",
+			},
+			&cli.StringFlag{
+				Name:     "clickhouse-database",
+				Usage:    "Clickhouse server database name",
+				EnvVars:  []string{"CLICKHOUSE_DATABASE"},
+				FilePath: "/srv/bc_secret/clickhouse_database",
+			},
+
+			// geo
+			&cli.StringFlag{
+				Name:    "maxmind-mmdb",
+				Usage:   "Path to City.mmdb file for Maxmind",
+				Value:   "./share/geo/GeoLite2-City.mmdb",
+				EnvVars: []string{"MAXMIND_FILEPATH"},
+			},
+
+			// dev
 			&cli.BoolFlag{
 				Name:    "debug",
 				Usage:   "Debug mode - details the stages of operation of the service, also in this mode, all logs are sent to stdout",
@@ -88,6 +129,7 @@ func main() {
 
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.CreateService(
+			context.Background(),
 			service.ServiceConfiguration{
 				BlogchainDatabaseConfiguration: database.BlogchainDatabaseConfiguration{
 					Host:     c.String("database-host"),
@@ -106,6 +148,16 @@ func main() {
 					MaxAge:           0,
 				},
 				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
+				ClickhouseConfiguration: clickhouse.ClickhouseConfiguration{
+					Address:  c.String("clickhouse-address"),
+					User:     c.String("clickhouse-user"),
+					Password: c.String("clickhouse-password"),
+					Database: c.String("clickhouse-database"),
+					IsDebug:  c.Bool("debug"),
+				},
+				FinderConfig: maxmind.FinderConfig{
+					Path: c.String("maxmind-mmdb"),
+				},
 			},
 		)
 
@@ -128,15 +180,22 @@ func main() {
 		app.Use(
 			middlewares.WithBlogchainCORSPolicy(blogchain.HttpAccessControls),
 			middlewares.WithBlogchainXHeaderPolicy(),
+			middlewares.UseBlogchainRealIp,
 		)
 
 		rsa := container.NewBlogchainRSAContainer(
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
+		statisticBatcher := statistic.CreateClickhouseBatcher(
+			blogchain.Context, blogchain.Clickhouse,
+		)
+
 		actionProvider := actions.NewBlogchainActionProvider(actions.ActionsRequiredInstances{
-			RSA: &rsa,
-			Db:  blogchain.GetBlogchainDatabaseInstance(),
+			RSA:          &rsa,
+			Db:           blogchain.GetBlogchainDatabaseInstance(),
+			StatsBatcher: statisticBatcher,
+			Finder:       blogchain.Finder,
 		})
 
 		api := app.Group("/api",
@@ -171,11 +230,18 @@ func main() {
 			}
 		}
 
+		// authorization & authentication endpoints
 		auth := app.Group("/auth", middlewares.UseBlogchainSignPolicy)
 		{
 			auth.Post("/register", actionProvider.Register)
 			auth.Post("/login", actionProvider.Login)
 			auth.Post("/logout", actionProvider.Logout)
+		}
+
+		// statistic endpoints
+		stats := app.Group("/statistic")
+		{
+			stats.Post("/post/push", actionProvider.PushPostStats)
 		}
 
 		go func() {

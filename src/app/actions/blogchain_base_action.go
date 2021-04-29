@@ -1,25 +1,33 @@
 package actions
 
 import (
+	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
+	"github.com/zikwall/blogchain/src/platform/maxmind"
 )
 
 type (
 	BlogchainActionProvider struct {
-		rsa container.RSA
-		db  *database.BlogchainDatabaseInstance
+		rsa          container.RSA
+		db           *database.BlogchainDatabaseInstance
+		statsBatcher *statistic.ClickhouseBatcher
+		finder       *maxmind.Finder
 	}
 	ActionsRequiredInstances struct {
-		RSA container.RSA
-		Db  *database.BlogchainDatabaseInstance
+		RSA          container.RSA
+		Db           *database.BlogchainDatabaseInstance
+		StatsBatcher *statistic.ClickhouseBatcher
+		Finder       *maxmind.Finder
 	}
 )
 
 func NewBlogchainActionProvider(conf ActionsRequiredInstances) BlogchainActionProvider {
 	a := BlogchainActionProvider{
-		rsa: conf.RSA,
-		db:  conf.Db,
+		rsa:          conf.RSA,
+		db:           conf.Db,
+		statsBatcher: conf.StatsBatcher,
+		finder:       conf.Finder,
 	}
 
 	return a
