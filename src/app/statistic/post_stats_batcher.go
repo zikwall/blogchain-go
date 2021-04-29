@@ -11,7 +11,7 @@ import (
 
 type (
 	ClickhouseBatcher struct {
-		clickhouse *clickhouse.Clickhouse
+		Clickhouse *clickhouse.Clickhouse
 		context    context.Context
 		mu         sync.RWMutex
 		batches    []PostStats
@@ -23,7 +23,7 @@ func CreateClickhouseBatcher(ctx context.Context, clickhouse *clickhouse.Clickho
 	cb.mu = sync.RWMutex{}
 	cb.batches = []PostStats{}
 	cb.context = ctx
-	cb.clickhouse = clickhouse
+	cb.Clickhouse = clickhouse
 
 	go cb.schedule()
 
@@ -75,7 +75,7 @@ schedule:
 			rows = append(rows, batch.flatten())
 		}
 
-		if affected, err := cb.clickhouse.InsertWithMetrics(postStatsTable, rows); err != nil {
+		if affected, err := cb.Clickhouse.InsertWithMetrics(postStatsTable, rows); err != nil {
 			log.Warning(err)
 		} else {
 			log.Info(fmt.Sprintf("[CLICKHOUSE SCHEDULER] Count records: %d | Affected records: %d", len(rows), affected))
