@@ -24,6 +24,10 @@ go run . \
   --database-password 123456 \
   --database-name blogchain \
   --database-driver mysql \
+  --clickhouse-address localhost \
+  --clickhouse-user default \
+  --clickhouse-password ***** \
+  --clickhouse-database database_name \
   --container-secret secret
 ```
 - Docker
@@ -36,6 +40,10 @@ docker run -d --net=host \
    -e DATABASE_PASSWORD='<database password>' \
    -e DATABASE_NAME='<database name>' \
    -e DATABASE_DIALECT='<database dialect: mysql>' \
+   -e CLICKHOUSE_ADDRESS='' \
+   -e CLICKHOUSE_USER='default' \
+   -e CLICKHOUSE_PASSWORD='' \
+   -e CLICKHOUSE_DATABASE='database_name' \
    -e CONTAINER_SECRET='<blogchain application secret>' \
    --name golang-blogchain-server qwx1337/blogchain-server:latest
 ```

@@ -31,6 +31,9 @@ func (s *ServiceInstance) AddNotify(notify Notifier) {
 func (s ServiceInstance) Shutdown(onError func(error)) {
 	log.Info("Shutdown Blogchain Service via System signal")
 
+	// cancel root context
+	s.cancelFunc()
+
 	for _, notifier := range s.notifiers {
 		log.Info(notifier.CloseMessage())
 

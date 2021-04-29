@@ -7,4 +7,7 @@ go run . \
   --database-password 123456 \
   --database-name blogchain \
   --database-dialect mysql \
+  --clickhouse-address localhost \
+  --clickhouse-database blogchain \
+  --clickhouse-user default \
   --debug
