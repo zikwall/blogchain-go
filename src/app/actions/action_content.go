@@ -38,7 +38,7 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		return ctx.Status(404).JSON(a.error(err))
 	}
 
-	viewers, err := statistic.GetPostViewersCount(a.statsBatcher.Clickhouse, result.Id, result.User.Id)
+	viewers, err := statistic.GetPostViewersCount(a.statsBatcher.Clickhouse, result.Id)
 
 	if err != nil {
 		log.Warning(err)
@@ -114,7 +114,7 @@ func withStats(ch *clickhouse.Clickhouse, contents []content.PublicContent) map[
 		ids = append(ids, c.Id)
 	}
 
-	viewers, err := statistic.GetPostViewersCounts(ch, ids...)
+	viewers, err := statistic.GetPostsViewersCount(ch, ids...)
 
 	if err != nil {
 		log.Warning(err)
