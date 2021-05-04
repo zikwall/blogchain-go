@@ -10,28 +10,26 @@ type Viewers struct {
 	Views  uint64 `db:"views"`
 }
 
-func viewersQuery() *builder.SelectDataset {
+func viewersAggregateQuery() *builder.SelectDataset {
 	return builder.
 		Select(
 			builder.C("post_id"),
-			builder.L("count(*) as views"),
+			builder.L("sum(views) as views"),
 		).
-		From("post_stats").
-		GroupBy(builder.C("post_id"))
+		From("post_stats_views").
+		GroupBy(
+			builder.C("post_id"),
+		)
 }
 
-func GetPostViewersCount(ch *clickhouse.Clickhouse, post, owner int64) (uint64, error) {
+func GetPostViewersCount(ch *clickhouse.Clickhouse, post int64) (uint64, error) {
 	var count []Viewers
 
-	query := viewersQuery()
-	query = query.Where(
+	rawQuery, _, _ := viewersAggregateQuery().Where(
 		builder.And(
 			builder.C("post_id").Eq(post),
-			builder.C("owner_id").Eq(owner),
 		),
-	)
-
-	rawQuery, _, _ := query.ToSQL()
+	).ToSQL()
 
 	if err := ch.Query().Select(&count, rawQuery); err != nil {
 		return 0, err
@@ -44,18 +42,15 @@ func GetPostViewersCount(ch *clickhouse.Clickhouse, post, owner int64) (uint64, 
 	return count[0].Views, nil
 }
 
-func GetPostViewersCounts(ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
+func GetPostsViewersCount(ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
 	var views []Viewers
 	counts := map[int64]uint64{}
 
-	query := viewersQuery()
-	query = query.Where(
+	rawQuery, _, _ := viewersAggregateQuery().Where(
 		builder.And(
 			builder.C("post_id").In(posts),
 		),
-	)
-
-	rawQuery, _, _ := query.ToSQL()
+	).ToSQL()
 
 	if err := ch.Query().Select(&views, rawQuery); err != nil {
 		return counts, err
