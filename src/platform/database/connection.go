@@ -8,6 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/zikwall/blogchain/src/platform/log"
 	"strings"
+	"time"
 )
 
 type (
@@ -60,6 +61,10 @@ func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainD
 	if err != nil {
 		return nil, err
 	}
+
+	db.SetMaxIdleConns(25)
+	db.SetMaxOpenConns(26)
+	db.SetConnMaxLifetime(5 * time.Minute)
 
 	dialect := builder.Dialect(c.Dialect)
 	d.db = dialect.DB(db)

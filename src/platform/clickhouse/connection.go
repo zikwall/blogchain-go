@@ -34,6 +34,10 @@ func NewClickhouse(conf ClickhouseConfiguration) (*Clickhouse, error) {
 		return nil, err
 	}
 
+	connect.SetMaxIdleConns(20)
+	connect.SetMaxOpenConns(21)
+	connect.SetConnMaxLifetime(5 * time.Minute)
+
 	if err := connect.Ping(); err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok {
 			return nil, fmt.Errorf("[%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace)
