@@ -90,7 +90,8 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 	var page int64
 
 	if ctx.Params("page") != "" {
-		if p, err := strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
+		var p int64
+		if p, err = strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
 			// client page 1 === 0 in server side
 			page = p - 1
 		}

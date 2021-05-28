@@ -2,6 +2,7 @@ package clickhouse
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"
@@ -39,8 +40,9 @@ func NewClickhouse(conf ClickhouseConfiguration) (*Clickhouse, error) {
 	connect.SetConnMaxLifetime(5 * time.Minute)
 
 	if err := connect.Ping(); err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok {
-			return nil, fmt.Errorf("[%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace)
+		var e *clickhouse.Exception
+		if errors.As(err, &e) {
+			return nil, fmt.Errorf("[%d] %s \n%s\n", e.Code, e.Message, e.StackTrace)
 		}
 
 		return nil, err
@@ -74,7 +76,7 @@ func (c *Clickhouse) Insert(ctx context.Context, table Table, rows [][]interface
 	if err != nil {
 		// If you do not call the rollback function there will be a memory leak and goroutine
 		// Such a leak can occur if there is no access to the table or there is no table itself
-		if err := tx.Rollback(); err != nil {
+		if err = tx.Rollback(); err != nil {
 			log.Warning(err)
 		}
 
