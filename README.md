@@ -1,4 +1,6 @@
 [![build](https://github.com/zikwall/blogchain-go/workflows/Build%20and%20test%20Blogchain/badge.svg)](https://github.com/zikwall/blogchain-go/actions)
+[![build](https://github.com/zikwall/blogchain-go/workflows/golangci-lint/badge.svg)](https://github.com/zikwall/blogchain-go/actions)
+[![build](https://github.com/zikwall/blogchain-go/workflows/deploy%20heroky/badge.svg)](https://github.com/zikwall/blogchain-go/actions)
 
 <div align="center">
   <img width="150" height="150" src="https://github.com/zikwall/blogchain/blob/master/screenshots/bc_go_300.png">
