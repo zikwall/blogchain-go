@@ -9,12 +9,6 @@ import (
 
 type (
 	BlogchainActionProvider struct {
-		rsa          container.RSA
-		db           *database.BlogchainDatabaseInstance
-		statsBatcher *statistic.ClickhouseBatcher
-		finder       *maxmind.Finder
-	}
-	ActionsRequiredInstances struct {
 		RSA          container.RSA
 		Db           *database.BlogchainDatabaseInstance
 		StatsBatcher *statistic.ClickhouseBatcher
@@ -22,12 +16,12 @@ type (
 	}
 )
 
-func NewBlogchainActionProvider(conf ActionsRequiredInstances) BlogchainActionProvider {
+func CopyWith(p BlogchainActionProvider) BlogchainActionProvider {
 	a := BlogchainActionProvider{
-		rsa:          conf.RSA,
-		db:           conf.Db,
-		statsBatcher: conf.StatsBatcher,
-		finder:       conf.Finder,
+		RSA:          p.RSA,
+		Db:           p.Db,
+		StatsBatcher: p.StatsBatcher,
+		Finder:       p.Finder,
 	}
 
 	return a

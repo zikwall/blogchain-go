@@ -10,7 +10,7 @@ type TagResponse struct {
 }
 
 func (a BlogchainActionProvider) Tags(ctx *fiber.Ctx) error {
-	t := tag.CreateTagConnection(a.db)
+	t := tag.CreateTagConnection(a.Db)
 	tags, _ := t.All()
 
 	return ctx.JSON(a.response(TagResponse{

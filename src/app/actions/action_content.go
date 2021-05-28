@@ -31,14 +31,14 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		return ctx.Status(500).JSON(a.error(err))
 	}
 
-	model := content.CreateContentConnection(a.db)
+	model := content.CreateContentConnection(a.Db)
 	result, err := model.FindContentById(id)
 
 	if err != nil {
 		return ctx.Status(404).JSON(a.error(err))
 	}
 
-	viewers, err := statistic.GetPostViewersCount(a.statsBatcher.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(a.StatsBatcher.Clickhouse, result.Id)
 
 	if err != nil {
 		log.Warning(err)
@@ -64,7 +64,7 @@ func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 		}
 	}
 
-	model := content.CreateContentConnection(a.db)
+	model := content.CreateContentConnection(a.Db)
 	contents, err, count := model.FindAllContent(tag, page)
 
 	if err != nil {
@@ -76,7 +76,7 @@ func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStats(a.statsBatcher.Clickhouse, contents),
+		Stats: withStats(a.StatsBatcher.Clickhouse, contents),
 	}))
 }
 
@@ -97,7 +97,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		}
 	}
 
-	model := content.CreateContentConnection(a.db)
+	model := content.CreateContentConnection(a.Db)
 	contents, err, count := model.FindAllByUser(user, page)
 
 	if err != nil {
@@ -109,7 +109,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStats(a.statsBatcher.Clickhouse, contents),
+		Stats: withStats(a.StatsBatcher.Clickhouse, contents),
 	}))
 }
 

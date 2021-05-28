@@ -33,7 +33,7 @@ func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
 		Date:     utils.Date(now),
 	}
 
-	geo, err := a.finder.Lookup(ip)
+	geo, err := a.Finder.Lookup(ip)
 
 	if err == nil {
 		stats = withFinderAttributes(stats, geo)
@@ -43,7 +43,7 @@ func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
 		stats = withUserAgent(stats, userAgent)
 	}
 
-	a.statsBatcher.AppendRecords(stats)
+	a.StatsBatcher.AppendRecords(stats)
 
 	return ctx.Status(200).SendString("OK")
 }

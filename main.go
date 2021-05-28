@@ -139,14 +139,6 @@ func main() {
 					Dialect:  c.String("database-dialect"),
 					Debug:    c.Bool("debug"),
 				},
-				BlogchainHttpAccessControl: service.BlogchainHttpAccessControl{
-					AllowOrigins:     "*",
-					AllowMethods:     "*",
-					AllowHeaders:     "*",
-					AllowCredentials: false,
-					ExposeHeaders:    "",
-					MaxAge:           0,
-				},
 				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
 				ClickhouseConfiguration: clickhouse.ClickhouseConfiguration{
 					Address:  c.String("clickhouse-address"),
@@ -178,7 +170,14 @@ func main() {
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
-			middlewares.WithBlogchainCORSPolicy(blogchain.HttpAccessControls),
+			middlewares.WithBlogchainCORSPolicy(service.BlogchainHttpAccessControl{
+				AllowOrigins:     "*",
+				AllowMethods:     "*",
+				AllowHeaders:     "*",
+				AllowCredentials: false,
+				ExposeHeaders:    "",
+				MaxAge:           0,
+			}),
 			middlewares.WithBlogchainXHeaderPolicy(),
 			middlewares.UseBlogchainRealIp,
 		)
@@ -191,7 +190,7 @@ func main() {
 			blogchain.Context, blogchain.Clickhouse,
 		)
 
-		actionProvider := actions.NewBlogchainActionProvider(actions.ActionsRequiredInstances{
+		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
 			RSA:          &rsa,
 			Db:           blogchain.GetBlogchainDatabaseInstance(),
 			StatsBatcher: statisticBatcher,
