@@ -82,10 +82,16 @@ func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 
 func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
+
+	if err != nil {
+		return ctx.Status(404).JSON(a.error(err))
+	}
+
 	var page int64
 
 	if ctx.Params("page") != "" {
-		if p, err := strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
+		var p int64
+		if p, err = strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
 			// client page 1 === 0 in server side
 			page = p - 1
 		}

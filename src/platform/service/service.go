@@ -2,15 +2,20 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
+	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
+	"runtime"
+	"strconv"
+	"time"
 )
 
 type (
 	ServiceInstance struct {
-		Notify
+		notify             Notify
 		HttpAccessControls BlogchainHttpAccessControl
 		Container          *container.BlogchainServiceContainer
 		Clickhouse         *clickhouse.Clickhouse
@@ -67,7 +72,7 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 
 	b.Clickhouse = ch
 
-	b.AddNotifiers(
+	b.notify.AddNotifiers(
 		b.database,
 		b.Clickhouse,
 		b.Finder,
@@ -78,4 +83,39 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 
 func (b *ServiceInstance) GetBlogchainDatabaseInstance() *database.BlogchainDatabaseInstance {
 	return b.database
+}
+
+func (s ServiceInstance) Shutdown(onError func(error)) {
+	log.Info("Shutdown Blogchain Service via System signal")
+
+	// cancel root context
+	s.cancelFunc()
+
+	for _, notifier := range s.notify.notifiers {
+		log.Info(notifier.CloseMessage())
+
+		if err := notifier.Close(); err != nil {
+			onError(err)
+		}
+	}
+}
+
+func (s ServiceInstance) Stacktrace() {
+	log.Info("Waiting for the server completion report to be generated")
+
+	<-time.After(time.Second * 2)
+
+	memory := runtime.MemStats{}
+	runtime.ReadMemStats(&memory)
+
+	colored := func(category, context string) string {
+		return fmt.Sprintf("%s: %s", log.Colored(category, log.Cyan), log.Colored(context, log.Green))
+	}
+
+	fmt.Printf(
+		"%s \n \t - %s \n \t - %s \n",
+		log.Colored("REPORT", log.Green),
+		colored("Number of remaining goroutines:", strconv.Itoa(runtime.NumGoroutine())),
+		colored("Number of operations of the garbage collector:", strconv.Itoa(int(memory.NumGC))),
+	)
 }

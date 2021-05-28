@@ -44,13 +44,13 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 
 	form := &forms.ContentForm{}
 
-	if err := ctx.BodyParser(form); err != nil {
+	if err = ctx.BodyParser(form); err != nil {
 		return ctx.JSON(a.error(err))
 	}
 
 	form.UserId = userInstance.Id
 
-	if err := form.Validate(); err != nil {
+	if err = form.Validate(); err != nil {
 		return ctx.JSON(a.error(err))
 	}
 
@@ -62,7 +62,7 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 	}
 
 	img, err := ctx.FormFile("image")
-	form.SetImage(forms.FormImage{img, err})
+	form.SetImage(forms.FormImage{File: img, Err: err})
 
 	if err := model.UpdateContent(res, form, ctx); err != nil {
 		return ctx.JSON(a.error(err))
@@ -87,7 +87,7 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 	}
 
 	img, err := ctx.FormFile("image")
-	form.SetImage(forms.FormImage{img, err})
+	form.SetImage(forms.FormImage{File: img, Err: err})
 
 	model := content.CreateContentConnection(a.db)
 	result, err := model.CreateContent(form, ctx)

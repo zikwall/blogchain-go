@@ -17,7 +17,7 @@ import (
 )
 
 func (content *Content) WithTags(tags []tag.Tag) {
-	if tags != nil && len(tags) > 0 {
+	if tags != nil {
 		content.Tags = tags
 	} else {
 		// ToDo: Пофиксить эту шляпу на сторону клиента
