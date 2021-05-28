@@ -14,7 +14,7 @@ func congratulations() {
 func wait(onReceiveSignal func()) {
 	congratulations()
 
-	sig := make(chan os.Signal)
+	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
 	<-sig

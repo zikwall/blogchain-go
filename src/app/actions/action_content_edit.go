@@ -62,7 +62,7 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 	}
 
 	img, err := ctx.FormFile("image")
-	form.SetImage(forms.FormImage{img, err})
+	form.SetImage(forms.FormImage{File: img, Err: err})
 
 	if err := model.UpdateContent(res, form, ctx); err != nil {
 		return ctx.JSON(a.error(err))
@@ -87,7 +87,7 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 	}
 
 	img, err := ctx.FormFile("image")
-	form.SetImage(forms.FormImage{img, err})
+	form.SetImage(forms.FormImage{File: img, Err: err})
 
 	model := content.CreateContentConnection(a.db)
 	result, err := model.CreateContent(form, ctx)
