@@ -15,18 +15,16 @@ import (
 
 type (
 	ServiceInstance struct {
-		notify             Notify
-		HttpAccessControls BlogchainHttpAccessControl
-		Container          *container.BlogchainServiceContainer
-		Clickhouse         *clickhouse.Clickhouse
-		Finder             *maxmind.Finder
-		Context            context.Context
-		cancelFunc         context.CancelFunc
-		database           *database.BlogchainDatabaseInstance
+		notify     Notify
+		Container  *container.BlogchainServiceContainer
+		Clickhouse *clickhouse.Clickhouse
+		Finder     *maxmind.Finder
+		Context    context.Context
+		cancelFunc context.CancelFunc
+		database   *database.BlogchainDatabaseInstance
 	}
 	ServiceConfiguration struct {
 		BlogchainDatabaseConfiguration database.BlogchainDatabaseConfiguration
-		BlogchainHttpAccessControl     BlogchainHttpAccessControl
 		BlogchainContainer             container.BlogchainServiceContainerConfiguration
 		ClickhouseConfiguration        clickhouse.ClickhouseConfiguration
 		FinderConfig                   maxmind.FinderConfig
@@ -44,7 +42,6 @@ type (
 
 func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstance, error) {
 	b := new(ServiceInstance)
-	b.HttpAccessControls = c.BlogchainHttpAccessControl
 	b.Container = container.NewBlogchainServiceContainer(c.BlogchainContainer)
 	b.Context, b.cancelFunc = context.WithCancel(ctx)
 

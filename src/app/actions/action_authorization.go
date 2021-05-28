@@ -29,7 +29,7 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		return ctx.JSON(err)
 	}
 
-	u := user.CreateUserConnection(a.db)
+	u := user.CreateUserConnection(a.Db)
 	result, err := u.FindByCredentials(form.Username)
 
 	if err != nil {
@@ -44,7 +44,7 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		UUID: result.GetId(),
 	}
 
-	token, err := lib.CreateJwtToken(claims, 1000, a.rsa.GetPrivateKey())
+	token, err := lib.CreateJwtToken(claims, 1000, a.RSA.GetPrivateKey())
 
 	if err != nil {
 		return ctx.JSON(a.error(err))
@@ -67,7 +67,7 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		return ctx.JSON(a.error(err))
 	}
 
-	u := user.CreateUserConnection(a.db)
+	u := user.CreateUserConnection(a.Db)
 	result, err := u.FindByUsernameOrEmail(form.Username, form.Email)
 
 	if err != nil {
@@ -88,7 +88,7 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		UUID: result.GetId(),
 	}
 
-	token, err := lib.CreateJwtToken(claims, 100, a.rsa.GetPrivateKey())
+	token, err := lib.CreateJwtToken(claims, 100, a.RSA.GetPrivateKey())
 
 	if err != nil {
 		return ctx.JSON(a.error(err))
