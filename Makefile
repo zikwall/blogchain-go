@@ -1,8 +1,14 @@
 PROJECT_NAME=$(shell basename "$(PWD)")
 SCRIPT_AUTHOR=Andrey Kapitonov <andrey.kapitonov.96@gmail.com>
-SCRIPT_VERSION=0.0.2.dev
+SCRIPT_VERSION=0.0.3.dev
 
 all: tests
+
+# Download and install golangci-linter
+linter:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.40.1
+	mv ./bin/golangci-lint /bin
+	rm -rf ./bin
 
 deploy: build-migration-tool migrate-up
 
