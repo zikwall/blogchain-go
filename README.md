@@ -53,3 +53,4 @@ docker run -d --net=host \
 ### Tests
 
 - `$ make tests`
+- `$ golangci-lint run --config ./golangci-linter.yml`
