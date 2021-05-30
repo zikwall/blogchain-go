@@ -255,8 +255,10 @@ func main() {
 			}
 		}()
 
-		wait(func() {
-			log.Info("Signal received, stopping server")
+		wait(receiver{
+			onSignal: func() {
+				log.Info("Signal received, stopping server")
+			},
 		})
 
 		return nil
