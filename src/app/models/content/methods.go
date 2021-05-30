@@ -85,7 +85,7 @@ func (self Model) WithMutableResponse(contents []Content) ([]PublicContent, erro
 		idx = append(idx, fmt.Sprintf("%v", content.Id))
 	}
 
-	t := tag.ContextConnection(self.context, self.Connection())
+	t := tag.ContextConnection(self.Context(), self.Connection())
 
 	tags, err := t.ContentGroupedTags(idx...)
 
@@ -129,7 +129,7 @@ func (self Model) UserContent(contentId int64, id int64) (Content, error) {
 		return Content{}, exceptions.NewErrApplicationLogic(errors.New("user content was not found"))
 	}
 
-	tags, err := content.GetTags(self.context, self.Connection())
+	tags, err := content.GetTags(self.Context(), self.Connection())
 
 	if err != nil {
 		return Content{}, err
@@ -172,7 +172,7 @@ func (self Model) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, 
 			},
 		).Executor()
 
-	status, err := insert.ExecContext(self.context)
+	status, err := insert.ExecContext(self.Context())
 
 	if err != nil {
 		return Content{}, err
@@ -213,7 +213,7 @@ func (self Model) UpdateContent(content Content, f *forms.ContentForm, ctx *fibe
 		).
 		Executor()
 
-	if _, err := update.ExecContext(self.context); err != nil {
+	if _, err := update.ExecContext(self.Context()); err != nil {
 		return exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -237,7 +237,7 @@ func (self Model) UpsertTags(content Content, f *forms.ContentForm, update bool)
 				builder.C("content_id").Eq(content.Id),
 			).Executor()
 
-			if _, err := executor.ExecContext(self.context); err != nil {
+			if _, err := executor.ExecContext(self.Context()); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
@@ -252,7 +252,7 @@ func (self Model) UpsertTags(content Content, f *forms.ContentForm, update bool)
 				},
 			).Executor()
 
-			if _, err := insert.ExecContext(self.context); err != nil {
+			if _, err := insert.ExecContext(self.Context()); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
@@ -261,27 +261,13 @@ func (self Model) UpsertTags(content Content, f *forms.ContentForm, update bool)
 	return nil
 }
 
-// ToDo: нажо что-то сделать с этим методом, он ни туда ни сюда...
-func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
-	content.Image.String = utils.CreateImagePath(content.Uuid)
-	path := fmt.Sprintf("./src/app/public/uploads/%s", content.Image.String)
-
-	absolutePath, err := filepath.Abs(path)
-
-	if err != nil {
-		return exceptions.NewErrApplicationLogic(err)
-	}
-
-	return utils.SaveFile(c, f.GetImage().File, absolutePath)
-}
-
 func (self Model) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
 	var content []Content
 
 	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
-	query, count := models.WithPagination(query, uint(page), 4)
+	query, count := models.WithPagination(self.Context(), query, uint(page), 4)
 
-	if err := query.ScanStructsContext(self.context, &content); err != nil {
+	if err := query.ScanStructsContext(self.Context(), &content); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
@@ -305,13 +291,13 @@ func (self Model) FindContentByIdAndUser(id int64, userid int64) (Content, error
 			),
 		)
 
-	if ok, err := query.ScanStructContext(self.context, &content); err != nil {
+	if ok, err := query.ScanStructContext(self.Context(), &content); err != nil {
 		return Content{}, exceptions.NewErrDatabaseAccess(err)
 	} else if !ok {
 		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
 	}
 
-	if tags, err := content.GetTags(self.context, self.Connection()); err == nil {
+	if tags, err := content.GetTags(self.Context(), self.Connection()); err == nil {
 		content.WithTags(tags)
 	}
 
@@ -322,13 +308,13 @@ func (self Model) FindContentById(id int64) (Content, error) {
 	content := Content{}
 	query := self.FindWith().Where(builder.I("content.id").Eq(id))
 
-	if ok, err := query.ScanStructContext(self.context, &content); err != nil {
+	if ok, err := query.ScanStructContext(self.Context(), &content); err != nil {
 		return content, exceptions.NewErrDatabaseAccess(err)
 	} else if !ok {
 		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
 	}
 
-	if tags, err := content.GetTags(self.context, self.Connection()); err == nil {
+	if tags, err := content.GetTags(self.Context(), self.Connection()); err == nil {
 		content.WithTags(tags)
 	}
 
@@ -341,37 +327,24 @@ func (self Model) FindAllContent(label string, page int64) ([]PublicContent, err
 	query := self.FindWith()
 
 	if label != "" {
-		onTagCondition := func(query *builder.SelectDataset, tag string) *builder.SelectDataset {
-			withContentTag := func(query *builder.SelectDataset) *builder.SelectDataset {
-				return query.LeftJoin(
-					builder.T("content_tag"),
-					builder.On(
-						builder.I("content_tag.content_id").Eq(builder.I("content.id")),
-					),
-				)
-			}
-
-			withTags := func(query *builder.SelectDataset) *builder.SelectDataset {
-				return query.LeftJoin(
-					builder.T("tags"),
-					builder.On(
-						builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
-					),
-				)
-			}
-
-			query = withContentTag(query)
-			query = withTags(query)
-
-			return query.Where(builder.I("tags.label").Eq(tag))
-		}
-
-		query = onTagCondition(query, label)
+		query = query.LeftJoin(
+			builder.T("content_tag"),
+			builder.On(
+				builder.I("content_tag.content_id").Eq(builder.I("content.id")),
+			),
+		).LeftJoin(
+			builder.T("tags"),
+			builder.On(
+				builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
+			),
+		).Where(
+			builder.I("tags.label").Eq(label),
+		)
 	}
 
-	query, count := models.WithPagination(query, uint(page), 4)
+	query, count := models.WithPagination(self.Context(), query, uint(page), 4)
 
-	if err := query.ScanStructsContext(self.context, &content); err != nil {
+	if err := query.ScanStructsContext(self.Context(), &content); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
@@ -382,4 +355,18 @@ func (self Model) FindAllContent(label string, page int64) ([]PublicContent, err
 	}
 
 	return response, nil, count
+}
+
+// ToDo: нажо что-то сделать с этим методом, он ни туда ни сюда...
+func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
+	content.Image.String = utils.CreateImagePath(content.Uuid)
+	path := fmt.Sprintf("./src/app/public/uploads/%s", content.Image.String)
+
+	absolutePath, err := filepath.Abs(path)
+
+	if err != nil {
+		return exceptions.NewErrApplicationLogic(err)
+	}
+
+	return utils.SaveFile(c, f.GetImage().File, absolutePath)
 }

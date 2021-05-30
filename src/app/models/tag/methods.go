@@ -12,9 +12,7 @@ func (self Model) Find() *builder.SelectDataset {
 func (self Model) All() ([]Tag, error) {
 	var tags []Tag
 
-	query := self.Find()
-
-	if err := query.ScanStructsContext(self.context, &tags); err != nil {
+	if err := self.Find().ScanStructsContext(self.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -46,17 +44,13 @@ type TagContent struct {
 func (self Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error) {
 	var tags []TagContent
 
-	withContent := func(query *builder.SelectDataset) *builder.SelectDataset {
-		return query.SelectAppend(
-			"content_tag.content_id",
-		)
-	}
+	query := self.Find().SelectAppend(
+		"content_tag.content_id",
+	)
 
-	query := self.Find()
 	query = self.OnContentCondition(query, id...)
-	query = withContent(query)
 
-	if err := query.ScanStructsContext(self.context, &tags); err != nil {
+	if err := query.ScanStructsContext(self.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -76,10 +70,7 @@ func (self Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error)
 func (self Model) ContentTags(id int64) ([]Tag, error) {
 	var tags []Tag
 
-	query := self.Find()
-	query = self.OnContentCondition(query, id)
-
-	if err := query.ScanStructsContext(self.context, &tags); err != nil {
+	if err := self.OnContentCondition(self.Find(), id).ScanStructsContext(self.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 

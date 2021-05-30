@@ -56,6 +56,10 @@ func (self Model) Connection() *database.Instance {
 	return self.connection
 }
 
+func (self Model) Context() context.Context {
+	return self.context
+}
+
 func (c *Content) Response() PublicContent {
 	return PublicContent{
 		Id:         c.Id,

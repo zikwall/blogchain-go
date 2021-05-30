@@ -29,6 +29,10 @@ func ContextConnection(context context.Context, connection *database.Instance) M
 	}
 }
 
-func (t Model) Connection() *database.Instance {
-	return t.connection
+func (self Model) Connection() *database.Instance {
+	return self.connection
+}
+
+func (self Model) Context() context.Context {
+	return self.context
 }

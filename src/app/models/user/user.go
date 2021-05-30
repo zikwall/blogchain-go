@@ -37,6 +37,10 @@ func (u Model) Connection() *database.Instance {
 	return u.connection
 }
 
+func (u Model) Context() context.Context {
+	return u.context
+}
+
 type PublicUser struct {
 	Id       int64         `json:"id"`
 	Username string        `json:"username"`

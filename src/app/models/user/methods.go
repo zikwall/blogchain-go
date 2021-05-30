@@ -59,17 +59,20 @@ func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	insert := self.Connection().Builder().Insert("user").Rows(
-		builder.Record{
-			"password_hash":   user.PasswordHash,
-			"email":           user.Email,
-			"username":        user.Username,
-			"registration_ip": user.RegistrationIp,
-			"created_at":      user.ConfirmedAt,
-		},
-	).Executor()
+	insert := self.Connection().
+		Builder().
+		Insert("user").
+		Rows(
+			builder.Record{
+				"password_hash":   user.PasswordHash,
+				"email":           user.Email,
+				"username":        user.Username,
+				"registration_ip": user.RegistrationIp,
+				"created_at":      user.ConfirmedAt,
+			},
+		).Executor()
 
-	status, err := insert.ExecContext(self.context)
+	status, err := insert.ExecContext(self.Context())
 
 	if err != nil {
 		return User{}, err
@@ -97,16 +100,18 @@ func (self Model) AttachProfile(r *forms.RegisterForm, user *User) error {
 		},
 	}
 
-	insert := self.Connection().Builder().Insert("profile").Rows(
-		builder.Record{
-			"user_id":      profile.userId,
-			"name":         profile.Name,
-			"public_email": profile.PublicEmail,
-			"avatar":       profile.Avatar,
-		},
-	).Executor()
+	insert := self.Connection().
+		Builder().Insert("profile").
+		Rows(
+			builder.Record{
+				"user_id":      profile.userId,
+				"name":         profile.Name,
+				"public_email": profile.PublicEmail,
+				"avatar":       profile.Avatar,
+			},
+		).Executor()
 
-	if _, err := insert.ExecContext(self.context); err != nil {
+	if _, err := insert.ExecContext(self.Context()); err != nil {
 		return exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -133,7 +138,7 @@ func (self Model) FindByCredentials(credentials string) (User, error) {
 	query := self.WithProfile(self.Find())
 	query = self.onCredentialsCondition(query, credentials, credentials)
 
-	found, err := query.ScanStructContext(self.context, &user)
+	found, err := query.ScanStructContext(self.Context(), &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -146,9 +151,7 @@ func (self Model) FindByCredentials(credentials string) (User, error) {
 
 func (self Model) FindById(id int64) (User, error) {
 	user := User{}
-	query := self.Find().Where(builder.C("id").Eq(id))
-
-	found, err := query.ScanStructContext(self.context, &user)
+	found, err := self.Find().Where(builder.C("id").Eq(id)).ScanStructContext(self.Context(), &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -164,7 +167,7 @@ func (self Model) FindByUsername(username string) (User, error) {
 	query := self.Find().Where(builder.C("username").Eq(username))
 	query = self.WithProfile(query)
 
-	found, err := query.ScanStructContext(self.context, &user)
+	found, err := query.ScanStructContext(self.Context(), &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
