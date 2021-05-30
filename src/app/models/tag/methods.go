@@ -2,6 +2,7 @@ package tag
 
 import (
 	builder "github.com/doug-martin/goqu/v9"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 )
 
 func (self TagModel) Find() *builder.SelectDataset {
@@ -14,7 +15,7 @@ func (self TagModel) All() ([]Tag, error) {
 	query := self.Find()
 
 	if err := query.ScanStructs(&tags); err != nil {
-		return nil, err
+		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
 	return tags, nil
@@ -56,7 +57,7 @@ func (self TagModel) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, err
 	query = withContent(query)
 
 	if err := query.ScanStructs(&tags); err != nil {
-		return nil, err
+		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
 	grouped := make(map[int64][]Tag, len(tags))
@@ -79,7 +80,7 @@ func (self TagModel) ContentTags(id int64) ([]Tag, error) {
 	query = self.OnContentCondition(query, id)
 
 	if err := query.ScanStructs(&tags); err != nil {
-		return nil, err
+		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
 	return tags, nil

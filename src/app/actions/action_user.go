@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/user"
 )
 
@@ -15,7 +16,7 @@ func (a BlogchainActionProvider) Profile(ctx *fiber.Ctx) error {
 	result, err := u.FindByUsername(ctx.Params("username"))
 
 	if err != nil {
-		return ctx.Status(404).JSON(a.error(err))
+		return exceptions.Wrap("failed find user", err)
 	}
 
 	return ctx.Status(200).JSON(a.response(ProfileResponse{

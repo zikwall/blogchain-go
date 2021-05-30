@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/doug-martin/goqu/v9"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"math"
 )
 
@@ -15,7 +16,7 @@ func QueryCount(query *goqu.SelectDataset, pageSize uint) (float64, error) {
 		countPages = math.Ceil(float64(count) / float64(pageSize))
 	}
 
-	return countPages, err
+	return countPages, exceptions.NewErrDatabaseAccess(err)
 }
 
 func WithPagination(query *goqu.SelectDataset, page, size uint) (*goqu.SelectDataset, float64) {

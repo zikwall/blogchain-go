@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/content"
 	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
@@ -28,14 +29,14 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
-		return ctx.Status(500).JSON(a.error(err))
+		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
 	model := content.CreateContentConnection(a.Db)
 	result, err := model.FindContentById(id)
 
 	if err != nil {
-		return ctx.Status(404).JSON(a.error(err))
+		return exceptions.Wrap("failed find content by id", err)
 	}
 
 	viewers, err := statistic.GetPostViewersCount(a.StatsBatcher.Clickhouse, result.Id)
@@ -68,7 +69,7 @@ func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 	contents, err, count := model.FindAllContent(tag, page)
 
 	if err != nil {
-		return ctx.Status(404).JSON(a.error(err))
+		return exceptions.Wrap("failed find contents", err)
 	}
 
 	return ctx.Status(200).JSON(a.response(ContentsResponse{
@@ -84,7 +85,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
-		return ctx.Status(404).JSON(a.error(err))
+		return exceptions.Wrap("Failed parse user id", err)
 	}
 
 	var page int64
@@ -101,7 +102,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 	contents, err, count := model.FindAllByUser(user, page)
 
 	if err != nil {
-		return ctx.Status(404).JSON(a.error(err))
+		return exceptions.Wrap("failed find user contents by id", err)
 	}
 
 	return ctx.Status(200).JSON(a.response(ContentsResponse{

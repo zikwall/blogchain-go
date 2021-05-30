@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"strings"
 	"time"
@@ -40,7 +41,7 @@ func CreateJwtToken(claims TokenClaims, duration int64, private string) (string,
 	key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(private))
 
 	if err != nil {
-		return "", err
+		return "", exceptions.NewErrApplicationLogic(err)
 	}
 
 	claims.StandardClaims = jwt.StandardClaims{
@@ -59,27 +60,27 @@ func VerifyJwtToken(token string, r container.RSA) (*TokenClaims, error) {
 		))
 
 		if err != nil {
-			return nil, err
+			return nil, exceptions.NewErrApplicationLogic(err)
 		}
 
 		if key == nil || key.N == nil {
-			return nil, errors.New("JWT token is not defined")
+			return nil, exceptions.NewErrApplicationLogic(errors.New("JWT token is not defined"))
 		}
 
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, exceptions.NewErrApplicationLogic(fmt.Errorf("unexpected signing method: %v", token.Header["alg"]))
 		}
 
 		return key, nil
 	})
 
 	if err != nil {
-		return nil, err
+		return nil, exceptions.NewErrApplicationLogic(err)
 	}
 
 	if claims, ok := withClaimsToken.Claims.(*TokenClaims); ok && withClaimsToken.Valid {
 		return claims, nil
 	}
 
-	return nil, errors.New("Failed to get the source data from the JWT token")
+	return nil, exceptions.NewErrApplicationLogic(errors.New("failed to get the source data from the JWT token"))
 }
