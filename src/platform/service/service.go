@@ -14,23 +14,23 @@ import (
 )
 
 type (
-	ServiceInstance struct {
+	Instance struct {
 		notify     Notify
-		Container  *container.BlogchainServiceContainer
+		Container  *container.Container
 		Clickhouse *clickhouse.Clickhouse
 		Finder     *maxmind.Finder
 		Context    context.Context
 		cancelFunc context.CancelFunc
 		database   *database.Instance
 	}
-	ServiceConfiguration struct {
-		BlogchainDatabaseConfiguration database.Configuration
-		BlogchainContainer             container.BlogchainServiceContainerConfiguration
-		ClickhouseConfiguration        clickhouse.Configuration
-		FinderConfig                   maxmind.FinderConfig
-		IsDebug                        bool
+	Configuration struct {
+		DatabaseConfiguration   database.Configuration
+		Container               container.Configuration
+		ClickhouseConfiguration clickhouse.Configuration
+		FinderConfig            maxmind.FinderConfig
+		IsDebug                 bool
 	}
-	BlogchainHttpAccessControl struct {
+	HttpAccessControl struct {
 		AllowOrigins     string
 		AllowMethods     string
 		AllowHeaders     string
@@ -40,9 +40,9 @@ type (
 	}
 )
 
-func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstance, error) {
-	b := new(ServiceInstance)
-	b.Container = container.NewBlogchainServiceContainer(c.BlogchainContainer)
+func CreateService(ctx context.Context, c Configuration) (*Instance, error) {
+	b := new(Instance)
+	b.Container = container.NewBlogchainServiceContainer(c.Container)
 	b.Context, b.cancelFunc = context.WithCancel(ctx)
 
 	finder, err := maxmind.CreateFinder(c.FinderConfig)
@@ -53,7 +53,7 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 
 	b.Finder = finder
 
-	db, err := database.NewInstance(b.Context, c.BlogchainDatabaseConfiguration)
+	db, err := database.NewInstance(b.Context, c.DatabaseConfiguration)
 
 	if err != nil {
 		return nil, err
@@ -78,11 +78,11 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 	return b, nil
 }
 
-func (b *ServiceInstance) GetBlogchainDatabaseInstance() *database.Instance {
+func (b *Instance) GetBlogchainDatabaseInstance() *database.Instance {
 	return b.database
 }
 
-func (s ServiceInstance) Shutdown(onError func(error)) {
+func (s Instance) Shutdown(onError func(error)) {
 	log.Info("Shutdown Blogchain Service via System signal")
 
 	// cancel root context
@@ -97,7 +97,7 @@ func (s ServiceInstance) Shutdown(onError func(error)) {
 	}
 }
 
-func (s ServiceInstance) Stacktrace() {
+func (s Instance) Stacktrace() {
 	log.Info("Waiting for the server completion report to be generated")
 
 	<-time.After(time.Second * 2)

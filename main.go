@@ -136,8 +136,8 @@ func main() {
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.CreateService(
 			context.Background(),
-			service.ServiceConfiguration{
-				BlogchainDatabaseConfiguration: database.Configuration{
+			service.Configuration{
+				DatabaseConfiguration: database.Configuration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
@@ -145,7 +145,7 @@ func main() {
 					Dialect:  c.String("database-dialect"),
 					Debug:    c.Bool("debug"),
 				},
-				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
+				Container: container.Configuration{},
 				ClickhouseConfiguration: clickhouse.Configuration{
 					Address:  c.String("clickhouse-address"),
 					User:     c.String("clickhouse-user"),
@@ -180,7 +180,7 @@ func main() {
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
-			middlewares.WithBlogchainCORSPolicy(service.BlogchainHttpAccessControl{
+			middlewares.WithBlogchainCORSPolicy(service.HttpAccessControl{
 				AllowOrigins:     "*",
 				AllowMethods:     "*",
 				AllowHeaders:     "*",
