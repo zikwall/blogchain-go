@@ -23,34 +23,37 @@ func viewersAggregateQuery() *builder.SelectDataset {
 }
 
 func GetPostViewersCount(ch *clickhouse.Clickhouse, post int64) (uint64, error) {
-	var count []Viewers
+	var count uint64
+	var postId int64
 
-	rawQuery, _, _ := viewersAggregateQuery().Where(
-		builder.And(
-			builder.C("post_id").Eq(post),
-		),
-	).ToSQL()
+	rawQuery, _, _ := viewersAggregateQuery().
+		Where(
+			builder.And(
+				builder.C("post_id").Eq(post),
+			),
+		).
+		ToSQL()
 
-	if err := ch.Query().Select(&count, rawQuery); err != nil {
+	if err := ch.Query().QueryRow(rawQuery).Scan(&postId, &count); err != nil {
 		return 0, err
 	}
 
-	if len(count) == 0 {
-		return 0, nil
-	}
+	// current
+	count++
 
-	return count[0].Views, nil
+	return count, nil
 }
 
 func GetPostsViewersCount(ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
 	var views []Viewers
 	counts := map[int64]uint64{}
 
-	rawQuery, _, _ := viewersAggregateQuery().Where(
-		builder.And(
-			builder.C("post_id").In(posts),
-		),
-	).ToSQL()
+	rawQuery, _, _ := viewersAggregateQuery().
+		Where(
+			builder.And(
+				builder.C("post_id").In(posts),
+			),
+		).ToSQL()
 
 	if err := ch.Query().Select(&views, rawQuery); err != nil {
 		return counts, err

@@ -44,9 +44,6 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		log.Warning(err)
 	}
 
-	// current view
-	viewers += 1
-
 	return ctx.Status(200).JSON(a.response(ContentResponse{
 		Content: result.Response(),
 		Viewers: viewers,
@@ -55,16 +52,8 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 
 func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
-	var page int64
 
-	if ctx.Params("page") != "" {
-		if p, err := strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
-			// client page 1 === 0 in server side
-			page = p - 1
-		}
-	}
-
-	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllContent(tag, page)
+	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllContent(tag, getPageFromContext(ctx))
 
 	if err != nil {
 		return exceptions.Wrap("failed find contents", err)
@@ -86,17 +75,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("Failed parse user id", err)
 	}
 
-	var page int64
-
-	if ctx.Params("page") != "" {
-		var p int64
-		if p, err = strconv.ParseInt(ctx.Params("page"), 10, 64); err == nil {
-			// client page 1 === 0 in server side
-			page = p - 1
-		}
-	}
-
-	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllByUser(user, page)
+	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllByUser(user, getPageFromContext(ctx))
 
 	if err != nil {
 		return exceptions.Wrap("failed find user contents by id", err)
