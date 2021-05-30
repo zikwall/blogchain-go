@@ -7,7 +7,11 @@ import (
 )
 
 func UseBlogchainAccessControlPolicy(c *fiber.Ctx) error {
-	userInstance := c.Locals("user").(*user.User)
+	userInstance, ok := c.Locals("user").(*user.User)
+
+	if !ok {
+		return exceptions.Wrap("access control", fiber.NewError(500, "Что-то пошло не так..."))
+	}
 
 	if userInstance.IsGuest() {
 		return exceptions.Wrap("access control", fiber.NewError(403, "Кажется у Вас нет доступа..."))

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/zikwall/blogchain/src/app/models/user"
 	"strconv"
 )
 
@@ -27,4 +28,14 @@ func getPageFromContext(ctx *fiber.Ctx) int64 {
 	}
 
 	return page
+}
+
+func getUserFromContext(ctx *fiber.Ctx) *user.User {
+	userInstance, ok := ctx.Locals("user").(*user.User)
+
+	if !ok {
+		return nil
+	}
+
+	return userInstance
 }

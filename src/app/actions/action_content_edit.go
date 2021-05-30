@@ -5,7 +5,6 @@ import (
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/content"
 	"github.com/zikwall/blogchain/src/app/models/content/forms"
-	"github.com/zikwall/blogchain/src/app/models/user"
 	"strconv"
 )
 
@@ -17,13 +16,12 @@ type (
 
 func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
-	userInstance := ctx.Locals("user").(*user.User)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := content.ContextConnection(ctx.Context(), a.Db).UserContent(id, userInstance.Id)
+	result, err := content.ContextConnection(ctx.Context(), a.Db).UserContent(id, getUserFromContext(ctx).Id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find user content", err)
@@ -36,7 +34,6 @@ func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
 
 func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
-	userInstance := ctx.Locals("user").(*user.User)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
@@ -48,14 +45,14 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse form body", err)
 	}
 
-	form.UserId = userInstance.Id
+	form.UserId = getUserFromContext(ctx).Id
 
 	if err = form.Validate(); err != nil {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
 	context := content.ContextConnection(ctx.Context(), a.Db)
-	res, err := context.UserContent(id, userInstance.Id)
+	res, err := context.UserContent(id, form.UserId)
 
 	if err != nil {
 		return exceptions.Wrap("failed find user content", err)
@@ -73,15 +70,13 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 }
 
 func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
-	userInstance := ctx.Locals("user").(*user.User)
-
 	form := &forms.ContentForm{}
 
 	if err := ctx.BodyParser(form); err != nil {
 		return exceptions.Wrap("failed parse form body", err)
 	}
 
-	form.UserId = userInstance.Id
+	form.UserId = getUserFromContext(ctx).Id
 
 	if err := form.Validate(); err != nil {
 		return exceptions.Wrap("failed validate form", err)
