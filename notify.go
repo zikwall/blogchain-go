@@ -31,15 +31,15 @@ func awaiter(r signalReceiver) (func(), func(err ...error)) {
 	wait := func() {
 		// wait signal for the close application
 		<-sig
+
+		if r.onSignal != nil {
+			r.onSignal()
+		}
 	}
 
 	stop := func(err ...error) {
 		// Send a signal to end the application
 		sig <- syscall.SIGINT
-
-		if r.onSignal != nil {
-			r.onSignal()
-		}
 
 		if len(err) > 0 {
 			log.Warning(err[0])
