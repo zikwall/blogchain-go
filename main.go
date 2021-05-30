@@ -268,6 +268,12 @@ func main() {
 			stats.Post("/post/push", actionProvider.PushPostStats)
 		}
 
+		await, stop := awaiter(signalReceiver{
+			onSignal: func() {
+				log.Info("Signal received, stopping server")
+			},
+		})
+
 		go func() {
 			err := runHttpServer(
 				app,
@@ -277,16 +283,11 @@ func main() {
 			)
 
 			if err != nil {
-				log.Error(err)
+				stop(err)
 			}
 		}()
 
-		wait(receiver{
-			onSignal: func() {
-				log.Info("Signal received, stopping server")
-			},
-		})
-
+		await()
 		return nil
 	}
 

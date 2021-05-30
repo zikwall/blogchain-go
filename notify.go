@@ -14,7 +14,7 @@ const (
 	ListenerUDS
 )
 
-type receiver struct {
+type signalReceiver struct {
 	onSignal func()
 }
 
@@ -22,17 +22,31 @@ func congratulations() {
 	log.Info("Congratulations, the Blogchain server has been successfully launched")
 }
 
-func wait(r receiver) {
+func awaiter(r signalReceiver) (func(), func(err ...error)) {
 	congratulations()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 
-	<-sig
-
-	if r.onSignal != nil {
-		r.onSignal()
+	wait := func() {
+		// wait signal for the close application
+		<-sig
 	}
+
+	stop := func(err ...error) {
+		// Send a signal to end the application
+		sig <- syscall.SIGINT
+
+		if r.onSignal != nil {
+			r.onSignal()
+		}
+
+		if len(err) > 0 {
+			log.Warning(err[0])
+		}
+	}
+
+	return wait, stop
 }
 
 func listenToUnix(bind string) (net.Listener, error) {
