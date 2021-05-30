@@ -5,11 +5,11 @@ import (
 	"github.com/zikwall/blogchain/src/app/exceptions"
 )
 
-func (self TagModel) Find() *builder.SelectDataset {
+func (self Model) Find() *builder.SelectDataset {
 	return self.Connection().Builder().Select("tags.*").From("tags")
 }
 
-func (self TagModel) All() ([]Tag, error) {
+func (self Model) All() ([]Tag, error) {
 	var tags []Tag
 
 	query := self.Find()
@@ -21,7 +21,7 @@ func (self TagModel) All() ([]Tag, error) {
 	return tags, nil
 }
 
-func (self TagModel) OnContentCondition(query *builder.SelectDataset, id ...interface{}) *builder.SelectDataset {
+func (self Model) OnContentCondition(query *builder.SelectDataset, id ...interface{}) *builder.SelectDataset {
 	where := builder.I("content_tag.content_id").Eq(id)
 
 	if len(id) > 1 {
@@ -43,7 +43,7 @@ type TagContent struct {
 	ContentId int64 `db:"content_id"`
 }
 
-func (self TagModel) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error) {
+func (self Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error) {
 	var tags []TagContent
 
 	withContent := func(query *builder.SelectDataset) *builder.SelectDataset {
@@ -73,7 +73,7 @@ func (self TagModel) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, err
 	return grouped, nil
 }
 
-func (self TagModel) ContentTags(id int64) ([]Tag, error) {
+func (self Model) ContentTags(id int64) ([]Tag, error) {
 	var tags []Tag
 
 	query := self.Find()

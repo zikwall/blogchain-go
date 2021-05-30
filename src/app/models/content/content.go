@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	ContentModel struct {
+	Model struct {
 		connection *database.Instance
 		context    context.Context
 	}
@@ -45,14 +45,14 @@ type (
 	}
 )
 
-func CreateContentConnection(context context.Context, connection *database.Instance) ContentModel {
-	return ContentModel{
+func ContextConnection(context context.Context, connection *database.Instance) Model {
+	return Model{
 		connection: connection,
 		context:    context,
 	}
 }
 
-func (self ContentModel) Connection() *database.Instance {
+func (self Model) Connection() *database.Instance {
 	return self.connection
 }
 

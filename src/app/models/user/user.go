@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	UserModel struct {
+	Model struct {
 		connection *database.Instance
 		context    context.Context
 	}
@@ -26,14 +26,14 @@ type (
 	}
 )
 
-func CreateUserConnection(context context.Context, connection *database.Instance) UserModel {
-	return UserModel{
+func ContextConnection(context context.Context, connection *database.Instance) Model {
+	return Model{
 		connection: connection,
 		context:    context,
 	}
 }
 
-func (u UserModel) Connection() *database.Instance {
+func (u Model) Connection() *database.Instance {
 	return u.connection
 }
 

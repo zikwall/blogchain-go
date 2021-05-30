@@ -6,7 +6,7 @@ import (
 )
 
 type (
-	TagModel struct {
+	Model struct {
 		context    context.Context
 		connection *database.Instance
 	}
@@ -22,13 +22,13 @@ type (
 	}
 )
 
-func CreateTagConnection(context context.Context, connection *database.Instance) TagModel {
-	return TagModel{
+func ContextConnection(context context.Context, connection *database.Instance) Model {
+	return Model{
 		connection: connection,
 		context:    context,
 	}
 }
 
-func (t TagModel) Connection() *database.Instance {
+func (t Model) Connection() *database.Instance {
 	return t.connection
 }
