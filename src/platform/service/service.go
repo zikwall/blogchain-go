@@ -78,7 +78,7 @@ func CreateService(ctx context.Context, c Configuration) (*Instance, error) {
 	return b, nil
 }
 
-func (b *Instance) GetBlogchainDatabaseInstance() *database.Instance {
+func (b *Instance) GetDatabaseInstance() *database.Instance {
 	return b.database
 }
 
