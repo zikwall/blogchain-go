@@ -43,7 +43,3 @@ func (a BlogchainActionProvider) response(response interface{}) Response {
 func (a BlogchainActionProvider) message(message string) MessageResponse {
 	return a._common(200, message)
 }
-
-func (a BlogchainActionProvider) error(err error) MessageResponse {
-	return a._common(100, err.Error())
-}
