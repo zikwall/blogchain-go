@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"database/sql"
 	"github.com/zikwall/blogchain/src/app/models/tag"
 	"github.com/zikwall/blogchain/src/app/models/user"
@@ -8,8 +9,9 @@ import (
 )
 
 type (
-	ContentModel struct {
+	Model struct {
 		connection *database.Instance
+		context    context.Context
 	}
 	Content struct {
 		Id         int64          `db:"id"`
@@ -43,14 +45,19 @@ type (
 	}
 )
 
-func CreateContentConnection(connection *database.Instance) ContentModel {
-	return ContentModel{
+func ContextConnection(context context.Context, connection *database.Instance) Model {
+	return Model{
 		connection: connection,
+		context:    context,
 	}
 }
 
-func (self ContentModel) Connection() *database.Instance {
+func (self Model) Connection() *database.Instance {
 	return self.connection
+}
+
+func (self Model) Context() context.Context {
+	return self.context
 }
 
 func (c *Content) Response() PublicContent {

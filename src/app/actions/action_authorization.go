@@ -30,8 +30,7 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	u := user.CreateUserConnection(a.Db)
-	result, err := u.FindByCredentials(form.Username)
+	result, err := user.ContextConnection(ctx.Context(), a.Db).FindByCredentials(form.Username)
 
 	if err != nil {
 		return exceptions.Wrap("failed check user", err)
@@ -68,8 +67,8 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	u := user.CreateUserConnection(a.Db)
-	result, err := u.FindByUsernameOrEmail(form.Username, form.Email)
+	context := user.ContextConnection(ctx.Context(), a.Db)
+	result, err := context.FindByUsernameOrEmail(form.Username, form.Email)
 
 	if err != nil {
 		return exceptions.Wrap("failed check user", err)
@@ -79,7 +78,7 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("register", errors.New("this name or email already exist."))
 	}
 
-	result, err = u.CreateUser(form)
+	result, err = context.CreateUser(form)
 
 	if err != nil {
 		return exceptions.Wrap("failed create user", err)

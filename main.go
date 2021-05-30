@@ -215,7 +215,7 @@ func main() {
 
 		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
 			RSA: &rsa,
-			Db:  blogchain.GetBlogchainDatabaseInstance(),
+			Db:  blogchain.GetDatabaseInstance(),
 			StatsBatcher: statistic.CreateClickhouseBatcher(
 				blogchain.Context, blogchain.Clickhouse,
 			),

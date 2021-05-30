@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,18 +27,18 @@ func (content *Content) WithTags(tags []tag.Tag) {
 	}
 }
 
-func (content Content) GetTags(conn *database.Instance) ([]tag.Tag, error) {
-	u := tag.CreateTagConnection(conn)
+func (content Content) GetTags(context context.Context, conn *database.Instance) ([]tag.Tag, error) {
+	u := tag.ContextConnection(context, conn)
 	tags, err := u.ContentTags(content.Id)
 
 	return tags, err
 }
 
-func (self ContentModel) Find() *builder.SelectDataset {
+func (self Model) Find() *builder.SelectDataset {
 	return self.Connection().Builder().Select("content.*").From("content")
 }
 
-func (c ContentModel) FindWith() *builder.SelectDataset {
+func (c Model) FindWith() *builder.SelectDataset {
 	query := c.Find()
 	query = c.WithUser(query)
 	query = c.WithUserProfile(query)
@@ -45,7 +46,7 @@ func (c ContentModel) FindWith() *builder.SelectDataset {
 	return query
 }
 
-func (self ContentModel) WithUser(query *builder.SelectDataset) *builder.SelectDataset {
+func (self Model) WithUser(query *builder.SelectDataset) *builder.SelectDataset {
 	return query.
 		SelectAppend(
 			builder.I("user.id").As(builder.C("user.id")),
@@ -59,7 +60,7 @@ func (self ContentModel) WithUser(query *builder.SelectDataset) *builder.SelectD
 		)
 }
 
-func (self ContentModel) WithUserProfile(query *builder.SelectDataset) *builder.SelectDataset {
+func (self Model) WithUserProfile(query *builder.SelectDataset) *builder.SelectDataset {
 	return query.
 		SelectAppend(
 			builder.I("profile.name").As(builder.C("user.profile.name")),
@@ -74,7 +75,7 @@ func (self ContentModel) WithUserProfile(query *builder.SelectDataset) *builder.
 		)
 }
 
-func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicContent, error) {
+func (self Model) WithMutableResponse(contents []Content) ([]PublicContent, error) {
 	idx := make([]interface{}, 0, len(contents))
 	contentMap := make(map[int64]*Content, len(contents))
 
@@ -84,7 +85,7 @@ func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicConten
 		idx = append(idx, fmt.Sprintf("%v", content.Id))
 	}
 
-	t := tag.CreateTagConnection(self.Connection())
+	t := tag.ContextConnection(self.Context(), self.Connection())
 
 	tags, err := t.ContentGroupedTags(idx...)
 
@@ -107,7 +108,7 @@ func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicConten
 	return pc, nil
 }
 
-func (self ContentModel) UserContent(contentId int64, id int64) (Content, error) {
+func (self Model) UserContent(contentId int64, id int64) (Content, error) {
 	var content Content
 
 	query := self.Find()
@@ -120,7 +121,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		),
 	)
 
-	found, err := query.ScanStruct(&content)
+	found, err := query.ScanStructContext(self.context, &content)
 
 	if err != nil {
 		return Content{}, exceptions.NewErrDatabaseAccess(err)
@@ -128,7 +129,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		return Content{}, exceptions.NewErrApplicationLogic(errors.New("user content was not found"))
 	}
 
-	tags, err := content.GetTags(self.Connection())
+	tags, err := content.GetTags(self.Context(), self.Connection())
 
 	if err != nil {
 		return Content{}, err
@@ -139,7 +140,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 	return content, nil
 }
 
-func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, error) {
+func (self Model) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, error) {
 	content := Content{}
 	content.Content = f.Content
 	content.Title = f.Title
@@ -171,7 +172,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 			},
 		).Executor()
 
-	status, err := insert.Exec()
+	status, err := insert.ExecContext(self.Context())
 
 	if err != nil {
 		return Content{}, err
@@ -188,7 +189,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 	return content, err
 }
 
-func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
+func (self Model) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
 	// ToDo: проверка ошибок
 	if f.GetImage().Err == nil {
 		if err := SaveImage(&content, f, ctx); err != nil {
@@ -212,7 +213,7 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 		).
 		Executor()
 
-	if _, err := update.Exec(); err != nil {
+	if _, err := update.ExecContext(self.Context()); err != nil {
 		return exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -223,7 +224,7 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 	return nil
 }
 
-func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, update bool) error {
+func (self Model) UpsertTags(content Content, f *forms.ContentForm, update bool) error {
 	if f.Tags != "" {
 		tags := []int{}
 
@@ -236,7 +237,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 				builder.C("content_id").Eq(content.Id),
 			).Executor()
 
-			if _, err := executor.Exec(); err != nil {
+			if _, err := executor.ExecContext(self.Context()); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
@@ -251,13 +252,109 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 				},
 			).Executor()
 
-			if _, err := insert.Exec(); err != nil {
+			if _, err := insert.ExecContext(self.Context()); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
 	}
 
 	return nil
+}
+
+func (self Model) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
+	var content []Content
+
+	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
+	query, count := models.WithPagination(self.Context(), query, uint(page), 4)
+
+	if err := query.ScanStructsContext(self.Context(), &content); err != nil {
+		return nil, exceptions.NewErrDatabaseAccess(err), 0
+	}
+
+	response, err := self.WithMutableResponse(content)
+
+	if err != nil {
+		return nil, err, 0
+	}
+
+	return response, nil, count
+}
+
+func (self Model) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
+	content := Content{}
+
+	query := self.FindWith().
+		Where(
+			builder.And(
+				builder.I("content.id").Eq(id),
+				builder.I("user.id").Eq(userid),
+			),
+		)
+
+	if ok, err := query.ScanStructContext(self.Context(), &content); err != nil {
+		return Content{}, exceptions.NewErrDatabaseAccess(err)
+	} else if !ok {
+		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
+	}
+
+	if tags, err := content.GetTags(self.Context(), self.Connection()); err == nil {
+		content.WithTags(tags)
+	}
+
+	return content, nil
+}
+
+func (self Model) FindContentById(id int64) (Content, error) {
+	content := Content{}
+	query := self.FindWith().Where(builder.I("content.id").Eq(id))
+
+	if ok, err := query.ScanStructContext(self.Context(), &content); err != nil {
+		return content, exceptions.NewErrDatabaseAccess(err)
+	} else if !ok {
+		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
+	}
+
+	if tags, err := content.GetTags(self.Context(), self.Connection()); err == nil {
+		content.WithTags(tags)
+	}
+
+	return content, nil
+}
+
+func (self Model) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
+	var content []Content
+
+	query := self.FindWith()
+
+	if label != "" {
+		query = query.LeftJoin(
+			builder.T("content_tag"),
+			builder.On(
+				builder.I("content_tag.content_id").Eq(builder.I("content.id")),
+			),
+		).LeftJoin(
+			builder.T("tags"),
+			builder.On(
+				builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
+			),
+		).Where(
+			builder.I("tags.label").Eq(label),
+		)
+	}
+
+	query, count := models.WithPagination(self.Context(), query, uint(page), 4)
+
+	if err := query.ScanStructsContext(self.Context(), &content); err != nil {
+		return nil, exceptions.NewErrDatabaseAccess(err), 0
+	}
+
+	response, err := self.WithMutableResponse(content)
+
+	if err != nil {
+		return nil, err, 0
+	}
+
+	return response, nil, count
 }
 
 // ToDo: нажо что-то сделать с этим методом, он ни туда ни сюда...
@@ -272,113 +369,4 @@ func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	}
 
 	return utils.SaveFile(c, f.GetImage().File, absolutePath)
-}
-
-func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
-	var content []Content
-
-	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
-	query, count := models.WithPagination(query, uint(page), 4)
-
-	if err := query.ScanStructs(&content); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err), 0
-	}
-
-	response, err := self.WithMutableResponse(content)
-
-	if err != nil {
-		return nil, err, 0
-	}
-
-	return response, nil, count
-}
-
-func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
-	content := Content{}
-
-	query := self.FindWith().
-		Where(
-			builder.And(
-				builder.I("content.id").Eq(id),
-				builder.I("user.id").Eq(userid),
-			),
-		)
-
-	if ok, err := query.ScanStruct(&content); err != nil {
-		return Content{}, exceptions.NewErrDatabaseAccess(err)
-	} else if !ok {
-		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
-	}
-
-	if tags, err := content.GetTags(self.Connection()); err == nil {
-		content.WithTags(tags)
-	}
-
-	return content, nil
-}
-
-func (self ContentModel) FindContentById(id int64) (Content, error) {
-	content := Content{}
-	query := self.FindWith().Where(builder.I("content.id").Eq(id))
-
-	if ok, err := query.ScanStruct(&content); err != nil {
-		return content, exceptions.NewErrDatabaseAccess(err)
-	} else if !ok {
-		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
-	}
-
-	if tags, err := content.GetTags(self.Connection()); err == nil {
-		content.WithTags(tags)
-	}
-
-	return content, nil
-}
-
-func (self ContentModel) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
-	var content []Content
-
-	query := self.FindWith()
-
-	if label != "" {
-		onTagCondition := func(query *builder.SelectDataset, tag string) *builder.SelectDataset {
-			withContentTag := func(query *builder.SelectDataset) *builder.SelectDataset {
-				return query.LeftJoin(
-					builder.T("content_tag"),
-					builder.On(
-						builder.I("content_tag.content_id").Eq(builder.I("content.id")),
-					),
-				)
-			}
-
-			withTags := func(query *builder.SelectDataset) *builder.SelectDataset {
-				return query.LeftJoin(
-					builder.T("tags"),
-					builder.On(
-						builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
-					),
-				)
-			}
-
-			query = withContentTag(query)
-			query = withTags(query)
-
-			return query.Where(builder.I("tags.label").Eq(tag))
-		}
-
-		query = onTagCondition(query, label)
-	}
-
-	query, count := models.WithPagination(query, uint(page), 4)
-
-	if err := query.ScanStructs(&content); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err), 0
-	}
-
-	response, err := self.WithMutableResponse(content)
-
-	if err != nil {
-		return nil, err, 0
-	}
-
-	return response, nil, count
 }

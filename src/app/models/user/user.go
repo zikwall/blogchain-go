@@ -1,13 +1,15 @@
 package user
 
 import (
+	"context"
 	"database/sql"
 	"github.com/zikwall/blogchain/src/platform/database"
 )
 
 type (
-	UserModel struct {
+	Model struct {
 		connection *database.Instance
+		context    context.Context
 	}
 	User struct {
 		Id             int64          `db:"id"`
@@ -24,14 +26,19 @@ type (
 	}
 )
 
-func CreateUserConnection(connection *database.Instance) UserModel {
-	return UserModel{
+func ContextConnection(context context.Context, connection *database.Instance) Model {
+	return Model{
 		connection: connection,
+		context:    context,
 	}
 }
 
-func (u UserModel) Connection() *database.Instance {
+func (u Model) Connection() *database.Instance {
 	return u.connection
+}
+
+func (u Model) Context() context.Context {
+	return u.context
 }
 
 type PublicUser struct {
