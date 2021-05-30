@@ -7,6 +7,7 @@ import (
 	builder "github.com/doug-martin/goqu/v9"
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models"
 	"github.com/zikwall/blogchain/src/app/models/content/forms"
 	"github.com/zikwall/blogchain/src/app/models/tag"
@@ -119,8 +120,12 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		),
 	)
 
-	if _, err := query.ScanStruct(&content); err != nil {
-		return Content{}, err
+	found, err := query.ScanStruct(&content)
+
+	if err != nil {
+		return Content{}, exceptions.NewErrDatabaseAccess(err)
+	} else if !found {
+		return Content{}, exceptions.NewErrApplicationLogic(errors.New("user content was not found"))
 	}
 
 	tags, err := content.GetTags(self.Connection())
@@ -187,7 +192,7 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 	// ToDo: проверка ошибок
 	if f.GetImage().Err == nil {
 		if err := SaveImage(&content, f, ctx); err != nil {
-			return err
+			return exceptions.NewErrApplicationLogic(err)
 		}
 	}
 
@@ -208,7 +213,7 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 		Executor()
 
 	if _, err := update.Exec(); err != nil {
-		return err
+		return exceptions.NewErrDatabaseAccess(err)
 	}
 
 	if err := self.UpsertTags(content, f, true); err != nil {
@@ -232,7 +237,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 			).Executor()
 
 			if _, err := executor.Exec(); err != nil {
-				return err
+				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
 
@@ -247,7 +252,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 			).Executor()
 
 			if _, err := insert.Exec(); err != nil {
-				return err
+				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
 	}
@@ -263,7 +268,7 @@ func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
 	absolutePath, err := filepath.Abs(path)
 
 	if err != nil {
-		return err
+		return exceptions.NewErrApplicationLogic(err)
 	}
 
 	return utils.SaveFile(c, f.GetImage().File, absolutePath)
@@ -276,7 +281,7 @@ func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicConten
 	query, count := models.WithPagination(query, uint(page), 4)
 
 	if err := query.ScanStructs(&content); err != nil {
-		return nil, err, 0
+		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
 	response, err := self.WithMutableResponse(content)
@@ -300,9 +305,9 @@ func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content
 		)
 
 	if ok, err := query.ScanStruct(&content); err != nil {
-		return Content{}, err
+		return Content{}, exceptions.NewErrDatabaseAccess(err)
 	} else if !ok {
-		return content, errors.New("Content with the required ID was not found")
+		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
 	}
 
 	if tags, err := content.GetTags(self.Connection()); err == nil {
@@ -317,9 +322,9 @@ func (self ContentModel) FindContentById(id int64) (Content, error) {
 	query := self.FindWith().Where(builder.I("content.id").Eq(id))
 
 	if ok, err := query.ScanStruct(&content); err != nil {
-		return content, err
+		return content, exceptions.NewErrDatabaseAccess(err)
 	} else if !ok {
-		return content, errors.New("Content with the required ID was not found")
+		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
 	}
 
 	if tags, err := content.GetTags(self.Connection()); err == nil {
@@ -366,7 +371,7 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 	query, count := models.WithPagination(query, uint(page), 4)
 
 	if err := query.ScanStructs(&content); err != nil {
-		return nil, err, 0
+		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
 	response, err := self.WithMutableResponse(content)

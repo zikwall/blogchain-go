@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/mssola/user_agent"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/app/utils"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
@@ -14,7 +15,7 @@ func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
 	data := &statistic.PostStats{}
 
 	if err := ctx.BodyParser(&data); err != nil {
-		return ctx.JSON(a.error(err))
+		return exceptions.Wrap("failed parse form body", err)
 	}
 
 	now := time.Now()

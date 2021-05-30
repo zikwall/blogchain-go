@@ -27,25 +27,23 @@ func CopyWith(p BlogchainActionProvider) BlogchainActionProvider {
 	return a
 }
 
-func (a BlogchainActionProvider) _common(status uint8, message string) BlogchainMessageResponse {
-	return BlogchainMessageResponse{
-		BlogchainCommonResponseAttributes: BlogchainCommonResponseAttributes{
-			Status: status,
-		},
+func (a BlogchainActionProvider) _common(status uint8, message string) MessageResponse {
+	return MessageResponse{
+		Status:  status,
 		Message: message,
 	}
 }
 
-func (a BlogchainActionProvider) response(response interface{}) BlogchainResponse {
-	return BlogchainResponse{
+func (a BlogchainActionProvider) response(response interface{}) Response {
+	return Response{
 		Response: response,
 	}
 }
 
-func (a BlogchainActionProvider) message(message string) BlogchainMessageResponse {
+func (a BlogchainActionProvider) message(message string) MessageResponse {
 	return a._common(200, message)
 }
 
-func (a BlogchainActionProvider) error(err error) BlogchainMessageResponse {
+func (a BlogchainActionProvider) error(err error) MessageResponse {
 	return a._common(100, err.Error())
 }

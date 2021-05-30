@@ -2,7 +2,9 @@ package user
 
 import (
 	"database/sql"
+	"errors"
 	builder "github.com/doug-martin/goqu/v9"
+	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/user/forms"
 	"github.com/zikwall/blogchain/src/app/utils"
 	"time"
@@ -118,9 +120,15 @@ func (self UserModel) FindByUsernameOrEmail(username string, email string) (User
 	query := self.Find()
 	query = self.onCredentialsCondition(query, username, email)
 
-	_, err := query.ScanStruct(&user)
+	found, err := query.ScanStruct(&user)
 
-	return user, err
+	if err != nil {
+		return user, exceptions.NewErrDatabaseAccess(err)
+	} else if !found {
+		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required username or mail was not found"))
+	}
+
+	return user, nil
 }
 
 func (self UserModel) FindByCredentials(credentials string) (User, error) {
@@ -129,7 +137,13 @@ func (self UserModel) FindByCredentials(credentials string) (User, error) {
 	query = self.WithProfile(query)
 	query = self.onCredentialsCondition(query, credentials, credentials)
 
-	_, err := query.ScanStruct(&user)
+	found, err := query.ScanStruct(&user)
+
+	if err != nil {
+		return user, exceptions.NewErrDatabaseAccess(err)
+	} else if !found {
+		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required credentials was not found"))
+	}
 
 	return user, err
 }
@@ -138,9 +152,15 @@ func (self UserModel) FindById(id int64) (User, error) {
 	user := User{}
 	query := self.Find().Where(builder.C("id").Eq(id))
 
-	_, err := query.ScanStruct(&user)
+	found, err := query.ScanStruct(&user)
 
-	return user, err
+	if err != nil {
+		return user, exceptions.NewErrDatabaseAccess(err)
+	} else if !found {
+		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required ID was not found"))
+	}
+
+	return user, nil
 }
 
 func (self UserModel) FindByUsername(username string) (User, error) {
@@ -148,7 +168,13 @@ func (self UserModel) FindByUsername(username string) (User, error) {
 	query := self.Find().Where(builder.C("username").Eq(username))
 	query = self.WithProfile(query)
 
-	_, err := query.ScanStruct(&user)
+	found, err := query.ScanStruct(&user)
+
+	if err != nil {
+		return user, exceptions.NewErrDatabaseAccess(err)
+	} else if !found {
+		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required username was not found"))
+	}
 
 	return user, err
 }

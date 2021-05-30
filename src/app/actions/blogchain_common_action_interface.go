@@ -2,14 +2,11 @@ package actions
 
 // ToDo: Need to bring all response formats to a single structure and format
 type (
-	BlogchainCommonResponseAttributes struct {
-		Status uint8 `json:"status"`
-	}
-	BlogchainMessageResponse struct {
-		BlogchainCommonResponseAttributes
+	MessageResponse struct {
+		Status  uint8  `json:"status"`
 		Message string `json:"message"`
 	}
-	BlogchainResponse struct {
+	Response struct {
 		Response interface{} `json:"response"`
 	}
 )
