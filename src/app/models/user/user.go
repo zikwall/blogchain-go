@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"database/sql"
 	"github.com/zikwall/blogchain/src/platform/database"
 )
@@ -8,6 +9,7 @@ import (
 type (
 	UserModel struct {
 		connection *database.Instance
+		context    context.Context
 	}
 	User struct {
 		Id             int64          `db:"id"`
@@ -24,9 +26,10 @@ type (
 	}
 )
 
-func CreateUserConnection(connection *database.Instance) UserModel {
+func CreateUserConnection(context context.Context, connection *database.Instance) UserModel {
 	return UserModel{
 		connection: connection,
+		context:    context,
 	}
 }
 

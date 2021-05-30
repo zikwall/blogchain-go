@@ -69,7 +69,7 @@ func (self UserModel) CreateUser(r *forms.RegisterForm) (User, error) {
 		},
 	).Executor()
 
-	status, err := insert.Exec()
+	status, err := insert.ExecContext(self.context)
 
 	if err != nil {
 		return User{}, err
@@ -106,8 +106,8 @@ func (self UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 		},
 	).Executor()
 
-	if _, err := insert.Exec(); err != nil {
-		return err
+	if _, err := insert.ExecContext(self.context); err != nil {
+		return exceptions.NewErrDatabaseAccess(err)
 	}
 
 	user.Profile = profile
@@ -117,10 +117,7 @@ func (self UserModel) AttachProfile(r *forms.RegisterForm, user *User) error {
 
 func (self UserModel) FindByUsernameOrEmail(username string, email string) (User, error) {
 	user := User{}
-	query := self.Find()
-	query = self.onCredentialsCondition(query, username, email)
-
-	found, err := query.ScanStruct(&user)
+	found, err := self.onCredentialsCondition(self.Find(), username, email).ScanStructContext(self.context, &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -133,11 +130,10 @@ func (self UserModel) FindByUsernameOrEmail(username string, email string) (User
 
 func (self UserModel) FindByCredentials(credentials string) (User, error) {
 	user := User{}
-	query := self.Find()
-	query = self.WithProfile(query)
+	query := self.WithProfile(self.Find())
 	query = self.onCredentialsCondition(query, credentials, credentials)
 
-	found, err := query.ScanStruct(&user)
+	found, err := query.ScanStructContext(self.context, &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -152,7 +148,7 @@ func (self UserModel) FindById(id int64) (User, error) {
 	user := User{}
 	query := self.Find().Where(builder.C("id").Eq(id))
 
-	found, err := query.ScanStruct(&user)
+	found, err := query.ScanStructContext(self.context, &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -168,7 +164,7 @@ func (self UserModel) FindByUsername(username string) (User, error) {
 	query := self.Find().Where(builder.C("username").Eq(username))
 	query = self.WithProfile(query)
 
-	found, err := query.ScanStruct(&user)
+	found, err := query.ScanStructContext(self.context, &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)

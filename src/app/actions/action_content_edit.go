@@ -23,7 +23,7 @@ func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	model := content.CreateContentConnection(a.Db)
+	model := content.CreateContentConnection(ctx.Context(), a.Db)
 	result, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	model := content.CreateContentConnection(a.Db)
+	model := content.CreateContentConnection(ctx.Context(), a.Db)
 	res, err := model.UserContent(id, userInstance.Id)
 
 	if err != nil {
@@ -92,7 +92,7 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 		form.SetImage(forms.FormImage{File: img, Err: err})
 	}
 
-	model := content.CreateContentConnection(a.Db)
+	model := content.CreateContentConnection(ctx.Context(), a.Db)
 	result, err := model.CreateContent(form, ctx)
 
 	if err != nil {

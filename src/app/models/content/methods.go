@@ -1,6 +1,7 @@
 package content
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,8 +27,8 @@ func (content *Content) WithTags(tags []tag.Tag) {
 	}
 }
 
-func (content Content) GetTags(conn *database.Instance) ([]tag.Tag, error) {
-	u := tag.CreateTagConnection(conn)
+func (content Content) GetTags(context context.Context, conn *database.Instance) ([]tag.Tag, error) {
+	u := tag.CreateTagConnection(context, conn)
 	tags, err := u.ContentTags(content.Id)
 
 	return tags, err
@@ -84,7 +85,7 @@ func (self ContentModel) WithMutableResponse(contents []Content) ([]PublicConten
 		idx = append(idx, fmt.Sprintf("%v", content.Id))
 	}
 
-	t := tag.CreateTagConnection(self.Connection())
+	t := tag.CreateTagConnection(self.context, self.Connection())
 
 	tags, err := t.ContentGroupedTags(idx...)
 
@@ -120,7 +121,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		),
 	)
 
-	found, err := query.ScanStruct(&content)
+	found, err := query.ScanStructContext(self.context, &content)
 
 	if err != nil {
 		return Content{}, exceptions.NewErrDatabaseAccess(err)
@@ -128,7 +129,7 @@ func (self ContentModel) UserContent(contentId int64, id int64) (Content, error)
 		return Content{}, exceptions.NewErrApplicationLogic(errors.New("user content was not found"))
 	}
 
-	tags, err := content.GetTags(self.Connection())
+	tags, err := content.GetTags(self.context, self.Connection())
 
 	if err != nil {
 		return Content{}, err
@@ -171,7 +172,7 @@ func (self ContentModel) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Co
 			},
 		).Executor()
 
-	status, err := insert.Exec()
+	status, err := insert.ExecContext(self.context)
 
 	if err != nil {
 		return Content{}, err
@@ -212,7 +213,7 @@ func (self ContentModel) UpdateContent(content Content, f *forms.ContentForm, ct
 		).
 		Executor()
 
-	if _, err := update.Exec(); err != nil {
+	if _, err := update.ExecContext(self.context); err != nil {
 		return exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -236,7 +237,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 				builder.C("content_id").Eq(content.Id),
 			).Executor()
 
-			if _, err := executor.Exec(); err != nil {
+			if _, err := executor.ExecContext(self.context); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
@@ -251,7 +252,7 @@ func (self ContentModel) UpsertTags(content Content, f *forms.ContentForm, updat
 				},
 			).Executor()
 
-			if _, err := insert.Exec(); err != nil {
+			if _, err := insert.ExecContext(self.context); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
@@ -280,7 +281,7 @@ func (self ContentModel) FindAllByUser(userid int64, page int64) ([]PublicConten
 	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
 	query, count := models.WithPagination(query, uint(page), 4)
 
-	if err := query.ScanStructs(&content); err != nil {
+	if err := query.ScanStructsContext(self.context, &content); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
@@ -304,13 +305,13 @@ func (self ContentModel) FindContentByIdAndUser(id int64, userid int64) (Content
 			),
 		)
 
-	if ok, err := query.ScanStruct(&content); err != nil {
+	if ok, err := query.ScanStructContext(self.context, &content); err != nil {
 		return Content{}, exceptions.NewErrDatabaseAccess(err)
 	} else if !ok {
 		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
 	}
 
-	if tags, err := content.GetTags(self.Connection()); err == nil {
+	if tags, err := content.GetTags(self.context, self.Connection()); err == nil {
 		content.WithTags(tags)
 	}
 
@@ -321,13 +322,13 @@ func (self ContentModel) FindContentById(id int64) (Content, error) {
 	content := Content{}
 	query := self.FindWith().Where(builder.I("content.id").Eq(id))
 
-	if ok, err := query.ScanStruct(&content); err != nil {
+	if ok, err := query.ScanStructContext(self.context, &content); err != nil {
 		return content, exceptions.NewErrDatabaseAccess(err)
 	} else if !ok {
 		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
 	}
 
-	if tags, err := content.GetTags(self.Connection()); err == nil {
+	if tags, err := content.GetTags(self.context, self.Connection()); err == nil {
 		content.WithTags(tags)
 	}
 
@@ -370,7 +371,7 @@ func (self ContentModel) FindAllContent(label string, page int64) ([]PublicConte
 
 	query, count := models.WithPagination(query, uint(page), 4)
 
-	if err := query.ScanStructs(&content); err != nil {
+	if err := query.ScanStructsContext(self.context, &content); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 

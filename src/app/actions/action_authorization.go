@@ -30,7 +30,7 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	u := user.CreateUserConnection(a.Db)
+	u := user.CreateUserConnection(ctx.Context(), a.Db)
 	result, err := u.FindByCredentials(form.Username)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	u := user.CreateUserConnection(a.Db)
+	u := user.CreateUserConnection(ctx.Context(), a.Db)
 	result, err := u.FindByUsernameOrEmail(form.Username, form.Email)
 
 	if err != nil {

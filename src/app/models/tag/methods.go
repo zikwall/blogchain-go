@@ -14,7 +14,7 @@ func (self TagModel) All() ([]Tag, error) {
 
 	query := self.Find()
 
-	if err := query.ScanStructs(&tags); err != nil {
+	if err := query.ScanStructsContext(self.context, &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -56,7 +56,7 @@ func (self TagModel) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, err
 	query = self.OnContentCondition(query, id...)
 	query = withContent(query)
 
-	if err := query.ScanStructs(&tags); err != nil {
+	if err := query.ScanStructsContext(self.context, &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -79,7 +79,7 @@ func (self TagModel) ContentTags(id int64) ([]Tag, error) {
 	query := self.Find()
 	query = self.OnContentCondition(query, id)
 
-	if err := query.ScanStructs(&tags); err != nil {
+	if err := query.ScanStructsContext(self.context, &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 

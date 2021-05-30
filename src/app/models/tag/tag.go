@@ -1,11 +1,13 @@
 package tag
 
 import (
+	"context"
 	"github.com/zikwall/blogchain/src/platform/database"
 )
 
 type (
 	TagModel struct {
+		context    context.Context
 		connection *database.Instance
 	}
 	Tag struct {
@@ -20,9 +22,10 @@ type (
 	}
 )
 
-func CreateTagConnection(connection *database.Instance) TagModel {
+func CreateTagConnection(context context.Context, connection *database.Instance) TagModel {
 	return TagModel{
 		connection: connection,
+		context:    context,
 	}
 }
 
