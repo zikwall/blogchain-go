@@ -53,7 +53,7 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 
 	b.Finder = finder
 
-	db, err := database.NewInstance(c.BlogchainDatabaseConfiguration)
+	db, err := database.NewInstance(b.Context, c.BlogchainDatabaseConfiguration)
 
 	if err != nil {
 		return nil, err

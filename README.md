@@ -30,8 +30,10 @@ go run . \
   --clickhouse-user default \
   --clickhouse-password ***** \
   --clickhouse-database database_name \
+  --clickhouse-alt-hosts <optional hosts> \
   --container-secret secret
 ```
+
 - Docker
 
 ```shell script
@@ -46,9 +48,25 @@ docker run -d --net=host \
    -e CLICKHOUSE_USER='default' \
    -e CLICKHOUSE_PASSWORD='' \
    -e CLICKHOUSE_DATABASE='database_name' \
-   -e CONTAINER_SECRET='<blogchain application secret>' \
+   -e CLICKHOUSE_ALT_HOSTS='optional hosts' \
+   -e CONTAINER_SECRET='<application secret>' \
    --name golang-blogchain-server qwx1337/blogchain-server:latest
 ```
+
+#### This option is good for ClickHouse cluster with multiple replicas.
+
+```shell
+  -e CLICKHOUSE_ALT_HOSTS='host2:1234,host3,host4:5678
+```
+
+In example above on every new connection driver will use following sequence of hosts if previous host is unavailable:
+- host1:9000;
+
+- host2:1234;
+- host3:9000;
+- host4:5678.
+
+All queries within established connection will be sent to the same host.
 
 ### Tests
 

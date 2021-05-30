@@ -20,6 +20,7 @@ type (
 		Password string
 		User     string
 		Database string
+		AltHosts string
 		IsDebug  bool
 	}
 	Table struct {
@@ -151,6 +152,9 @@ func buildConnectionString(c Configuration) string {
 		c.Password,
 		c.Database,
 	)
+	if len(c.AltHosts) > 0 {
+		build = fmt.Sprintf("%s&alt_hosts=%s", build, c.AltHosts)
+	}
 
 	return build
 }

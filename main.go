@@ -109,6 +109,12 @@ func main() {
 				EnvVars:  []string{"CLICKHOUSE_DATABASE"},
 				FilePath: "/srv/bc_secret/clickhouse_database",
 			},
+			&cli.StringFlag{
+				Name:     "clickhouse-alt-hosts",
+				Usage:    "Comma separated list of single address host for load-balancing",
+				EnvVars:  []string{"CLICKHOUSE_ALT_HOSTS"},
+				FilePath: "/srv/bc_secret/clickhouse_alt_hosts",
+			},
 
 			// geo
 			&cli.StringFlag{
@@ -145,6 +151,7 @@ func main() {
 					User:     c.String("clickhouse-user"),
 					Password: c.String("clickhouse-password"),
 					Database: c.String("clickhouse-database"),
+					AltHosts: c.String("clickhouse-alt-hosts"),
 					IsDebug:  c.Bool("debug"),
 				},
 				FinderConfig: maxmind.FinderConfig{
