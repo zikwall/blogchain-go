@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
@@ -33,12 +34,28 @@ import (
 func main() {
 	application := &cli.App{
 		Flags: []cli.Flag{
+			// listeners
 			&cli.StringFlag{
 				Name:     "bind-address",
 				Required: true,
-				Usage:    "Run service in host",
+				Usage:    "IP and port for TCP listener, example: 0.0.0.0:3001",
 				EnvVars:  []string{"BIND_ADDRESS", "PORT"},
 			},
+			&cli.StringFlag{
+				Name:     "bind-socket",
+				Usage:    "Path to unix socket file for UDS listener",
+				Required: false,
+				Value:    "/tmp/blogchain.sock",
+				EnvVars:  []string{"BIND_SOCKET"},
+			},
+			&cli.IntFlag{
+				Name:     "listener",
+				Usage:    "UDS or TCP, default TCP",
+				Required: false,
+				Value:    ListenerTCP,
+				EnvVars:  []string{"LISTENER"},
+			},
+
 			// database
 			&cli.StringFlag{
 				Name:     "database-host",
@@ -196,15 +213,13 @@ func main() {
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
-		statisticBatcher := statistic.CreateClickhouseBatcher(
-			blogchain.Context, blogchain.Clickhouse,
-		)
-
 		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
-			RSA:          &rsa,
-			Db:           blogchain.GetBlogchainDatabaseInstance(),
-			StatsBatcher: statisticBatcher,
-			Finder:       blogchain.Finder,
+			RSA: &rsa,
+			Db:  blogchain.GetBlogchainDatabaseInstance(),
+			StatsBatcher: statistic.CreateClickhouseBatcher(
+				blogchain.Context, blogchain.Clickhouse,
+			),
+			Finder: blogchain.Finder,
 		})
 
 		api := app.Group("/api",
@@ -254,13 +269,14 @@ func main() {
 		}
 
 		go func() {
-			addr := c.String("bind-address")
+			err := runHttpServer(
+				app,
+				c.Int("listener"),
+				c.String("bind-socket"),
+				c.String("bind-address"),
+			)
 
-			if !strings.Contains(addr, ":") {
-				addr = ":" + addr
-			}
-
-			if err := app.Listen(addr); err != nil {
+			if err != nil {
 				log.Error(err)
 			}
 		}()
@@ -277,4 +293,30 @@ func main() {
 	if err := application.Run(os.Args); err != nil {
 		log.Error(err)
 	}
+}
+
+func runHttpServer(app *fiber.App, listener int, uds, tcp string) error {
+	if listener == ListenerTCP {
+		if !strings.Contains(tcp, ":") {
+			tcp = ":" + tcp
+		}
+
+		if err := app.Listen(tcp); err != nil {
+			return err
+		}
+	} else if listener == ListenerUDS {
+		ln, err := listenToUnix(uds)
+
+		if err != nil {
+			return err
+		}
+
+		chmodSocket(uds)
+
+		if err := app.Listener(ln); err != nil {
+			return err
+		}
+	}
+
+	return errors.New("unsupported type of listener")
 }
