@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
-	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/middlewares"
 	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
@@ -36,12 +34,28 @@ import (
 func main() {
 	application := &cli.App{
 		Flags: []cli.Flag{
+			// listeners
 			&cli.StringFlag{
 				Name:     "bind-address",
 				Required: true,
-				Usage:    "Run service in host",
+				Usage:    "IP and port for TCP listener, example: 0.0.0.0:3001",
 				EnvVars:  []string{"BIND_ADDRESS", "PORT"},
 			},
+			&cli.StringFlag{
+				Name:     "bind-socket",
+				Usage:    "Path to unix socket file for UDS listener",
+				Required: false,
+				Value:    "/tmp/blogchain.sock",
+				EnvVars:  []string{"BIND_SOCKET"},
+			},
+			&cli.IntFlag{
+				Name:     "listener",
+				Usage:    "UDS or TCP, default TCP",
+				Required: false,
+				Value:    ListenerTCP,
+				EnvVars:  []string{"LISTENER"},
+			},
+
 			// database
 			&cli.StringFlag{
 				Name:     "database-host",
@@ -112,6 +126,12 @@ func main() {
 				EnvVars:  []string{"CLICKHOUSE_DATABASE"},
 				FilePath: "/srv/bc_secret/clickhouse_database",
 			},
+			&cli.StringFlag{
+				Name:     "clickhouse-alt-hosts",
+				Usage:    "Comma separated list of single address host for load-balancing",
+				EnvVars:  []string{"CLICKHOUSE_ALT_HOSTS"},
+				FilePath: "/srv/bc_secret/clickhouse_alt_hosts",
+			},
 
 			// geo
 			&cli.StringFlag{
@@ -133,8 +153,8 @@ func main() {
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.CreateService(
 			context.Background(),
-			service.ServiceConfiguration{
-				BlogchainDatabaseConfiguration: database.BlogchainDatabaseConfiguration{
+			service.Configuration{
+				DatabaseConfiguration: database.Configuration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
@@ -142,12 +162,13 @@ func main() {
 					Dialect:  c.String("database-dialect"),
 					Debug:    c.Bool("debug"),
 				},
-				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
-				ClickhouseConfiguration: clickhouse.ClickhouseConfiguration{
+				Container: container.Configuration{},
+				ClickhouseConfiguration: clickhouse.Configuration{
 					Address:  c.String("clickhouse-address"),
 					User:     c.String("clickhouse-user"),
 					Password: c.String("clickhouse-password"),
 					Database: c.String("clickhouse-database"),
+					AltHosts: c.String("clickhouse-alt-hosts"),
 					IsDebug:  c.Bool("debug"),
 				},
 				FinderConfig: maxmind.FinderConfig{
@@ -168,38 +189,7 @@ func main() {
 		}()
 
 		app := fiber.New(fiber.Config{
-			ErrorHandler: func(ctx *fiber.Ctx, err error) error {
-				if err != nil {
-					code := fiber.StatusInternalServerError
-					value := "Internal Server Error"
-
-					var e *fiber.Error
-					var wrap *exceptions.WrapError
-
-					if errors.As(err, &e) {
-						code = e.Code
-						value = e.Message
-					}
-
-					if errors.As(err, &wrap) {
-						var appErr *exceptions.ErrApplicationLogic
-						var dbErr *exceptions.ErrDatabaseAccess
-
-						if errors.As(err, &appErr) {
-							value = fmt.Sprintf("%s: %v", wrap.Context, appErr.Error())
-						} else if errors.As(err, &dbErr) {
-							log.Warning(fmt.Sprintf("%s: %v", wrap.Context, dbErr.Error()))
-						}
-					}
-
-					return ctx.Status(code).JSON(actions.MessageResponse{
-						Status:  100,
-						Message: value,
-					})
-				}
-
-				return nil
-			},
+			ErrorHandler: middlewares.ErrorHandler,
 		})
 
 		app.Static("/docs", "./src/app/public/docs")
@@ -207,7 +197,7 @@ func main() {
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
-			middlewares.WithBlogchainCORSPolicy(service.BlogchainHttpAccessControl{
+			middlewares.WithBlogchainCORSPolicy(service.HttpAccessControl{
 				AllowOrigins:     "*",
 				AllowMethods:     "*",
 				AllowHeaders:     "*",
@@ -223,15 +213,13 @@ func main() {
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
-		statisticBatcher := statistic.CreateClickhouseBatcher(
-			blogchain.Context, blogchain.Clickhouse,
-		)
-
 		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
-			RSA:          &rsa,
-			Db:           blogchain.GetBlogchainDatabaseInstance(),
-			StatsBatcher: statisticBatcher,
-			Finder:       blogchain.Finder,
+			RSA: &rsa,
+			Db:  blogchain.GetBlogchainDatabaseInstance(),
+			StatsBatcher: statistic.CreateClickhouseBatcher(
+				blogchain.Context, blogchain.Clickhouse,
+			),
+			Finder: blogchain.Finder,
 		})
 
 		api := app.Group("/api",
@@ -281,13 +269,14 @@ func main() {
 		}
 
 		go func() {
-			addr := c.String("bind-address")
+			err := runHttpServer(
+				app,
+				c.Int("listener"),
+				c.String("bind-socket"),
+				c.String("bind-address"),
+			)
 
-			if !strings.Contains(addr, ":") {
-				addr = ":" + addr
-			}
-
-			if err := app.Listen(addr); err != nil {
+			if err != nil {
 				log.Error(err)
 			}
 		}()
@@ -304,4 +293,30 @@ func main() {
 	if err := application.Run(os.Args); err != nil {
 		log.Error(err)
 	}
+}
+
+func runHttpServer(app *fiber.App, listener int, uds, tcp string) error {
+	if listener == ListenerTCP {
+		if !strings.Contains(tcp, ":") {
+			tcp = ":" + tcp
+		}
+
+		if err := app.Listen(tcp); err != nil {
+			return err
+		}
+	} else if listener == ListenerUDS {
+		ln, err := listenToUnix(uds)
+
+		if err != nil {
+			return err
+		}
+
+		chmodSocket(uds)
+
+		if err := app.Listener(ln); err != nil {
+			return err
+		}
+	}
+
+	return errors.New("unsupported type of listener")
 }

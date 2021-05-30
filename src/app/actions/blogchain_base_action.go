@@ -10,7 +10,7 @@ import (
 type (
 	BlogchainActionProvider struct {
 		RSA          container.RSA
-		Db           *database.BlogchainDatabaseInstance
+		Db           *database.Instance
 		StatsBatcher *statistic.ClickhouseBatcher
 		Finder       *maxmind.Finder
 	}

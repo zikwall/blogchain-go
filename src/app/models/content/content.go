@@ -9,7 +9,7 @@ import (
 
 type (
 	ContentModel struct {
-		connection *database.BlogchainDatabaseInstance
+		connection *database.Instance
 	}
 	Content struct {
 		Id         int64          `db:"id"`
@@ -43,13 +43,13 @@ type (
 	}
 )
 
-func CreateContentConnection(connection *database.BlogchainDatabaseInstance) ContentModel {
+func CreateContentConnection(connection *database.Instance) ContentModel {
 	return ContentModel{
 		connection: connection,
 	}
 }
 
-func (self ContentModel) Connection() *database.BlogchainDatabaseInstance {
+func (self ContentModel) Connection() *database.Instance {
 	return self.connection
 }
 

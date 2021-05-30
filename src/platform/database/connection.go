@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	builder "github.com/doug-martin/goqu/v9"
@@ -12,10 +13,10 @@ import (
 )
 
 type (
-	BlogchainDatabaseInstance struct {
+	Instance struct {
 		db *builder.Database
 	}
-	BlogchainDatabaseConfiguration struct {
+	Configuration struct {
 		Host     string
 		User     string
 		Password string
@@ -24,41 +25,51 @@ type (
 		Dialect  string
 		Debug    bool
 	}
-	DatabaseLogger struct {
+	Logger struct {
 		callback func(format string, v ...interface{})
 	}
 )
 
-func (logger *DatabaseLogger) SetCallback(callbak func(format string, v ...interface{})) {
+func (logger *Logger) SetCallback(callbak func(format string, v ...interface{})) {
 	logger.callback = callbak
 }
 
-func (logger DatabaseLogger) Printf(format string, v ...interface{}) {
+func (logger Logger) Printf(format string, v ...interface{}) {
 	logger.callback(format, v)
 }
 
-func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainDatabaseInstance, error) {
-	d := new(BlogchainDatabaseInstance)
+func NewInstance(c context.Context, conf Configuration) (*Instance, error) {
+	d := new(Instance)
 
-	if c.Dialect == "" {
-		c.Dialect = "mysql"
+	if conf.Dialect == "" {
+		conf.Dialect = "mysql"
 	}
 
-	if c.Host == "" {
-		c.Host = "@"
+	if conf.Host == "" {
+		conf.Host = "@"
 	}
 
-	if strings.EqualFold(c.Host, "") {
-		c.Host = "@"
+	if strings.EqualFold(conf.Host, "") {
+		conf.Host = "@"
 	} else {
-		if !strings.Contains(c.Host, "@") {
-			c.Host = fmt.Sprintf("@tcp(%s)", c.Host)
+		if !strings.Contains(conf.Host, "@") {
+			conf.Host = fmt.Sprintf("@tcp(%s)", conf.Host)
 		}
 	}
 
-	db, err := sql.Open(c.Dialect, makeBlogchainDatabaseConnectionString(c))
+	db, err := sql.Open(conf.Dialect, makeConnectionString(conf))
 
 	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithTimeout(c, 10*time.Second)
+
+	defer func() {
+		cancel()
+	}()
+
+	if err := db.PingContext(ctx); err != nil {
 		return nil, err
 	}
 
@@ -66,11 +77,11 @@ func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainD
 	db.SetMaxOpenConns(26)
 	db.SetConnMaxLifetime(5 * time.Minute)
 
-	dialect := builder.Dialect(c.Dialect)
+	dialect := builder.Dialect(conf.Dialect)
 	d.db = dialect.DB(db)
 
-	if c.Debug {
-		dbLogger := DatabaseLogger{}
+	if conf.Debug {
+		dbLogger := Logger{}
 		dbLogger.SetCallback(func(format string, v ...interface{}) {
 			log.Info(v)
 		})
@@ -81,23 +92,23 @@ func NewBlogchainDatabaseInstance(c BlogchainDatabaseConfiguration) (*BlogchainD
 	return d, nil
 }
 
-func (d *BlogchainDatabaseInstance) SetLogger(logger builder.Logger) {
+func (d *Instance) SetLogger(logger builder.Logger) {
 	d.db.Logger(logger)
 }
 
-func (d *BlogchainDatabaseInstance) Builder() *builder.Database {
+func (d *Instance) Builder() *builder.Database {
 	return d.db
 }
 
-func makeBlogchainDatabaseConnectionString(c BlogchainDatabaseConfiguration) string {
+func makeConnectionString(c Configuration) string {
 	return fmt.Sprintf("%s:%s%s/%s", c.User, c.Password, c.Host, c.Name)
 }
 
-// not implemented
-func (d BlogchainDatabaseInstance) Close() error {
+// Close not implemented
+func (d Instance) Close() error {
 	return nil
 }
 
-func (d BlogchainDatabaseInstance) CloseMessage() string {
+func (d Instance) CloseMessage() string {
 	return "Close database: this is not implemented"
 }

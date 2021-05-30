@@ -26,7 +26,7 @@ func (content *Content) WithTags(tags []tag.Tag) {
 	}
 }
 
-func (content Content) GetTags(conn *database.BlogchainDatabaseInstance) ([]tag.Tag, error) {
+func (content Content) GetTags(conn *database.Instance) ([]tag.Tag, error) {
 	u := tag.CreateTagConnection(conn)
 	tags, err := u.ContentTags(content.Id)
 

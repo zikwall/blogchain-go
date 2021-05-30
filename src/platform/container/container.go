@@ -3,18 +3,18 @@ package container
 import "time"
 
 type (
-	BlogchainServiceContainer struct {
+	Container struct {
 		startedAt time.Time
 	}
-	BlogchainServiceContainerConfiguration struct{}
+	Configuration struct{}
 )
 
-func NewBlogchainServiceContainer(c BlogchainServiceContainerConfiguration) *BlogchainServiceContainer {
-	return &BlogchainServiceContainer{
+func NewBlogchainServiceContainer(c Configuration) *Container {
+	return &Container{
 		startedAt: time.Now(),
 	}
 }
 
-func (c BlogchainServiceContainer) GetStartedAt() time.Time {
+func (c Container) GetStartedAt() time.Time {
 	return c.startedAt
 }

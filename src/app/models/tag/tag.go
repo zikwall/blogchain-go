@@ -6,7 +6,7 @@ import (
 
 type (
 	TagModel struct {
-		connection *database.BlogchainDatabaseInstance
+		connection *database.Instance
 	}
 	Tag struct {
 		Id    int64  `json:"id"`
@@ -20,12 +20,12 @@ type (
 	}
 )
 
-func CreateTagConnection(connection *database.BlogchainDatabaseInstance) TagModel {
+func CreateTagConnection(connection *database.Instance) TagModel {
 	return TagModel{
 		connection: connection,
 	}
 }
 
-func (t TagModel) Connection() *database.BlogchainDatabaseInstance {
+func (t TagModel) Connection() *database.Instance {
 	return t.connection
 }
