@@ -20,7 +20,9 @@
 - Native
 ```shell script
 go run . \
-  --bind-address 0.0.0.0:3001 \
+  --bind-address 0.0.0.0:3001 \ // if listener == 1
+  --listener 1
+  --bind-socket /tmp/blogchain.sock \ // if listener == 2
   --database-host @ \
   --database-user blogchain \
   --database-password 123456 \
@@ -39,6 +41,8 @@ go run . \
 ```shell script
 docker run -d --net=host \
    -e BIND_ADDRESS='0.0.0.0:3001' \
+   -e BIND_SOCKET='/tmp/blogchain.sock' \
+   -e LISTENER=1 \
    -e DATABASE_HOST='<database host: @>' \
    -e DATABASE_USER='<database username>' \
    -e DATABASE_PASSWORD='<database password>' \
