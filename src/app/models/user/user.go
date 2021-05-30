@@ -7,7 +7,7 @@ import (
 
 type (
 	UserModel struct {
-		connection *database.BlogchainDatabaseInstance
+		connection *database.Instance
 	}
 	User struct {
 		Id             int64          `db:"id"`
@@ -24,13 +24,13 @@ type (
 	}
 )
 
-func CreateUserConnection(connection *database.BlogchainDatabaseInstance) UserModel {
+func CreateUserConnection(connection *database.Instance) UserModel {
 	return UserModel{
 		connection: connection,
 	}
 }
 
-func (u UserModel) Connection() *database.BlogchainDatabaseInstance {
+func (u UserModel) Connection() *database.Instance {
 	return u.connection
 }
 

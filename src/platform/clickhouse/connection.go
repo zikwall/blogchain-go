@@ -15,7 +15,7 @@ type (
 	Clickhouse struct {
 		db *sqlx.DB
 	}
-	ClickhouseConfiguration struct {
+	Configuration struct {
 		Address  string
 		Password string
 		User     string
@@ -28,7 +28,7 @@ type (
 	}
 )
 
-func NewClickhouse(conf ClickhouseConfiguration) (*Clickhouse, error) {
+func NewClickhouse(c context.Context, conf Configuration) (*Clickhouse, error) {
 	connect, err := sqlx.Open("clickhouse", buildConnectionString(conf))
 
 	if err != nil {
@@ -39,7 +39,13 @@ func NewClickhouse(conf ClickhouseConfiguration) (*Clickhouse, error) {
 	connect.SetMaxOpenConns(21)
 	connect.SetConnMaxLifetime(5 * time.Minute)
 
-	if err := connect.Ping(); err != nil {
+	ctx, cancel := context.WithTimeout(c, 10*time.Second)
+
+	defer func() {
+		cancel()
+	}()
+
+	if err := connect.PingContext(ctx); err != nil {
 		var e *clickhouse.Exception
 		if errors.As(err, &e) {
 			return nil, fmt.Errorf("[%d] %s \n%s\n", e.Code, e.Message, e.StackTrace)
@@ -58,7 +64,7 @@ func (c Clickhouse) Query() *sqlx.DB {
 	return c.db
 }
 
-// Currently, the client library does not support the JSONEachRow format, only native byte blocks
+// Insert Currently, the client library does not support the JSONEachRow format, only native byte blocks
 // There is no support for user interfaces as well as simple execution of an already prepared request
 // The entire batch bid is implemented through so-called "transactions",
 // although Clickhouse does not support them - it is only a client solution for preparing requests
@@ -109,7 +115,7 @@ func (c *Clickhouse) Insert(ctx context.Context, table Table, rows [][]interface
 	return affected, nil
 }
 
-// use elastic apm metrics
+// InsertWithMetrics use elastic apm metrics
 func (c *Clickhouse) InsertWithMetrics(table Table, rows [][]interface{}) (uint64, error) {
 	return c.Insert(context.Background(), table, rows)
 }
@@ -131,7 +137,7 @@ func insertQuery(table string, cols []string) string {
 	return prepared
 }
 
-func buildConnectionString(c ClickhouseConfiguration) string {
+func buildConnectionString(c Configuration) string {
 	debug := "false"
 
 	if c.IsDebug {

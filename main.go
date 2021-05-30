@@ -131,7 +131,7 @@ func main() {
 		blogchain, err := service.CreateService(
 			context.Background(),
 			service.ServiceConfiguration{
-				BlogchainDatabaseConfiguration: database.BlogchainDatabaseConfiguration{
+				BlogchainDatabaseConfiguration: database.Configuration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
@@ -140,7 +140,7 @@ func main() {
 					Debug:    c.Bool("debug"),
 				},
 				BlogchainContainer: container.BlogchainServiceContainerConfiguration{},
-				ClickhouseConfiguration: clickhouse.ClickhouseConfiguration{
+				ClickhouseConfiguration: clickhouse.Configuration{
 					Address:  c.String("clickhouse-address"),
 					User:     c.String("clickhouse-user"),
 					Password: c.String("clickhouse-password"),

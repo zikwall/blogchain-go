@@ -21,12 +21,12 @@ type (
 		Finder     *maxmind.Finder
 		Context    context.Context
 		cancelFunc context.CancelFunc
-		database   *database.BlogchainDatabaseInstance
+		database   *database.Instance
 	}
 	ServiceConfiguration struct {
-		BlogchainDatabaseConfiguration database.BlogchainDatabaseConfiguration
+		BlogchainDatabaseConfiguration database.Configuration
 		BlogchainContainer             container.BlogchainServiceContainerConfiguration
-		ClickhouseConfiguration        clickhouse.ClickhouseConfiguration
+		ClickhouseConfiguration        clickhouse.Configuration
 		FinderConfig                   maxmind.FinderConfig
 		IsDebug                        bool
 	}
@@ -53,7 +53,7 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 
 	b.Finder = finder
 
-	db, err := database.NewBlogchainDatabaseInstance(c.BlogchainDatabaseConfiguration)
+	db, err := database.NewInstance(c.BlogchainDatabaseConfiguration)
 
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 
 	b.database = db
 
-	ch, err := clickhouse.NewClickhouse(c.ClickhouseConfiguration)
+	ch, err := clickhouse.NewClickhouse(b.Context, c.ClickhouseConfiguration)
 
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func CreateService(ctx context.Context, c ServiceConfiguration) (*ServiceInstanc
 	return b, nil
 }
 
-func (b *ServiceInstance) GetBlogchainDatabaseInstance() *database.BlogchainDatabaseInstance {
+func (b *ServiceInstance) GetBlogchainDatabaseInstance() *database.Instance {
 	return b.database
 }
 
