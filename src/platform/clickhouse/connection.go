@@ -124,7 +124,7 @@ func (c *Clickhouse) InsertWithMetrics(table Table, rows [][]interface{}) (uint6
 }
 
 func insertQuery(table string, cols []string) string {
-	placeholders := []string{}
+	placeholders := make([]string, 0, len(cols))
 
 	for range cols {
 		placeholders = append(placeholders, "?")
