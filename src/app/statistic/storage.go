@@ -1,6 +1,7 @@
 package statistic
 
 import (
+	"context"
 	builder "github.com/doug-martin/goqu/v9"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 )
@@ -22,7 +23,7 @@ func viewersAggregateQuery() *builder.SelectDataset {
 		)
 }
 
-func GetPostViewersCount(ch *clickhouse.Clickhouse, post int64) (uint64, error) {
+func GetPostViewersCount(context context.Context, ch *clickhouse.Clickhouse, post int64) (uint64, error) {
 	var count uint64
 	var postId int64
 
@@ -34,7 +35,7 @@ func GetPostViewersCount(ch *clickhouse.Clickhouse, post int64) (uint64, error) 
 		).
 		ToSQL()
 
-	if err := ch.Query().QueryRow(rawQuery).Scan(&postId, &count); err != nil {
+	if err := ch.Query().QueryRowContext(context, rawQuery).Scan(&postId, &count); err != nil {
 		return 0, err
 	}
 
@@ -44,7 +45,7 @@ func GetPostViewersCount(ch *clickhouse.Clickhouse, post int64) (uint64, error) 
 	return count, nil
 }
 
-func GetPostsViewersCount(ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
+func GetPostsViewersCount(context context.Context, ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
 	var views []Viewers
 	counts := map[int64]uint64{}
 
@@ -55,7 +56,7 @@ func GetPostsViewersCount(ch *clickhouse.Clickhouse, posts ...int64) (map[int64]
 			),
 		).ToSQL()
 
-	if err := ch.Query().Select(&views, rawQuery); err != nil {
+	if err := ch.Query().SelectContext(context, &views, rawQuery); err != nil {
 		return counts, err
 	}
 
