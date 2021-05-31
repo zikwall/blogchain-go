@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/content"
@@ -38,7 +39,7 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(a.StatsBatcher.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(ctx.Context(), a.StatsBatcher.Clickhouse, result.Id)
 
 	if err != nil {
 		log.Warning(err)
@@ -64,7 +65,7 @@ func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStats(a.StatsBatcher.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), a.StatsBatcher.Clickhouse, contents),
 	}))
 }
 
@@ -72,7 +73,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
-		return exceptions.Wrap("Failed parse user id", err)
+		return exceptions.Wrap("failed parse user id", err)
 	}
 
 	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllByUser(user, getPageFromContext(ctx))
@@ -86,18 +87,22 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStats(a.StatsBatcher.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), a.StatsBatcher.Clickhouse, contents),
 	}))
 }
 
-func withStats(ch *clickhouse.Clickhouse, contents []content.PublicContent) map[int64]uint64 {
-	var ids []int64
+func withStatsContext(context context.Context, ch *clickhouse.Clickhouse, cs []content.PublicContent) map[int64]uint64 {
+	if len(cs) == 0 {
+		return map[int64]uint64{}
+	}
 
-	for _, c := range contents {
+	ids := make([]int64, len(cs))
+
+	for _, c := range cs {
 		ids = append(ids, c.Id)
 	}
 
-	viewers, err := statistic.GetPostsViewersCount(ch, ids...)
+	viewers, err := statistic.GetPostsViewersCount(context, ch, ids...)
 
 	if err != nil {
 		log.Warning(err)

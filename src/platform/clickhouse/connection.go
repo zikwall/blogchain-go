@@ -13,7 +13,8 @@ import (
 
 type (
 	Clickhouse struct {
-		db *sqlx.DB
+		db      *sqlx.DB
+		context context.Context
 	}
 	Configuration struct {
 		Address  string
@@ -57,6 +58,7 @@ func NewClickhouse(c context.Context, conf Configuration) (*Clickhouse, error) {
 
 	ch := new(Clickhouse)
 	ch.db = connect
+	ch.context = c
 
 	return ch, nil
 }
@@ -118,7 +120,7 @@ func (c *Clickhouse) Insert(ctx context.Context, table Table, rows [][]interface
 
 // InsertWithMetrics use elastic apm metrics
 func (c *Clickhouse) InsertWithMetrics(table Table, rows [][]interface{}) (uint64, error) {
-	return c.Insert(context.Background(), table, rows)
+	return c.Insert(c.context, table, rows)
 }
 
 func insertQuery(table string, cols []string) string {
