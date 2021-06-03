@@ -1,6 +1,6 @@
 module github.com/zikwall/blogchain
 
-go 1.13
+go 1.16
 
 require (
 	github.com/ClickHouse/clickhouse-go v1.4.3
@@ -14,7 +14,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.2.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/klauspost/compress v1.11.3 // indirect
-	github.com/mssola/user_agent v0.5.2 // indirect
+	github.com/mssola/user_agent v0.5.2
 	github.com/oschwald/geoip2-golang v1.5.0
 	github.com/prometheus/client_golang v1.8.0
 	github.com/satori/go.uuid v1.2.0
