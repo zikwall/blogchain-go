@@ -74,13 +74,13 @@ func (c Clickhouse) Query() *sqlx.DB {
 func (c *Clickhouse) Insert(ctx context.Context, table Table, rows [][]interface{}) (uint64, error) {
 	var affected uint64
 
-	tx, err := c.db.Begin()
+	tx, err := c.db.BeginTx(ctx, nil)
 
 	if err != nil {
 		return 0, err
 	}
 
-	stmt, err := tx.Prepare(insertQuery(table.Name, table.Columns))
+	stmt, err := tx.PrepareContext(ctx, insertQuery(table.Name, table.Columns))
 
 	if err != nil {
 		// If you do not call the rollback function there will be a memory leak and goroutine
