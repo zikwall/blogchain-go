@@ -20,7 +20,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/swag v1.6.5
 	github.com/urfave/cli/v2 v2.2.0
-	github.com/zikwall/fsclient v0.0.2
+	github.com/zikwall/fsclient v0.0.3
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 )
