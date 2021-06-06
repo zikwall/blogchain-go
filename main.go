@@ -234,10 +234,10 @@ func main() {
 		)
 
 		fsClient, err := fsclient.WithCopyFsClient(fsclient.FsClient{
-			Uri:        c.String("cdn_host"),
+			Uri:        c.String("cdn-host"),
 			SecureType: 1,
-			User:       c.String("cdn_user"),
-			Password:   c.String("cdn_password"),
+			User:       c.String("cdn-user"),
+			Password:   c.String("cdn-password"),
 		})
 
 		if err != nil {
