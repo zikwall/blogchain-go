@@ -6,15 +6,11 @@ import (
 	"errors"
 	"fmt"
 	builder "github.com/doug-martin/goqu/v9"
-	"github.com/gofiber/fiber/v2"
-	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models"
 	"github.com/zikwall/blogchain/src/app/models/content/forms"
 	"github.com/zikwall/blogchain/src/app/models/tag"
-	"github.com/zikwall/blogchain/src/app/utils"
 	"github.com/zikwall/blogchain/src/platform/database"
-	"path/filepath"
 	"time"
 )
 
@@ -140,23 +136,13 @@ func (self Model) UserContent(contentId int64, id int64) (Content, error) {
 	return content, nil
 }
 
-func (self Model) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, error) {
+func (self Model) CreateContent(f *forms.ContentForm) (Content, error) {
 	content := Content{}
 	content.Content = f.Content
 	content.Title = f.Title
 	content.UserId = f.UserId
 	content.Annotation = f.Annotation
-
-	var err error
-	uv4 := uuid.Must(uuid.NewV4(), err)
-	content.Uuid = uv4.String()
-
-	// ToDo: проверка ошибок
-	if f.GetImage().Err == nil {
-		if err = SaveImage(&content, f, ctx); err != nil {
-			return Content{}, err
-		}
-	}
+	content.Uuid = f.UUID
 
 	insert := self.Connection().Builder().
 		Insert("content").
@@ -189,14 +175,7 @@ func (self Model) CreateContent(f *forms.ContentForm, ctx *fiber.Ctx) (Content, 
 	return content, err
 }
 
-func (self Model) UpdateContent(content Content, f *forms.ContentForm, ctx *fiber.Ctx) error {
-	// ToDo: проверка ошибок
-	if f.GetImage().Err == nil {
-		if err := SaveImage(&content, f, ctx); err != nil {
-			return exceptions.NewErrApplicationLogic(err)
-		}
-	}
-
+func (self Model) UpdateContent(content Content, f *forms.ContentForm) error {
 	update := self.Connection().Builder().
 		Update("content").
 		Set(
@@ -355,18 +334,4 @@ func (self Model) FindAllContent(label string, page int64) ([]PublicContent, err
 	}
 
 	return response, nil, count
-}
-
-// ToDo: нажо что-то сделать с этим методом, он ни туда ни сюда...
-func SaveImage(content *Content, f *forms.ContentForm, c *fiber.Ctx) error {
-	content.Image.String = utils.CreateImagePath(content.Uuid)
-	path := fmt.Sprintf("./src/app/public/uploads/%s", content.Image.String)
-
-	absolutePath, err := filepath.Abs(path)
-
-	if err != nil {
-		return exceptions.NewErrApplicationLogic(err)
-	}
-
-	return utils.SaveFile(c, f.GetImage().File, absolutePath)
 }

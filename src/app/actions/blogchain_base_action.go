@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"github.com/zikwall/blogchain/src/app/lib/upload"
 	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
@@ -13,6 +14,7 @@ type (
 		Db           *database.Instance
 		StatsBatcher *statistic.ClickhouseBatcher
 		Finder       *maxmind.Finder
+		Uploader     upload.Uploader
 	}
 )
 
@@ -22,6 +24,7 @@ func CopyWith(p BlogchainActionProvider) BlogchainActionProvider {
 		Db:           p.Db,
 		StatsBatcher: p.StatsBatcher,
 		Finder:       p.Finder,
+		Uploader:     p.Uploader,
 	}
 
 	return a

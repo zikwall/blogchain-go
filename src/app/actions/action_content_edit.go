@@ -2,9 +2,11 @@ package actions
 
 import (
 	"github.com/gofiber/fiber/v2"
+	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/content"
 	"github.com/zikwall/blogchain/src/app/models/content/forms"
+	"github.com/zikwall/blogchain/src/app/utils"
 	"strconv"
 )
 
@@ -59,10 +61,25 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 	}
 
 	if img, err := ctx.FormFile("image"); err == nil {
-		form.SetImage(forms.FormImage{File: img, Err: err})
+		filename := utils.CreateImagePath(res.Uuid)
+		res.Image.String = filename
+
+		file, err := img.Open()
+
+		if err != nil {
+			return exceptions.Wrap("failed open image file", err)
+		}
+
+		defer func() {
+			_ = file.Close()
+		}()
+
+		if err := a.Uploader.UploadFile(ctx.Context(), filename, file); err != nil {
+			return err
+		}
 	}
 
-	if err := context.UpdateContent(res, form, ctx); err != nil {
+	if err := context.UpdateContent(res, form); err != nil {
 		return exceptions.Wrap("failed update user content", err)
 	}
 
@@ -77,16 +94,32 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 	}
 
 	form.UserId = getUserFromContext(ctx).Id
+	form.UUID = uuid.NewV4().String()
 
 	if err := form.Validate(); err != nil {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
 	if img, err := ctx.FormFile("image"); err == nil {
-		form.SetImage(forms.FormImage{File: img, Err: err})
+		filename := utils.CreateImagePath(form.UUID)
+		form.ImageName = filename
+
+		file, err := img.Open()
+
+		if err != nil {
+			return exceptions.Wrap("failed open image file", err)
+		}
+
+		defer func() {
+			_ = file.Close()
+		}()
+
+		if err := a.Uploader.UploadFile(ctx.Context(), filename, file); err != nil {
+			return err
+		}
 	}
 
-	result, err := content.ContextConnection(ctx.Context(), a.Db).CreateContent(form, ctx)
+	result, err := content.ContextConnection(ctx.Context(), a.Db).CreateContent(form)
 
 	if err != nil {
 		return exceptions.Wrap("failed create user content", err)
