@@ -2,7 +2,6 @@ package forms
 
 import (
 	"errors"
-	"mime/multipart"
 )
 
 type ContentForm struct {
@@ -11,21 +10,8 @@ type ContentForm struct {
 	Content    string `json:"content" form:"content"`
 	Annotation string `json:"annotation" form:"annotation"`
 	Tags       string `json:"tags" form:"tags"`
-
-	image FormImage
-}
-
-type FormImage struct {
-	File *multipart.FileHeader
-	Err  error
-}
-
-func (c *ContentForm) GetImage() FormImage {
-	return c.image
-}
-
-func (c *ContentForm) SetImage(image FormImage) {
-	c.image = image
+	ImageName  string
+	UUID       string
 }
 
 // todo temporary

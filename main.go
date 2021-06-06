@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
+	"github.com/zikwall/blogchain/src/app/lib/upload"
 	"github.com/zikwall/blogchain/src/app/middlewares"
 	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
@@ -14,6 +15,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 	"github.com/zikwall/blogchain/src/platform/service"
+	"github.com/zikwall/fsclient"
 	"os"
 	"strings"
 )
@@ -141,6 +143,24 @@ func main() {
 				EnvVars: []string{"MAXMIND_FILEPATH"},
 			},
 
+			//cdn
+			&cli.StringFlag{
+				Name:    "cdn-host",
+				Usage:   "",
+				Value:   "localhost:1337",
+				EnvVars: []string{"CDN_HOST"},
+			},
+			&cli.StringFlag{
+				Name:    "cdn-user",
+				Usage:   "",
+				EnvVars: []string{"CDN_USER"},
+			},
+			&cli.StringFlag{
+				Name:    "cdn-password",
+				Usage:   "",
+				EnvVars: []string{"CDN_PASSWORD"},
+			},
+
 			// dev
 			&cli.BoolFlag{
 				Name:    "debug",
@@ -213,13 +233,25 @@ func main() {
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
+		fsClient, err := fsclient.WithCopyFsClient(fsclient.FsClient{
+			Uri:        c.String("cdn-host"),
+			SecureType: 1,
+			User:       c.String("cdn-user"),
+			Password:   c.String("cdn-password"),
+		})
+
+		if err != nil {
+			return err
+		}
+
 		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
 			RSA: &rsa,
 			Db:  blogchain.GetDatabaseInstance(),
 			StatsBatcher: statistic.CreateClickhouseBatcher(
 				blogchain.Context, blogchain.Clickhouse,
 			),
-			Finder: blogchain.Finder,
+			Finder:   blogchain.Finder,
+			Uploader: upload.NewFileUploader(fsClient),
 		})
 
 		api := app.Group("/api",
