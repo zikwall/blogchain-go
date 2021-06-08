@@ -102,7 +102,7 @@ func withStatsContext(context context.Context, ch *clickhouse.Clickhouse, cs []c
 		return map[int64]uint64{}
 	}
 
-	ids := make([]int64, len(cs))
+	ids := make([]int64, 0, len(cs))
 
 	for _, c := range cs {
 		ids = append(ids, c.Id)
