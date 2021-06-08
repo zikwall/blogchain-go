@@ -23,7 +23,9 @@ func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := content.ContextConnection(ctx.Context(), a.Db).UserContent(id, getUserFromContext(ctx).Id)
+	result, err := content.
+		ContextConnection(ctx.Context(), a.Db).
+		UserContent(id, getUserFromContext(ctx).Id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find user content", err)

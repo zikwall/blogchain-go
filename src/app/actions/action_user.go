@@ -11,7 +11,9 @@ type ProfileResponse struct {
 }
 
 func (a BlogchainActionProvider) Profile(ctx *fiber.Ctx) error {
-	result, err := user.ContextConnection(ctx.Context(), a.Db).FindByUsername(ctx.Params("username"))
+	result, err := user.
+		ContextConnection(ctx.Context(), a.Db).
+		FindByUsername(ctx.Params("username"))
 
 	if err != nil {
 		return exceptions.Wrap("failed find user", err)

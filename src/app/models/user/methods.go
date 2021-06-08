@@ -11,7 +11,11 @@ import (
 )
 
 func (self Model) Find() *builder.SelectDataset {
-	return self.Connection().Builder().Select("user.*").From("user")
+	return self.
+		Connection().
+		Builder().
+		Select("user.*").
+		From("user")
 }
 
 func (self Model) WithProfile(query *builder.SelectDataset) *builder.SelectDataset {
@@ -59,7 +63,8 @@ func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	insert := self.Connection().
+	insert := self.
+		Connection().
 		Builder().
 		Insert("user").
 		Rows(
@@ -70,7 +75,8 @@ func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
 				"registration_ip": user.RegistrationIp,
 				"created_at":      user.ConfirmedAt,
 			},
-		).Executor()
+		).
+		Executor()
 
 	status, err := insert.ExecContext(self.Context())
 
@@ -100,7 +106,8 @@ func (self Model) AttachProfile(r *forms.RegisterForm, user *User) error {
 		},
 	}
 
-	insert := self.Connection().
+	insert := self.
+		Connection().
 		Builder().Insert("profile").
 		Rows(
 			builder.Record{
@@ -109,7 +116,8 @@ func (self Model) AttachProfile(r *forms.RegisterForm, user *User) error {
 				"public_email": profile.PublicEmail,
 				"avatar":       profile.Avatar,
 			},
-		).Executor()
+		).
+		Executor()
 
 	if _, err := insert.ExecContext(self.Context()); err != nil {
 		return exceptions.NewErrDatabaseAccess(err)

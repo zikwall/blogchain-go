@@ -48,9 +48,7 @@ func (self Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error)
 		"content_tag.content_id",
 	)
 
-	query = self.OnContentCondition(query, id...)
-
-	if err := query.ScanStructsContext(self.Context(), &tags); err != nil {
+	if err := self.OnContentCondition(query, id...).ScanStructsContext(self.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 

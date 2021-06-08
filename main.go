@@ -260,7 +260,7 @@ func main() {
 		)
 		{
 			api.Get("/healthcheck", actions.HealthCheck)
-			api.Get("/runtime", actions.BlogchainRuntimeStatistic(
+			api.Get("/runtime", actions.RuntimeStatistic(
 				blogchain.Container.GetStartedAt(),
 			))
 

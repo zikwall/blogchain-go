@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	BlogchainRuntime struct {
+	Runtime struct {
 		Metrics metrics `json:"metrics"`
 		Uptime  uptime  `json:"uptime"`
 	}
@@ -25,23 +25,20 @@ func kb(b uint64) uint64 {
 	return b / 1024
 }
 
-func BlogchainRuntimeStatistic(startedAt time.Time) fiber.Handler {
+func RuntimeStatistic(startedAt time.Time) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		memory := runtime.MemStats{}
 		runtime.ReadMemStats(&memory)
 
-		stats := BlogchainRuntime{}
-
-		stats.Metrics = metrics{
-			MemoryAlloc: kb(memory.Alloc),
-			Gorutines:   runtime.NumGoroutine(),
-			NumGc:       memory.NumGC,
-		}
-
-		stats.Uptime = uptime{
-			Seconds: time.Since(startedAt).Seconds(),
-		}
-
-		return ctx.JSON(stats)
+		return ctx.JSON(Runtime{
+			Metrics: metrics{
+				MemoryAlloc: kb(memory.Alloc),
+				Gorutines:   runtime.NumGoroutine(),
+				NumGc:       memory.NumGC,
+			},
+			Uptime: uptime{
+				Seconds: time.Since(startedAt).Seconds(),
+			},
+		})
 	}
 }

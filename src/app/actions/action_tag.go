@@ -11,7 +11,9 @@ type TagResponse struct {
 }
 
 func (a BlogchainActionProvider) Tags(ctx *fiber.Ctx) error {
-	tags, err := tag.ContextConnection(ctx.Context(), a.Db).All()
+	tags, err := tag.
+		ContextConnection(ctx.Context(), a.Db).
+		All()
 
 	if err != nil {
 		return exceptions.Wrap("failed find all tags", err)

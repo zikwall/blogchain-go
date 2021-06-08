@@ -24,17 +24,18 @@ func (content *Content) WithTags(tags []tag.Tag) {
 }
 
 func (content Content) GetTags(context context.Context, conn *database.Instance) ([]tag.Tag, error) {
-	u := tag.ContextConnection(context, conn)
-	tags, err := u.ContentTags(content.Id)
-
-	return tags, err
+	return tag.ContextConnection(context, conn).ContentTags(content.Id)
 }
 
 func (self Model) Find() *builder.SelectDataset {
-	return self.Connection().Builder().Select("content.*").From("content")
+	return self.
+		Connection().
+		Builder().
+		Select("content.*").
+		From("content")
 }
 
-func (c Model) FindWith() *builder.SelectDataset {
+func (c Model) WithFullUser() *builder.SelectDataset {
 	query := c.Find()
 	query = c.WithUser(query)
 	query = c.WithUserProfile(query)
@@ -71,51 +72,17 @@ func (self Model) WithUserProfile(query *builder.SelectDataset) *builder.SelectD
 		)
 }
 
-func (self Model) WithMutableResponse(contents []Content) ([]PublicContent, error) {
-	idx := make([]interface{}, 0, len(contents))
-	contentMap := make(map[int64]*Content, len(contents))
-
-	for _, content := range contents {
-		c := content
-		contentMap[content.Id] = &c
-		idx = append(idx, fmt.Sprintf("%v", content.Id))
-	}
-
-	t := tag.ContextConnection(self.Context(), self.Connection())
-
-	tags, err := t.ContentGroupedTags(idx...)
-
-	if err != nil {
-		return nil, err
-	}
-
-	for id, value := range tags {
-		if _, ok := contentMap[id]; ok {
-
-			contentMap[id].WithTags(value)
-		}
-	}
-
-	var pc []PublicContent
-	for _, content := range contentMap {
-		pc = append(pc, content.Response())
-	}
-
-	return pc, nil
-}
-
 func (self Model) UserContent(contentId int64, id int64) (Content, error) {
 	var content Content
 
-	query := self.Find()
-	query = self.WithUser(query)
-
-	query = query.Where(
-		builder.And(
-			builder.I("content.id").Eq(contentId),
-			builder.I("user.id").Eq(id),
-		),
-	)
+	query := self.
+		WithUser(self.Find()).
+		Where(
+			builder.And(
+				builder.I("content.id").Eq(contentId),
+				builder.I("user.id").Eq(id),
+			),
+		)
 
 	found, err := query.ScanStructContext(self.context, &content)
 
@@ -144,7 +111,9 @@ func (self Model) CreateContent(f *forms.ContentForm) (Content, error) {
 	content.Annotation = f.Annotation
 	content.Uuid = f.UUID
 
-	insert := self.Connection().Builder().
+	insert := self.
+		Connection().
+		Builder().
 		Insert("content").
 		Rows(
 			builder.Record{
@@ -156,7 +125,8 @@ func (self Model) CreateContent(f *forms.ContentForm) (Content, error) {
 				"image":      content.Image.String,
 				"created_at": time.Now().Unix(),
 			},
-		).Executor()
+		).
+		Executor()
 
 	status, err := insert.ExecContext(self.Context())
 
@@ -176,7 +146,9 @@ func (self Model) CreateContent(f *forms.ContentForm) (Content, error) {
 }
 
 func (self Model) UpdateContent(content Content, f *forms.ContentForm) error {
-	update := self.Connection().Builder().
+	update := self.
+		Connection().
+		Builder().
 		Update("content").
 		Set(
 			builder.Record{
@@ -212,28 +184,36 @@ func (self Model) UpsertTags(content Content, f *forms.ContentForm, update bool)
 		}
 
 		if update {
-			executor := self.Connection().Builder().Delete("content_tag").Where(
+			executor := self.
+				Connection().
+				Builder().
+				Delete("content_tag").Where(
 				builder.C("content_id").Eq(content.Id),
-			).Executor()
+			).
+				Executor()
 
 			if _, err := executor.ExecContext(self.Context()); err != nil {
 				return exceptions.NewErrDatabaseAccess(err)
 			}
 		}
 
-		// ToDo: Batch Insert
-		executor := self.Connection().Builder()
+		records := make([]builder.Record, 0, len(tags))
 		for _, v := range tags {
-			insert := executor.Insert("content_tag").Rows(
-				builder.Record{
-					"content_id": content.Id,
-					"tag_id":     v,
-				},
-			).Executor()
+			records = append(records, builder.Record{
+				"content_id": content.Id,
+				"tag_id":     v,
+			})
+		}
 
-			if _, err := insert.ExecContext(self.Context()); err != nil {
-				return exceptions.NewErrDatabaseAccess(err)
-			}
+		executor := self.
+			Connection().
+			Builder().
+			Insert("content_tag").
+			Rows(records).
+			Executor()
+
+		if _, err := executor.ExecContext(self.Context()); err != nil {
+			return exceptions.NewErrDatabaseAccess(err)
 		}
 	}
 
@@ -243,14 +223,19 @@ func (self Model) UpsertTags(content Content, f *forms.ContentForm, update bool)
 func (self Model) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
 	var content []Content
 
-	query := self.FindWith().Where(builder.I("user.id").Eq(userid))
+	query := self.
+		WithFullUser().
+		Where(
+			builder.I("user.id").Eq(userid),
+		)
+
 	query, count := models.WithPagination(self.Context(), query, uint(page), 4)
 
 	if err := query.ScanStructsContext(self.Context(), &content); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
-	response, err := self.WithMutableResponse(content)
+	response, err := self.withMutableResponse(content)
 
 	if err != nil {
 		return nil, err, 0
@@ -262,7 +247,8 @@ func (self Model) FindAllByUser(userid int64, page int64) ([]PublicContent, erro
 func (self Model) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
 	content := Content{}
 
-	query := self.FindWith().
+	query := self.
+		WithFullUser().
 		Where(
 			builder.And(
 				builder.I("content.id").Eq(id),
@@ -285,7 +271,11 @@ func (self Model) FindContentByIdAndUser(id int64, userid int64) (Content, error
 
 func (self Model) FindContentById(id int64) (Content, error) {
 	content := Content{}
-	query := self.FindWith().Where(builder.I("content.id").Eq(id))
+	query := self.
+		WithFullUser().
+		Where(
+			builder.I("content.id").Eq(id),
+		)
 
 	if ok, err := query.ScanStructContext(self.Context(), &content); err != nil {
 		return content, exceptions.NewErrDatabaseAccess(err)
@@ -303,22 +293,25 @@ func (self Model) FindContentById(id int64) (Content, error) {
 func (self Model) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
 	var content []Content
 
-	query := self.FindWith()
+	query := self.WithFullUser()
 
 	if label != "" {
-		query = query.LeftJoin(
-			builder.T("content_tag"),
-			builder.On(
-				builder.I("content_tag.content_id").Eq(builder.I("content.id")),
-			),
-		).LeftJoin(
-			builder.T("tags"),
-			builder.On(
-				builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
-			),
-		).Where(
-			builder.I("tags.label").Eq(label),
-		)
+		query = query.
+			LeftJoin(
+				builder.T("content_tag"),
+				builder.On(
+					builder.I("content_tag.content_id").Eq(builder.I("content.id")),
+				),
+			).
+			LeftJoin(
+				builder.T("tags"),
+				builder.On(
+					builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
+				),
+			).
+			Where(
+				builder.I("tags.label").Eq(label),
+			)
 	}
 
 	query, count := models.WithPagination(self.Context(), query, uint(page), 4)
@@ -327,11 +320,43 @@ func (self Model) FindAllContent(label string, page int64) ([]PublicContent, err
 		return nil, exceptions.NewErrDatabaseAccess(err), 0
 	}
 
-	response, err := self.WithMutableResponse(content)
+	response, err := self.withMutableResponse(content)
 
 	if err != nil {
 		return nil, err, 0
 	}
 
 	return response, nil, count
+}
+
+func (self Model) withMutableResponse(contents []Content) ([]PublicContent, error) {
+	idx := make([]interface{}, 0, len(contents))
+	contentMap := make(map[int64]*Content, len(contents))
+
+	for _, content := range contents {
+		c := content
+		contentMap[content.Id] = &c
+		idx = append(idx, fmt.Sprintf("%v", content.Id))
+	}
+
+	tags, err := tag.
+		ContextConnection(self.Context(), self.Connection()).
+		ContentGroupedTags(idx...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for id, value := range tags {
+		if _, ok := contentMap[id]; ok {
+			contentMap[id].WithTags(value)
+		}
+	}
+
+	pc := make([]PublicContent, 0, len(contentMap))
+	for _, content := range contentMap {
+		pc = append(pc, content.Response())
+	}
+
+	return pc, nil
 }

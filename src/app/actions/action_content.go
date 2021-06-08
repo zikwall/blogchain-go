@@ -33,7 +33,9 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := content.ContextConnection(ctx.Context(), a.Db).FindContentById(id)
+	result, err := content.
+		ContextConnection(ctx.Context(), a.Db).
+		FindContentById(id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find content by id", err)
@@ -54,7 +56,9 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
-	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllContent(tag, getPageFromContext(ctx))
+	contents, err, count := content.
+		ContextConnection(ctx.Context(), a.Db).
+		FindAllContent(tag, getPageFromContext(ctx))
 
 	if err != nil {
 		return exceptions.Wrap("failed find contents", err)
@@ -76,7 +80,9 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse user id", err)
 	}
 
-	contents, err, count := content.ContextConnection(ctx.Context(), a.Db).FindAllByUser(user, getPageFromContext(ctx))
+	contents, err, count := content.
+		ContextConnection(ctx.Context(), a.Db).
+		FindAllByUser(user, getPageFromContext(ctx))
 
 	if err != nil {
 		return exceptions.Wrap("failed find user contents by id", err)

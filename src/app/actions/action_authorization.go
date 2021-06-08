@@ -30,7 +30,9 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	result, err := user.ContextConnection(ctx.Context(), a.Db).FindByCredentials(form.Username)
+	result, err := user.
+		ContextConnection(ctx.Context(), a.Db).
+		FindByCredentials(form.Username)
 
 	if err != nil {
 		return exceptions.Wrap("failed check user", err)
