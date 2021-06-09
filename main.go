@@ -315,6 +315,7 @@ func main() {
 
 			if err != nil {
 				stop(err)
+				return
 			}
 
 			if err := app.Listener(ln); err != nil {

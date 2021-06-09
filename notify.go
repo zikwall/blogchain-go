@@ -27,6 +27,7 @@ func awaiter(r signalReceiver) (func() error, func(err ...error)) {
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	err := make(chan error, 1)
 
 	wait := func() error {
 		// wait signal for the close application
@@ -37,17 +38,22 @@ func awaiter(r signalReceiver) (func() error, func(err ...error)) {
 		}
 
 		// receive err from stop function
-		return nil
+		select {
+		case e := <-err:
+			return e
+		default:
+			return nil
+		}
 	}
 
 	// add send error to await function
-	stop := func(err ...error) {
+	stop := func(e ...error) {
+		if len(e) > 0 {
+			err <- e[0]
+		}
+
 		// Send a signal to end the application
 		sig <- syscall.SIGINT
-
-		if len(err) > 0 {
-			log.Warning(err[0])
-		}
 	}
 
 	return wait, stop
