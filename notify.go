@@ -36,9 +36,11 @@ func awaiter(r signalReceiver) (func() error, func(err ...error)) {
 			r.onSignal()
 		}
 
+		// receive err from stop function
 		return nil
 	}
 
+	// add send error to await function
 	stop := func(err ...error) {
 		// Send a signal to end the application
 		sig <- syscall.SIGINT
