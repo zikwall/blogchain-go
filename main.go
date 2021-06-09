@@ -247,7 +247,7 @@ func main() {
 		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
 			RSA: &rsa,
 			Db:  blogchain.GetDatabaseInstance(),
-			StatsBatcher: statistic.CreatePostStatisticPacker(
+			StatsPacker: statistic.CreatePostStatisticPacker(
 				blogchain.Context, blogchain.Clickhouse,
 			),
 			Finder:   blogchain.Finder,
