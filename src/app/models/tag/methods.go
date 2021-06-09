@@ -5,35 +5,36 @@ import (
 	"github.com/zikwall/blogchain/src/app/exceptions"
 )
 
-func (self Model) Find() *builder.SelectDataset {
-	return self.Connection().Builder().Select("tags.*").From("tags")
+func (m Model) find() *builder.SelectDataset {
+	query := m.Connection().Builder()
+	return query.Select("tags.*").From("tags")
 }
 
-func (self Model) All() ([]Tag, error) {
+func (m Model) All() ([]Tag, error) {
 	var tags []Tag
 
-	if err := self.Find().ScanStructsContext(self.Context(), &tags); err != nil {
+	if err := m.find().ScanStructsContext(m.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
 	return tags, nil
 }
 
-func (self Model) OnContentCondition(query *builder.SelectDataset, id ...interface{}) *builder.SelectDataset {
-	where := builder.I("content_tag.content_id").Eq(id)
+func withContent(query *builder.SelectDataset, id ...interface{}) *builder.SelectDataset {
+	query = query.LeftJoin(
+		builder.T("content_tag"),
+		builder.On(
+			builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
+		),
+	)
 
 	if len(id) > 1 {
-		where = builder.I("content_tag.content_id").In(id...)
+		query = query.Where(builder.I("content_tag.content_id").In(id...))
+	} else {
+		query = query.Where(builder.I("content_tag.content_id").Eq(id))
 	}
 
-	return query.
-		LeftJoin(
-			builder.T("content_tag"),
-			builder.On(
-				builder.I("content_tag.tag_id").Eq(builder.I("tags.id")),
-			),
-		).
-		Where(where)
+	return query
 }
 
 type TagContent struct {
@@ -41,14 +42,14 @@ type TagContent struct {
 	ContentId int64 `db:"content_id"`
 }
 
-func (self Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error) {
+func (m Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error) {
 	var tags []TagContent
 
-	query := self.Find().SelectAppend(
+	query := m.find().SelectAppend(
 		"content_tag.content_id",
 	)
 
-	if err := self.OnContentCondition(query, id...).ScanStructsContext(self.Context(), &tags); err != nil {
+	if err := withContent(query, id...).ScanStructsContext(m.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -65,10 +66,10 @@ func (self Model) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, error)
 	return grouped, nil
 }
 
-func (self Model) ContentTags(id int64) ([]Tag, error) {
+func (m Model) ContentTags(id int64) ([]Tag, error) {
 	var tags []Tag
 
-	if err := self.OnContentCondition(self.Find(), id).ScanStructsContext(self.Context(), &tags); err != nil {
+	if err := withContent(m.find(), id).ScanStructsContext(m.Context(), &tags); err != nil {
 		return nil, exceptions.NewErrDatabaseAccess(err)
 	}
 
