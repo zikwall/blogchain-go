@@ -10,12 +10,12 @@ type (
 	}
 )
 
-func (s *Notify) AddNotifiers(notifiers ...Notifier) {
+func (n *Notify) AddNotifiers(notifiers ...Notifier) {
 	for _, notifier := range notifiers {
-		s.AddNotify(notifier)
+		n.AddNotify(notifier)
 	}
 }
 
-func (s *Notify) AddNotify(notify Notifier) {
-	s.notifiers = append(s.notifiers, notify)
+func (n *Notify) AddNotify(notify Notifier) {
+	n.notifiers = append(n.notifiers, notify)
 }
