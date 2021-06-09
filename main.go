@@ -342,7 +342,7 @@ func resolveListener(listener int, uds, tcp string) (net.Listener, error) {
 		tcp = ":" + tcp
 	}
 
-	ln, err := net.Listen("tcp4", tcp)
+	ln, err := net.Listen(fiber.NetworkTCP4, tcp)
 
 	if err != nil {
 		return nil, err
