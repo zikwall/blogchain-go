@@ -33,12 +33,12 @@ func ContextConnection(context context.Context, connection *database.Instance) M
 	}
 }
 
-func (u Model) Connection() *database.Instance {
-	return u.connection
+func (m Model) Connection() *database.Instance {
+	return m.connection
 }
 
-func (u Model) Context() context.Context {
-	return u.context
+func (m Model) Context() context.Context {
+	return m.context
 }
 
 type PublicUser struct {
