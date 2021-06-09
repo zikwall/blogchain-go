@@ -1,12 +1,12 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/models/content"
 	"github.com/zikwall/blogchain/src/app/models/content/forms"
-	"github.com/zikwall/blogchain/src/app/utils"
 	"strconv"
 )
 
@@ -63,7 +63,7 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 	}
 
 	if img, err := ctx.FormFile("image"); err == nil {
-		filename := utils.CreateImagePath(res.Uuid)
+		filename := createImagePath(res.Uuid)
 		res.Image.String = filename
 
 		file, err := img.Open()
@@ -103,7 +103,7 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 	}
 
 	if img, err := ctx.FormFile("image"); err == nil {
-		filename := utils.CreateImagePath(form.UUID)
+		filename := createImagePath(form.UUID)
 		form.ImageName = filename
 
 		file, err := img.Open()
@@ -130,4 +130,8 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(a.response(ContentCreatedResponse{
 		ContentId: result.Id,
 	}))
+}
+
+func createImagePath(uuidv4 string) string {
+	return fmt.Sprintf("%s.png", uuidv4)
 }
