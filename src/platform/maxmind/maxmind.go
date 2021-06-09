@@ -52,7 +52,7 @@ func (f *Finder) Lookup(ip string) (FindResult, error) {
 	return result, nil
 }
 
-func (g Finder) openDatabase(mmdbPath string) (*geoip2.Reader, error) {
+func (f Finder) openDatabase(mmdbPath string) (*geoip2.Reader, error) {
 	return geoip2.Open(mmdbPath)
 }
 

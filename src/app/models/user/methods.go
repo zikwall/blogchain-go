@@ -10,42 +10,40 @@ import (
 	"time"
 )
 
-func (self Model) Find() *builder.SelectDataset {
-	return self.
-		Connection().
-		Builder().
-		Select("user.*").
-		From("user")
+func (m Model) find() *builder.SelectDataset {
+	query := m.Connection().Builder()
+	return query.Select("user.*").From("user")
 }
 
-func (self Model) WithProfile(query *builder.SelectDataset) *builder.SelectDataset {
-	return query.
-		SelectAppend(
-			builder.I("profile.name").As(builder.C("profile.name")),
-			builder.I("profile.public_email").As(builder.C("profile.public_email")),
-			builder.I("profile.avatar").As(builder.C("profile.avatar")),
-			builder.I("profile.location").As(builder.C("profile.location")),
-			builder.I("profile.description").As(builder.C("profile.description")),
-		).
-		LeftJoin(
-			builder.T("profile"),
-			builder.On(
-				builder.I("profile.user_id").Eq(builder.I("user.id")),
-			),
-		)
+func withUserProfile(query *builder.SelectDataset) *builder.SelectDataset {
+	query = query.SelectAppend(
+		builder.I("profile.name").As(builder.C("profile.name")),
+		builder.I("profile.public_email").As(builder.C("profile.public_email")),
+		builder.I("profile.avatar").As(builder.C("profile.avatar")),
+		builder.I("profile.location").As(builder.C("profile.location")),
+		builder.I("profile.description").As(builder.C("profile.description")),
+	)
+	query = query.LeftJoin(
+		builder.T("profile"),
+		builder.On(
+			builder.I("profile.user_id").Eq(builder.I("user.id")),
+		),
+	)
+
+	return query
 }
 
-func (self Model) onCredentialsCondition(query *builder.SelectDataset, username, email string) *builder.SelectDataset {
-	return query.
-		Where(
-			builder.Or(
-				builder.C("username").Eq(username),
-				builder.C("email").Eq(email),
-			),
-		)
+func onUsernameOrMailCondition(query *builder.SelectDataset, username, email string) *builder.SelectDataset {
+	query = query.Where(
+		builder.Or(
+			builder.C("username").Eq(username),
+			builder.C("email").Eq(email),
+		),
+	)
+	return query
 }
 
-func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
+func (m Model) CreateUser(r *forms.RegisterForm) (User, error) {
 	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
 
 	if err != nil {
@@ -53,7 +51,6 @@ func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
 	}
 
 	user := User{}
-
 	user.PasswordHash = string(hash)
 	user.Email = r.Email
 	user.Username = r.Username
@@ -63,22 +60,20 @@ func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
 
-	insert := self.
-		Connection().
+	record := builder.Record{
+		"password_hash":   user.PasswordHash,
+		"email":           user.Email,
+		"username":        user.Username,
+		"registration_ip": user.RegistrationIp,
+		"created_at":      user.ConfirmedAt,
+	}
+
+	status, err := m.Connection().
 		Builder().
 		Insert("user").
-		Rows(
-			builder.Record{
-				"password_hash":   user.PasswordHash,
-				"email":           user.Email,
-				"username":        user.Username,
-				"registration_ip": user.RegistrationIp,
-				"created_at":      user.ConfirmedAt,
-			},
-		).
-		Executor()
-
-	status, err := insert.ExecContext(self.Context())
+		Rows(record).
+		Executor().
+		ExecContext(m.Context())
 
 	if err != nil {
 		return User{}, err
@@ -88,14 +83,14 @@ func (self Model) CreateUser(r *forms.RegisterForm) (User, error) {
 		return User{}, err
 	}
 
-	if err = self.AttachProfile(r, &user); err != nil {
+	if err = m.AttachProfile(r, &user); err != nil {
 		return User{}, err
 	}
 
 	return user, err
 }
 
-func (self Model) AttachProfile(r *forms.RegisterForm, user *User) error {
+func (m Model) AttachProfile(r *forms.RegisterForm, user *User) error {
 	profile := Profile{
 		userId:      user.Id,
 		Name:        r.Name,
@@ -106,20 +101,21 @@ func (self Model) AttachProfile(r *forms.RegisterForm, user *User) error {
 		},
 	}
 
-	insert := self.
-		Connection().
-		Builder().Insert("profile").
-		Rows(
-			builder.Record{
-				"user_id":      profile.userId,
-				"name":         profile.Name,
-				"public_email": profile.PublicEmail,
-				"avatar":       profile.Avatar,
-			},
-		).
-		Executor()
+	record := builder.Record{
+		"user_id":      profile.userId,
+		"name":         profile.Name,
+		"public_email": profile.PublicEmail,
+		"avatar":       profile.Avatar,
+	}
 
-	if _, err := insert.ExecContext(self.Context()); err != nil {
+	_, err := m.Connection().
+		Builder().
+		Insert("profile").
+		Rows(record).
+		Executor().
+		ExecContext(m.Context())
+
+	if err != nil {
 		return exceptions.NewErrDatabaseAccess(err)
 	}
 
@@ -128,9 +124,10 @@ func (self Model) AttachProfile(r *forms.RegisterForm, user *User) error {
 	return nil
 }
 
-func (self Model) FindByUsernameOrEmail(username string, email string) (User, error) {
+func (m Model) FindByUsernameOrEmail(username string, email string) (User, error) {
 	user := User{}
-	found, err := self.onCredentialsCondition(self.Find(), username, email).ScanStructContext(self.context, &user)
+	found, err := onUsernameOrMailCondition(m.find(), username, email).
+		ScanStructContext(m.context, &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -141,12 +138,12 @@ func (self Model) FindByUsernameOrEmail(username string, email string) (User, er
 	return user, nil
 }
 
-func (self Model) FindByCredentials(credentials string) (User, error) {
-	user := User{}
-	query := self.WithProfile(self.Find())
-	query = self.onCredentialsCondition(query, credentials, credentials)
+func (m Model) FindByCredentials(credentials string) (User, error) {
+	query := withUserProfile(m.find())
+	query = onUsernameOrMailCondition(query, credentials, credentials)
 
-	found, err := query.ScanStructContext(self.Context(), &user)
+	user := User{}
+	found, err := query.ScanStructContext(m.Context(), &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -157,9 +154,13 @@ func (self Model) FindByCredentials(credentials string) (User, error) {
 	return user, err
 }
 
-func (self Model) FindById(id int64) (User, error) {
+func (m Model) FindById(id int64) (User, error) {
 	user := User{}
-	found, err := self.Find().Where(builder.C("id").Eq(id)).ScanStructContext(self.Context(), &user)
+	found, err := m.find().
+		Where(
+			builder.C("id").Eq(id),
+		).
+		ScanStructContext(m.Context(), &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)
@@ -170,12 +171,14 @@ func (self Model) FindById(id int64) (User, error) {
 	return user, nil
 }
 
-func (self Model) FindByUsername(username string) (User, error) {
-	user := User{}
-	query := self.Find().Where(builder.C("username").Eq(username))
-	query = self.WithProfile(query)
+func (m Model) FindByUsername(username string) (User, error) {
+	query := m.find().Where(
+		builder.C("username").Eq(username),
+	)
+	query = withUserProfile(query)
 
-	found, err := query.ScanStructContext(self.Context(), &user)
+	user := User{}
+	found, err := query.ScanStructContext(m.Context(), &user)
 
 	if err != nil {
 		return user, exceptions.NewErrDatabaseAccess(err)

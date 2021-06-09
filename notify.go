@@ -22,28 +22,38 @@ func congratulations() {
 	log.Info("Congratulations, the Blogchain server has been successfully launched")
 }
 
-func awaiter(r signalReceiver) (func(), func(err ...error)) {
+func awaiter(r signalReceiver) (func() error, func(err ...error)) {
 	congratulations()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+	err := make(chan error, 1)
 
-	wait := func() {
+	wait := func() error {
 		// wait signal for the close application
 		<-sig
 
 		if r.onSignal != nil {
 			r.onSignal()
 		}
+
+		// receive err from stop function
+		select {
+		case e := <-err:
+			return e
+		default:
+			return nil
+		}
 	}
 
-	stop := func(err ...error) {
+	// add send error to await function
+	stop := func(e ...error) {
+		if len(e) > 0 {
+			err <- e[0]
+		}
+
 		// Send a signal to end the application
 		sig <- syscall.SIGINT
-
-		if len(err) > 0 {
-			log.Warning(err[0])
-		}
 	}
 
 	return wait, stop

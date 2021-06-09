@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
@@ -16,6 +15,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 	"github.com/zikwall/blogchain/src/platform/service"
 	"github.com/zikwall/fsclient"
+	"net"
 	"os"
 	"strings"
 )
@@ -229,7 +229,7 @@ func main() {
 			middlewares.UseBlogchainRealIp,
 		)
 
-		rsa := container.NewBlogchainRSAContainer(
+		rsa := container.NewRSAContainer(
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
@@ -247,7 +247,7 @@ func main() {
 		actionProvider := actions.CopyWith(actions.BlogchainActionProvider{
 			RSA: &rsa,
 			Db:  blogchain.GetDatabaseInstance(),
-			StatsBatcher: statistic.CreateClickhouseBatcher(
+			StatsPacker: statistic.CreatePostStatisticPacker(
 				blogchain.Context, blogchain.Clickhouse,
 			),
 			Finder:   blogchain.Finder,
@@ -307,8 +307,7 @@ func main() {
 		})
 
 		go func() {
-			err := runHttpServer(
-				app,
+			ln, err := resolveListener(
 				c.Int("listener"),
 				c.String("bind-socket"),
 				c.String("bind-address"),
@@ -316,11 +315,15 @@ func main() {
 
 			if err != nil {
 				stop(err)
+				return
+			}
+
+			if err := app.Listener(ln); err != nil {
+				stop(err)
 			}
 		}()
 
-		await()
-		return nil
+		return await()
 	}
 
 	if err := application.Run(os.Args); err != nil {
@@ -328,28 +331,23 @@ func main() {
 	}
 }
 
-func runHttpServer(app *fiber.App, listener int, uds, tcp string) error {
-	if listener == ListenerTCP {
-		if !strings.Contains(tcp, ":") {
-			tcp = ":" + tcp
-		}
-
-		if err := app.Listen(tcp); err != nil {
-			return err
-		}
-	} else if listener == ListenerUDS {
+func resolveListener(listener int, uds, tcp string) (net.Listener, error) {
+	if listener == ListenerUDS {
+		defer chmodSocket(uds)
 		ln, err := listenToUnix(uds)
 
-		if err != nil {
-			return err
-		}
-
-		chmodSocket(uds)
-
-		if err := app.Listener(ln); err != nil {
-			return err
-		}
+		return ln, err
 	}
 
-	return errors.New("unsupported type of listener")
+	if !strings.Contains(tcp, ":") {
+		tcp = ":" + tcp
+	}
+
+	ln, err := net.Listen(fiber.NetworkTCP4, tcp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ln, nil
 }

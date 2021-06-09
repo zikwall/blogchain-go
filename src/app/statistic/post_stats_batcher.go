@@ -10,7 +10,7 @@ import (
 )
 
 type (
-	ClickhouseBatcher struct {
+	PostStatisticPacker struct {
 		Clickhouse *clickhouse.Clickhouse
 		context    context.Context
 		mu         sync.RWMutex
@@ -18,8 +18,8 @@ type (
 	}
 )
 
-func CreateClickhouseBatcher(ctx context.Context, clickhouse *clickhouse.Clickhouse) *ClickhouseBatcher {
-	cb := &ClickhouseBatcher{}
+func CreatePostStatisticPacker(ctx context.Context, clickhouse *clickhouse.Clickhouse) *PostStatisticPacker {
+	cb := &PostStatisticPacker{}
 	cb.mu = sync.RWMutex{}
 	cb.batches = []PostStats{}
 	cb.context = ctx
@@ -30,30 +30,30 @@ func CreateClickhouseBatcher(ctx context.Context, clickhouse *clickhouse.Clickho
 	return cb
 }
 
-func (cb *ClickhouseBatcher) AppendRecords(stats ...PostStats) {
+func (cb *PostStatisticPacker) AppendRecords(stats ...PostStats) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 
 	cb.batches = append(cb.batches, stats...)
 }
 
-func (cb *ClickhouseBatcher) all() []PostStats {
+func (cb *PostStatisticPacker) all() []PostStats {
 	cb.mu.RLock()
 	defer cb.mu.RUnlock()
 
 	return cb.batches
 }
 
-func (cb *ClickhouseBatcher) flush() {
+func (cb *PostStatisticPacker) flush() {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 
 	cb.batches = []PostStats{}
 }
 
-func (cb *ClickhouseBatcher) schedule() {
+func (cb *PostStatisticPacker) schedule() {
 	defer func() {
-		log.Info("Stop clickhouse batcher scheduler")
+		log.Info("Stop post statistic packer scheduler")
 	}()
 
 schedule:
@@ -63,7 +63,7 @@ schedule:
 	case <-time.After(5 * time.Second):
 	}
 
-	log.Info("The clickhouse batcher scheduler is running")
+	log.Info("The post statistic packer scheduler is running")
 
 	batches := cb.all()
 	if len(batches) > 0 {

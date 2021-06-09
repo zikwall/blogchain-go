@@ -41,7 +41,7 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(ctx.Context(), a.StatsBatcher.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(ctx.Context(), a.StatsPacker.Clickhouse, result.Id)
 
 	if err != nil {
 		log.Warning(err)
@@ -69,7 +69,7 @@ func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), a.StatsBatcher.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), a.StatsPacker.Clickhouse, contents),
 	}))
 }
 
@@ -93,7 +93,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), a.StatsBatcher.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), a.StatsPacker.Clickhouse, contents),
 	}))
 }
 

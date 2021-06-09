@@ -20,7 +20,7 @@ type (
 	}
 )
 
-func NewBlogchainRSAContainer(public, private string) RSAContainer {
+func NewRSAContainer(public, private string) RSAContainer {
 	rsa := RSAContainer{}
 	rsa.SetPublicKey(public)
 	rsa.SetPrivateKey(private)
