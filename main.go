@@ -229,7 +229,7 @@ func main() {
 			middlewares.UseBlogchainRealIp,
 		)
 
-		rsa := container.NewBlogchainRSAContainer(
+		rsa := container.NewRSAContainer(
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
