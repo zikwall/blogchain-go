@@ -319,8 +319,7 @@ func main() {
 			}
 		}()
 
-		await()
-		return nil
+		return await()
 	}
 
 	if err := application.Run(os.Args); err != nil {
