@@ -10,21 +10,21 @@ import (
 
 type (
 	BlogchainActionProvider struct {
-		RSA          container.RSA
-		Db           *database.Instance
-		StatsBatcher *statistic.ClickhouseBatcher
-		Finder       *maxmind.Finder
-		Uploader     upload.Uploader
+		RSA         container.RSA
+		Db          *database.Instance
+		StatsPacker *statistic.PostStatisticPacker
+		Finder      *maxmind.Finder
+		Uploader    upload.Uploader
 	}
 )
 
 func CopyWith(p BlogchainActionProvider) BlogchainActionProvider {
 	a := BlogchainActionProvider{
-		RSA:          p.RSA,
-		Db:           p.Db,
-		StatsBatcher: p.StatsBatcher,
-		Finder:       p.Finder,
-		Uploader:     p.Uploader,
+		RSA:         p.RSA,
+		Db:          p.Db,
+		StatsPacker: p.StatsPacker,
+		Finder:      p.Finder,
+		Uploader:    p.Uploader,
 	}
 
 	return a

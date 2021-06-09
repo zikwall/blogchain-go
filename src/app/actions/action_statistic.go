@@ -44,7 +44,7 @@ func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
 		stats = withUserAgent(stats, userAgent)
 	}
 
-	a.StatsBatcher.AppendRecords(stats)
+	a.StatsPacker.AppendRecords(stats)
 
 	return ctx.Status(200).SendString("OK")
 }
