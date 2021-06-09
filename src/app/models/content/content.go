@@ -52,27 +52,27 @@ func ContextConnection(context context.Context, connection *database.Instance) M
 	}
 }
 
-func (self Model) Connection() *database.Instance {
-	return self.connection
+func (m Model) Connection() *database.Instance {
+	return m.connection
 }
 
-func (self Model) Context() context.Context {
-	return self.context
+func (m Model) Context() context.Context {
+	return m.context
 }
 
-func (c *Content) Response() PublicContent {
+func (content *Content) Response() PublicContent {
 	return PublicContent{
-		Id:         c.Id,
-		Uuid:       c.Uuid,
-		Title:      c.Title,
-		Annotation: c.Annotation,
-		Content:    c.Content,
-		CreatedAt:  c.CreatedAt.Int64,
-		UpdatedAt:  c.UpdatedAt.Int64,
-		Image:      c.Image.String,
+		Id:         content.Id,
+		Uuid:       content.Uuid,
+		Title:      content.Title,
+		Annotation: content.Annotation,
+		Content:    content.Content,
+		CreatedAt:  content.CreatedAt.Int64,
+		UpdatedAt:  content.UpdatedAt.Int64,
+		Image:      content.Image.String,
 		Related: Related{
-			Publisher: c.User.Properties(),
-			Tags:      c.Tags,
+			Publisher: content.User.Properties(),
+			Tags:      content.Tags,
 		},
 	}
 }

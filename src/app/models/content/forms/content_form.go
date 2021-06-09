@@ -14,11 +14,11 @@ type ContentForm struct {
 	UUID       string
 }
 
-// todo temporary
+// Validate todo temporary
 func (c *ContentForm) Validate() error {
 	if c.UserId > 0 && (c.Title != "" && len(c.Title) <= 200) && c.Content != "" {
 		return nil
 	}
 
-	return errors.New("Invalid data entered")
+	return errors.New("invalid data entered")
 }
