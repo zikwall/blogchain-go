@@ -1,4 +1,4 @@
-package lib
+package jwt
 
 import (
 	"github.com/zikwall/blogchain/src/platform/container"

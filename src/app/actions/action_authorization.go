@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/forms"
-	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/app/lib/jwt"
 	"github.com/zikwall/blogchain/src/app/repositories"
 	"github.com/zikwall/blogchain/src/app/utils"
 )
@@ -41,11 +41,11 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("login", errors.New("incorrect password was entered or the user doesn't exist."))
 	}
 
-	claims := lib.TokenClaims{
+	claims := jwt.TokenClaims{
 		UUID: result.GetId(),
 	}
 
-	token, err := lib.CreateJwtToken(claims, 1000, a.RSA.GetPrivateKey())
+	token, err := jwt.CreateJwtToken(claims, 1000, a.RSA.GetPrivateKey())
 
 	if err != nil {
 		return exceptions.Wrap("invalid token", err)
@@ -85,11 +85,11 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed create user", err)
 	}
 
-	claims := lib.TokenClaims{
+	claims := jwt.TokenClaims{
 		UUID: result.GetId(),
 	}
 
-	token, err := lib.CreateJwtToken(claims, 100, a.RSA.GetPrivateKey())
+	token, err := jwt.CreateJwtToken(claims, 100, a.RSA.GetPrivateKey())
 
 	if err != nil {
 		return exceptions.Wrap("invalid token", err)

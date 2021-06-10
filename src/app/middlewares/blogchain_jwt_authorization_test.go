@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/app/lib/jwt"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"io/ioutil"
 	"net/http/httptest"
@@ -23,7 +23,7 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 				func(c *fiber.Ctx) error {
 					valid := true
 
-					claims, ok := c.Locals("claims").(*lib.TokenClaims)
+					claims, ok := c.Locals("claims").(*jwt.TokenClaims)
 
 					if !ok {
 						valid = false
@@ -37,11 +37,11 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 			)
 		}
 
-		claims := lib.TokenClaims{
+		claims := jwt.TokenClaims{
 			UUID: 100,
 		}
 
-		createdToken, err := lib.CreateJwtToken(claims, 999, rsa.GetPrivateKey())
+		createdToken, err := jwt.CreateJwtToken(claims, 999, rsa.GetPrivateKey())
 
 		if err != nil {
 			t.Fatal(err)
@@ -59,7 +59,7 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 
 		response := struct {
 			Valid  bool
-			Claims lib.TokenClaims
+			Claims jwt.TokenClaims
 		}{}
 
 		if err := json.Unmarshal(body, &response); err != nil {

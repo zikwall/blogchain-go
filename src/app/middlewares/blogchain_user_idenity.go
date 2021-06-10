@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/zikwall/blogchain/src/app/lib"
+	"github.com/zikwall/blogchain/src/app/lib/jwt"
 	"github.com/zikwall/blogchain/src/app/repositories"
 	"github.com/zikwall/blogchain/src/platform/service"
 )
@@ -13,7 +13,7 @@ func WithBlogchainUserIdentity(blogchain *service.Instance) fiber.Handler {
 
 		claims := ctx.Locals("claims")
 
-		if token, ok := claims.(*lib.TokenClaims); ok {
+		if token, ok := claims.(*jwt.TokenClaims); ok {
 			i, err := repositories.UseUserRepository(ctx.Context(), blogchain.GetDatabaseConnection()).FindById(token.UUID)
 
 			if err == nil {
