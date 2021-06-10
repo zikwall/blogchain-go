@@ -6,16 +6,14 @@ import (
 	"strconv"
 )
 
-// ToDo: Need to bring all response formats to a single structure and format
-type (
-	MessageResponse struct {
-		Status  uint8  `json:"status"`
-		Message string `json:"message"`
-	}
-	Response struct {
-		Response interface{} `json:"response"`
-	}
-)
+type MessageResponse struct {
+	Status  uint8  `json:"status"`
+	Message string `json:"message"`
+}
+
+type Response struct {
+	Response interface{} `json:"response"`
+}
 
 func getPageFromContext(ctx *fiber.Ctx) int64 {
 	var page int64

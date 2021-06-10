@@ -10,13 +10,13 @@ import (
 	"github.com/zikwall/blogchain/src/app/utils"
 )
 
-func (a BlogchainActionProvider) Logout(ctx *fiber.Ctx) error {
-	return ctx.JSON(a.message("Successfully logout"))
-}
-
 type AuthResponse struct {
 	Token string                  `json:"token"`
 	User  repositories.PublicUser `json:"user"`
+}
+
+func (a BlogchainActionProvider) Logout(ctx *fiber.Ctx) error {
+	return ctx.JSON(a.message("Successfully logout"))
 }
 
 func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {

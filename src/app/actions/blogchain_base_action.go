@@ -8,15 +8,13 @@ import (
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 )
 
-type (
-	BlogchainActionProvider struct {
-		RSA         container.RSA
-		Db          *database.Connection
-		StatsPacker *statistic.PostStatisticPacker
-		Finder      *maxmind.Finder
-		Uploader    upload.Uploader
-	}
-)
+type BlogchainActionProvider struct {
+	RSA         container.RSA
+	Db          *database.Connection
+	StatsPacker *statistic.PostStatisticPacker
+	Finder      *maxmind.Finder
+	Uploader    upload.Uploader
+}
 
 func CopyWith(p BlogchainActionProvider) BlogchainActionProvider {
 	a := BlogchainActionProvider{

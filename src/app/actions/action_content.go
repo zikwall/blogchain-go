@@ -11,20 +11,20 @@ import (
 	"strconv"
 )
 
-type (
-	ContentResponse struct {
-		Content repositories.PublicContent `json:"content"`
-		Viewers uint64                     `json:"viewers"`
-	}
-	ContentsResponse struct {
-		Contents []repositories.PublicContent `json:"contents"`
-		Meta     Meta                         `json:"meta"`
-		Stats    map[int64]uint64             `json:"stats"`
-	}
-	Meta struct {
-		Pages float64 `json:"pages"`
-	}
-)
+type ContentResponse struct {
+	Content repositories.PublicContent `json:"content"`
+	Viewers uint64                     `json:"viewers"`
+}
+
+type ContentsResponse struct {
+	Contents []repositories.PublicContent `json:"contents"`
+	Meta     Meta                         `json:"meta"`
+	Stats    map[int64]uint64             `json:"stats"`
+}
+
+type Meta struct {
+	Pages float64 `json:"pages"`
+}
 
 func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)

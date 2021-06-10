@@ -10,11 +10,9 @@ import (
 	"strconv"
 )
 
-type (
-	ContentCreatedResponse struct {
-		ContentId int64 `json:"content_id"`
-	}
-)
+type ContentCreatedResponse struct {
+	ContentId int64 `json:"content_id"`
+}
 
 func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)

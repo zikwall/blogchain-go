@@ -6,20 +6,20 @@ import (
 	"time"
 )
 
-type (
-	Runtime struct {
-		Metrics metrics `json:"metrics"`
-		Uptime  uptime  `json:"uptime"`
-	}
-	uptime struct {
-		Seconds float64 `json:"timestamp"`
-	}
-	metrics struct {
-		MemoryAlloc uint64 `json:"memory_alloc"`
-		Gorutines   int    `json:"gorutines"`
-		NumGc       uint32 `json:"num_gc"`
-	}
-)
+type Runtime struct {
+	Metrics metrics `json:"metrics"`
+	Uptime  uptime  `json:"uptime"`
+}
+
+type uptime struct {
+	Seconds float64 `json:"timestamp"`
+}
+
+type metrics struct {
+	MemoryAlloc uint64 `json:"memory_alloc"`
+	Gorutines   int    `json:"gorutines"`
+	NumGc       uint32 `json:"num_gc"`
+}
 
 func kb(b uint64) uint64 {
 	return b / 1024
