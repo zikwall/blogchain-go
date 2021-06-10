@@ -11,7 +11,7 @@ import (
 type (
 	BlogchainActionProvider struct {
 		RSA         container.RSA
-		Db          *database.Instance
+		Db          *database.Connection
 		StatsPacker *statistic.PostStatisticPacker
 		Finder      *maxmind.Finder
 		Uploader    upload.Uploader

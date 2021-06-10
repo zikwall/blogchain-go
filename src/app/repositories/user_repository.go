@@ -16,7 +16,7 @@ type UserRepository struct {
 	Repository
 }
 
-func UseUserRepository(context context.Context, conn *database.Instance) UserRepository {
+func UseUserRepository(context context.Context, conn *database.Connection) UserRepository {
 	return UserRepository{
 		Repository{connection: conn, context: context},
 	}

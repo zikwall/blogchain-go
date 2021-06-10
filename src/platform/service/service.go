@@ -21,7 +21,7 @@ type (
 		Finder     *maxmind.Finder
 		Context    context.Context
 		cancelFunc context.CancelFunc
-		database   *database.Instance
+		database   *database.Connection
 	}
 	Configuration struct {
 		DatabaseConfiguration   database.Configuration
@@ -78,7 +78,7 @@ func CreateService(ctx context.Context, c Configuration) (*Instance, error) {
 	return b, nil
 }
 
-func (b *Instance) GetDatabaseInstance() *database.Instance {
+func (b *Instance) GetDatabaseConnection() *database.Connection {
 	return b.database
 }
 

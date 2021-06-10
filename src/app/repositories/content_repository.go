@@ -17,7 +17,7 @@ type ContentRepository struct {
 	Repository
 }
 
-func UseContentRepository(context context.Context, conn *database.Instance) ContentRepository {
+func UseContentRepository(context context.Context, conn *database.Connection) ContentRepository {
 	return ContentRepository{
 		Repository{connection: conn, context: context},
 	}
@@ -314,7 +314,7 @@ func withProfileQuery(query *builder.SelectDataset) *builder.SelectDataset {
 	return query
 }
 
-func withMutableResponse(context context.Context, conn *database.Instance, contents []Content) ([]PublicContent, error) {
+func withMutableResponse(context context.Context, conn *database.Connection, contents []Content) ([]PublicContent, error) {
 	idx := make([]interface{}, 0, len(contents))
 	contentMap := make(map[int64]*Content, len(contents))
 

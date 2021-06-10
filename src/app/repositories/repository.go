@@ -6,7 +6,7 @@ import (
 )
 
 type Repository struct {
-	connection *database.Instance
+	connection *database.Connection
 	context    context.Context
 }
 
@@ -18,6 +18,6 @@ func (r *Repository) Context() context.Context {
 	return r.context
 }
 
-func (r *Repository) Connection() *database.Instance {
+func (r *Repository) Connection() *database.Connection {
 	return r.connection
 }

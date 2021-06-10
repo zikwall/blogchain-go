@@ -10,6 +10,6 @@ type Repository interface {
 }
 
 type Connector interface {
-	Connection() *Instance
+	Connection() *Connection
 	Context() context.Context
 }

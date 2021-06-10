@@ -16,7 +16,7 @@ type TagContent struct {
 	ContentId int64 `db:"content_id"`
 }
 
-func UseTagRepository(context context.Context, conn *database.Instance) TagRepository {
+func UseTagRepository(context context.Context, conn *database.Connection) TagRepository {
 	return TagRepository{
 		Repository{connection: conn, context: context},
 	}
@@ -71,7 +71,7 @@ func (tr TagRepository) ContentTags(id int64) ([]Tag, error) {
 	return tags, nil
 }
 
-func fetchContentTags(context context.Context, conn *database.Instance, id int64) ([]Tag, error) {
+func fetchContentTags(context context.Context, conn *database.Connection, id int64) ([]Tag, error) {
 	tags, err := UseTagRepository(context, conn).ContentTags(id)
 	return tags, err
 }
