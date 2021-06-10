@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/zikwall/blogchain/src/app/exceptions"
-	"github.com/zikwall/blogchain/src/app/models/content"
+	"github.com/zikwall/blogchain/src/app/repositories"
 	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/log"
@@ -13,13 +13,13 @@ import (
 
 type (
 	ContentResponse struct {
-		Content content.PublicContent `json:"content"`
-		Viewers uint64                `json:"viewers"`
+		Content repositories.PublicContent `json:"content"`
+		Viewers uint64                     `json:"viewers"`
 	}
 	ContentsResponse struct {
-		Contents []content.PublicContent `json:"contents"`
-		Meta     Meta                    `json:"meta"`
-		Stats    map[int64]uint64        `json:"stats"`
+		Contents []repositories.PublicContent `json:"contents"`
+		Meta     Meta                         `json:"meta"`
+		Stats    map[int64]uint64             `json:"stats"`
 	}
 	Meta struct {
 		Pages float64 `json:"pages"`
@@ -33,8 +33,7 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := content.
-		ContextConnection(ctx.Context(), a.Db).
+	result, err := repositories.UseContentRepository(ctx.Context(), a.Db).
 		FindContentById(id)
 
 	if err != nil {
@@ -56,8 +55,7 @@ func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
 func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
-	contents, err, count := content.
-		ContextConnection(ctx.Context(), a.Db).
+	contents, err, count := repositories.UseContentRepository(ctx.Context(), a.Db).
 		FindAllContent(tag, getPageFromContext(ctx))
 
 	if err != nil {
@@ -80,8 +78,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse user id", err)
 	}
 
-	contents, err, count := content.
-		ContextConnection(ctx.Context(), a.Db).
+	contents, err, count := repositories.UseContentRepository(ctx.Context(), a.Db).
 		FindAllByUser(user, getPageFromContext(ctx))
 
 	if err != nil {
@@ -97,7 +94,7 @@ func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
 	}))
 }
 
-func withStatsContext(context context.Context, ch *clickhouse.Clickhouse, cs []content.PublicContent) map[int64]uint64 {
+func withStatsContext(context context.Context, ch *clickhouse.Clickhouse, cs []repositories.PublicContent) map[int64]uint64 {
 	if len(cs) == 0 {
 		return map[int64]uint64{}
 	}

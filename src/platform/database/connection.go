@@ -13,7 +13,7 @@ import (
 )
 
 type (
-	Instance struct {
+	Connection struct {
 		db *builder.Database
 	}
 	Configuration struct {
@@ -38,8 +38,8 @@ func (logger Logger) Printf(format string, v ...interface{}) {
 	logger.callback(format, v)
 }
 
-func NewInstance(c context.Context, conf Configuration) (*Instance, error) {
-	d := new(Instance)
+func NewInstance(c context.Context, conf Configuration) (*Connection, error) {
+	d := new(Connection)
 
 	if conf.Dialect == "" {
 		conf.Dialect = "mysql"
@@ -92,11 +92,11 @@ func NewInstance(c context.Context, conf Configuration) (*Instance, error) {
 	return d, nil
 }
 
-func (d *Instance) SetLogger(logger builder.Logger) {
+func (d *Connection) SetLogger(logger builder.Logger) {
 	d.db.Logger(logger)
 }
 
-func (d *Instance) Builder() *builder.Database {
+func (d *Connection) Builder() *builder.Database {
 	return d.db
 }
 
@@ -105,10 +105,10 @@ func makeConnectionString(c Configuration) string {
 }
 
 // Close not implemented
-func (d Instance) Close() error {
+func (d Connection) Close() error {
 	return nil
 }
 
-func (d Instance) CloseMessage() string {
+func (d Connection) CloseMessage() string {
 	return "Close database: this is not implemented"
 }

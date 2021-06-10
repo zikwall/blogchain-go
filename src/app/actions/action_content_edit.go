@@ -5,8 +5,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	uuid "github.com/satori/go.uuid"
 	"github.com/zikwall/blogchain/src/app/exceptions"
-	"github.com/zikwall/blogchain/src/app/models/content"
-	"github.com/zikwall/blogchain/src/app/models/content/forms"
+	"github.com/zikwall/blogchain/src/app/forms"
+	"github.com/zikwall/blogchain/src/app/repositories"
 	"strconv"
 )
 
@@ -23,8 +23,7 @@ func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := content.
-		ContextConnection(ctx.Context(), a.Db).
+	result, err := repositories.UseContentRepository(ctx.Context(), a.Db).
 		UserContent(id, getUserFromContext(ctx).Id)
 
 	if err != nil {
@@ -55,7 +54,7 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	context := content.ContextConnection(ctx.Context(), a.Db)
+	context := repositories.UseContentRepository(ctx.Context(), a.Db)
 	res, err := context.UserContent(id, form.UserId)
 
 	if err != nil {
@@ -121,7 +120,7 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 		}
 	}
 
-	result, err := content.ContextConnection(ctx.Context(), a.Db).CreateContent(form)
+	result, err := repositories.UseContentRepository(ctx.Context(), a.Db).CreateContent(form)
 
 	if err != nil {
 		return exceptions.Wrap("failed create user content", err)
