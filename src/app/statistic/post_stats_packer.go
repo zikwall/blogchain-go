@@ -9,14 +9,12 @@ import (
 	"time"
 )
 
-type (
-	PostStatisticPacker struct {
-		Clickhouse *clickhouse.Clickhouse
-		context    context.Context
-		mu         sync.RWMutex
-		batches    []PostStats
-	}
-)
+type PostStatisticPacker struct {
+	Clickhouse *clickhouse.Clickhouse
+	context    context.Context
+	mu         sync.RWMutex
+	batches    []PostStats
+}
 
 func CreatePostStatisticPacker(ctx context.Context, clickhouse *clickhouse.Clickhouse) *PostStatisticPacker {
 	cb := &PostStatisticPacker{}
