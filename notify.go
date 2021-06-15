@@ -91,8 +91,14 @@ func maybeChmodSocket(c context.Context, sock string) {
 			case <-ctx.Done():
 				return
 			case <-time.After(time.Millisecond * 100):
-				if err := os.Chmod(sock, 0666); err != nil {
+				if err := os.Chmod(sock, 0666); err == nil {
 					log.Warning(err)
+				} else {
+					_, err := os.Stat(sock)
+					// if the file exists and it already has permissions
+					if err == nil {
+						return
+					}
 				}
 
 				tryCount++
