@@ -300,14 +300,15 @@ func main() {
 			stats.Post("/post/push", httpController.PushPostStats)
 		}
 
-		await, stop := awaiter(signalReceiver{
+		await, stop := notifier(conf{
 			onSignal: func() {
-				log.Info("Signal received, stopping server")
+				log.Info("Received a system signal to shut down the application, start the shutdown process..")
 			},
 		})
 
 		go func() {
 			ln, err := resolveListener(
+				blogchain.Context,
 				c.Int("listener"),
 				c.String("bind-socket"),
 				c.String("bind-address"),
@@ -331,9 +332,9 @@ func main() {
 	}
 }
 
-func resolveListener(listener int, uds, tcp string) (net.Listener, error) {
+func resolveListener(context context.Context, listener int, uds, tcp string) (net.Listener, error) {
 	if listener == ListenerUDS {
-		defer chmodSocket(uds)
+		defer maybeChmodSocket(context, uds)
 		ln, err := listenToUnix(uds)
 
 		return ln, err

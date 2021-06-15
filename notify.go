@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/zikwall/blogchain/src/platform/log"
 	"net"
 	"os"
@@ -14,7 +15,7 @@ const (
 	ListenerUDS
 )
 
-type signalReceiver struct {
+type conf struct {
 	onSignal func()
 }
 
@@ -22,7 +23,7 @@ func congratulations() {
 	log.Info("Congratulations, the Blogchain server has been successfully launched")
 }
 
-func awaiter(r signalReceiver) (func() error, func(err ...error)) {
+func notifier(r conf) (func() error, func(err ...error)) {
 	congratulations()
 
 	sig := make(chan os.Signal, 1)
@@ -75,14 +76,32 @@ func listenToUnix(bind string) (net.Listener, error) {
 	return net.Listen("unix", bind)
 }
 
-func chmodSocket(sock string) {
-	// problem with unix socket permissions
-	go func() {
-		// wait complete create socket
-		<-time.After(time.Second * 2)
+func maybeChmodSocket(c context.Context, sock string) {
+	ctx, cancel := context.WithTimeout(c, 500*time.Millisecond)
+	defer func() {
+		cancel()
+	}()
 
-		if err := os.Chmod(sock, 0666); err != nil {
-			log.Warning(err)
+	// on Linux and similar systems, there may be problems with the rights to the UDS socket
+	go func() {
+		var tryCount uint
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(time.Millisecond * 100):
+				if err := os.Chmod(sock, 0666); err != nil {
+					log.Warning(err)
+				}
+
+				tryCount++
+				if tryCount > 5 {
+					return
+				}
+			}
 		}
 	}()
+
+	_ = os.Chmod(sock, 0666)
 }
