@@ -17,55 +17,55 @@ type PostStatisticPacker struct {
 }
 
 func CreatePostStatisticPacker(ctx context.Context, clickhouse *clickhouse.Clickhouse) *PostStatisticPacker {
-	cb := &PostStatisticPacker{}
-	cb.mu = sync.RWMutex{}
-	cb.batches = []PostStats{}
-	cb.context = ctx
-	cb.Clickhouse = clickhouse
+	ps := &PostStatisticPacker{}
+	ps.mu = sync.RWMutex{}
+	ps.batches = []PostStats{}
+	ps.context = ctx
+	ps.Clickhouse = clickhouse
 
-	go cb.schedule()
+	go ps.schedule()
 
-	return cb
+	return ps
 }
 
-func (cb *PostStatisticPacker) AppendRecords(stats ...PostStats) {
-	cb.mu.Lock()
-	defer cb.mu.Unlock()
-
-	cb.batches = append(cb.batches, stats...)
+func (ps *PostStatisticPacker) AppendRecords(stats ...PostStats) {
+	ps.mu.Lock()
+	ps.batches = append(ps.batches, stats...)
+	ps.mu.Unlock()
 }
 
-func (cb *PostStatisticPacker) all() []PostStats {
-	cb.mu.RLock()
-	defer cb.mu.RUnlock()
+func (ps *PostStatisticPacker) all() []PostStats {
+	ps.mu.RLock()
+	batchesSnapshot := ps.batches
+	ps.mu.RUnlock()
 
-	return cb.batches
+	return batchesSnapshot
 }
 
-func (cb *PostStatisticPacker) flush() {
-	cb.mu.Lock()
-	defer cb.mu.Unlock()
+func (ps *PostStatisticPacker) flush() {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
 
-	cb.batches = []PostStats{}
+	ps.batches = []PostStats{}
 }
 
-func (cb *PostStatisticPacker) schedule() {
+func (ps *PostStatisticPacker) schedule() {
 	defer func() {
 		log.Info("Stop post statistic packer scheduler")
 	}()
 
 schedule:
 	select {
-	case <-cb.context.Done():
+	case <-ps.context.Done():
 		return
 	case <-time.After(5 * time.Second):
 	}
 
 	log.Info("The post statistic packer scheduler is running")
 
-	batches := cb.all()
+	batches := ps.all()
 	if len(batches) > 0 {
-		cb.flush()
+		ps.flush()
 
 		rows := make([][]interface{}, 0, len(batches))
 
@@ -73,7 +73,7 @@ schedule:
 			rows = append(rows, batch.flatten())
 		}
 
-		if affected, err := cb.Clickhouse.InsertWithMetrics(postStatsTable, rows); err != nil {
+		if affected, err := ps.Clickhouse.InsertWithMetrics(postStatsTable, rows); err != nil {
 			log.Warning(err)
 		} else {
 			log.Info(fmt.Sprintf("[CLICKHOUSE SCHEDULER] Count records: %d | Affected records: %d", len(rows), affected))
