@@ -44,9 +44,8 @@ func (ps *PostStatisticPacker) all() []PostStats {
 
 func (ps *PostStatisticPacker) flush() {
 	ps.mu.Lock()
-	defer ps.mu.Unlock()
-
-	ps.batches = []PostStats{}
+	ps.batches = ps.batches[:0]
+	ps.mu.Unlock()
 }
 
 func (ps *PostStatisticPacker) schedule() {
@@ -63,8 +62,7 @@ schedule:
 
 	log.Info("The post statistic packer scheduler is running")
 
-	batches := ps.all()
-	if len(batches) > 0 {
+	if batches := ps.all(); len(batches) > 0 {
 		ps.flush()
 
 		rows := make([][]interface{}, 0, len(batches))
@@ -76,10 +74,10 @@ schedule:
 		if affected, err := ps.Clickhouse.InsertWithMetrics(postStatsTable, rows); err != nil {
 			log.Warning(err)
 		} else {
-			log.Info(fmt.Sprintf("[CLICKHOUSE SCHEDULER] Count records: %d | Affected records: %d", len(rows), affected))
+			log.Info(fmt.Sprintf("[CLICKHOUSE] Count records: %d | Affected records: %d", len(rows), affected))
 		}
 	} else {
-		log.Info("[CLICKHOUSE SCHEDULER] Nothing to send to Clickhouse")
+		log.Info("[CLICKHOUSE] Nothing to send to Clickhouse")
 	}
 
 	goto schedule
