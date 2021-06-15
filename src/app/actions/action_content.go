@@ -26,71 +26,71 @@ type Meta struct {
 	Pages float64 `json:"pages"`
 }
 
-func (a BlogchainActionProvider) Content(ctx *fiber.Ctx) error {
+func (hc HttpController) Content(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), a.Db).
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
 		FindContentById(id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(ctx.Context(), a.StatsPacker.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.StatsPacker.Clickhouse, result.Id)
 
 	if err != nil {
 		log.Warning(err)
 	}
 
-	return ctx.Status(200).JSON(a.response(ContentResponse{
+	return ctx.Status(200).JSON(hc.response(ContentResponse{
 		Content: result.Response(),
 		Viewers: viewers,
 	}))
 }
 
-func (a BlogchainActionProvider) Contents(ctx *fiber.Ctx) error {
+func (hc HttpController) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
-	contents, err, count := repositories.UseContentRepository(ctx.Context(), a.Db).
-		FindAllContent(tag, getPageFromContext(ctx))
+	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
+		FindAllContent(tag, extractPageFromContext(ctx))
 
 	if err != nil {
 		return exceptions.Wrap("failed find contents", err)
 	}
 
-	return ctx.Status(200).JSON(a.response(ContentsResponse{
+	return ctx.Status(200).JSON(hc.response(ContentsResponse{
 		Contents: contents,
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), a.StatsPacker.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), hc.StatsPacker.Clickhouse, contents),
 	}))
 }
 
-func (a BlogchainActionProvider) ContentsUser(ctx *fiber.Ctx) error {
+func (hc HttpController) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse user id", err)
 	}
 
-	contents, err, count := repositories.UseContentRepository(ctx.Context(), a.Db).
-		FindAllByUser(user, getPageFromContext(ctx))
+	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
+		FindAllByUser(user, extractPageFromContext(ctx))
 
 	if err != nil {
 		return exceptions.Wrap("failed find user contents by id", err)
 	}
 
-	return ctx.Status(200).JSON(a.response(ContentsResponse{
+	return ctx.Status(200).JSON(hc.response(ContentsResponse{
 		Contents: contents,
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), a.StatsPacker.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), hc.StatsPacker.Clickhouse, contents),
 	}))
 }
 

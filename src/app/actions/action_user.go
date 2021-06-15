@@ -10,14 +10,14 @@ type ProfileResponse struct {
 	User repositories.PublicUser `json:"user"`
 }
 
-func (a BlogchainActionProvider) Profile(ctx *fiber.Ctx) error {
-	result, err := repositories.UseUserRepository(ctx.Context(), a.Db).FindByUsername(ctx.Params("username"))
+func (hc HttpController) Profile(ctx *fiber.Ctx) error {
+	result, err := repositories.UseUserRepository(ctx.Context(), hc.Db).FindByUsername(ctx.Params("username"))
 
 	if err != nil {
 		return exceptions.Wrap("failed find user", err)
 	}
 
-	return ctx.Status(200).JSON(a.response(ProfileResponse{
+	return ctx.Status(200).JSON(hc.response(ProfileResponse{
 		User: result.Properties(),
 	}))
 }

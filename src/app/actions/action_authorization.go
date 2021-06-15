@@ -15,11 +15,11 @@ type AuthResponse struct {
 	User  repositories.PublicUser `json:"user"`
 }
 
-func (a BlogchainActionProvider) Logout(ctx *fiber.Ctx) error {
-	return ctx.JSON(a.message("Successfully logout"))
+func (hc HttpController) Logout(ctx *fiber.Ctx) error {
+	return ctx.JSON(hc.message("Successfully logout"))
 }
 
-func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
+func (hc HttpController) Login(ctx *fiber.Ctx) error {
 	form := &forms.LoginForm{}
 
 	if err := ctx.BodyParser(&form); err != nil {
@@ -30,7 +30,7 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	result, err := repositories.UseUserRepository(ctx.Context(), a.Db).
+	result, err := repositories.UseUserRepository(ctx.Context(), hc.Db).
 		FindByCredentials(form.Username)
 
 	if err != nil {
@@ -45,19 +45,19 @@ func (a BlogchainActionProvider) Login(ctx *fiber.Ctx) error {
 		UUID: result.GetId(),
 	}
 
-	token, err := jwt.CreateJwtToken(claims, 1000, a.RSA.GetPrivateKey())
+	token, err := jwt.CreateJwtToken(claims, 1000, hc.RSA.GetPrivateKey())
 
 	if err != nil {
 		return exceptions.Wrap("invalid token", err)
 	}
 
-	return ctx.JSON(a.response(AuthResponse{
+	return ctx.JSON(hc.response(AuthResponse{
 		Token: token,
 		User:  result.Properties(),
 	}))
 }
 
-func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
+func (hc HttpController) Register(ctx *fiber.Ctx) error {
 	form := &forms.RegisterForm{}
 
 	if err := ctx.BodyParser(&form); err != nil {
@@ -68,7 +68,7 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	context := repositories.UseUserRepository(ctx.Context(), a.Db)
+	context := repositories.UseUserRepository(ctx.Context(), hc.Db)
 	result, err := context.FindByUsernameOrEmail(form.Username, form.Email)
 
 	if err != nil {
@@ -89,13 +89,13 @@ func (a BlogchainActionProvider) Register(ctx *fiber.Ctx) error {
 		UUID: result.GetId(),
 	}
 
-	token, err := jwt.CreateJwtToken(claims, 100, a.RSA.GetPrivateKey())
+	token, err := jwt.CreateJwtToken(claims, 100, hc.RSA.GetPrivateKey())
 
 	if err != nil {
 		return exceptions.Wrap("invalid token", err)
 	}
 
-	return ctx.JSON(a.response(AuthResponse{
+	return ctx.JSON(hc.response(AuthResponse{
 		Token: token,
 		User:  result.Properties(),
 	}))

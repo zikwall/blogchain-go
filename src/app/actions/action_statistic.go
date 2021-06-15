@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
+func (hc *HttpController) PushPostStats(ctx *fiber.Ctx) error {
 	data := &statistic.PostStats{}
 
 	if err := ctx.BodyParser(&data); err != nil {
@@ -34,7 +34,7 @@ func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
 		Date:     utils.Date(now),
 	}
 
-	geo, err := a.Finder.Lookup(ip)
+	geo, err := hc.Finder.Lookup(ip)
 
 	if err == nil {
 		stats = withFinderAttributes(stats, geo)
@@ -44,7 +44,7 @@ func (a *BlogchainActionProvider) PushPostStats(ctx *fiber.Ctx) error {
 		stats = withUserAgent(stats, userAgent)
 	}
 
-	a.StatsPacker.AppendRecords(stats)
+	hc.StatsPacker.AppendRecords(stats)
 
 	return ctx.Status(200).SendString("OK")
 }

@@ -14,26 +14,26 @@ type ContentCreatedResponse struct {
 	ContentId int64 `json:"content_id"`
 }
 
-func (a BlogchainActionProvider) ContentInformation(ctx *fiber.Ctx) error {
+func (hc HttpController) ContentInformation(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), a.Db).
-		UserContent(id, getUserFromContext(ctx).Id)
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
+		UserContent(id, extractUserFromContext(ctx).Id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find user content", err)
 	}
 
-	return ctx.Status(200).JSON(a.response(ContentResponse{
+	return ctx.Status(200).JSON(hc.response(ContentResponse{
 		Content: result.Response(),
 	}))
 }
 
-func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
+func (hc HttpController) ContentUpdate(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
@@ -46,13 +46,13 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse form body", err)
 	}
 
-	form.UserId = getUserFromContext(ctx).Id
+	form.UserId = extractUserFromContext(ctx).Id
 
 	if err = form.Validate(); err != nil {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	context := repositories.UseContentRepository(ctx.Context(), a.Db)
+	context := repositories.UseContentRepository(ctx.Context(), hc.Db)
 	res, err := context.UserContent(id, form.UserId)
 
 	if err != nil {
@@ -73,7 +73,7 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 			_ = file.Close()
 		}()
 
-		if err := a.Uploader.UploadFile(ctx.Context(), filename, file); err != nil {
+		if err := hc.Uploader.UploadFile(ctx.Context(), filename, file); err != nil {
 			return err
 		}
 	}
@@ -82,17 +82,17 @@ func (a BlogchainActionProvider) ContentUpdate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed update user content", err)
 	}
 
-	return ctx.Status(200).JSON(a.message("Successfully!"))
+	return ctx.Status(200).JSON(hc.message("Successfully!"))
 }
 
-func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
+func (hc HttpController) ContentCreate(ctx *fiber.Ctx) error {
 	form := &forms.ContentForm{}
 
 	if err := ctx.BodyParser(form); err != nil {
 		return exceptions.Wrap("failed parse form body", err)
 	}
 
-	form.UserId = getUserFromContext(ctx).Id
+	form.UserId = extractUserFromContext(ctx).Id
 	form.UUID = uuid.NewV4().String()
 
 	if err := form.Validate(); err != nil {
@@ -113,18 +113,18 @@ func (a BlogchainActionProvider) ContentCreate(ctx *fiber.Ctx) error {
 			_ = file.Close()
 		}()
 
-		if err := a.Uploader.UploadFile(ctx.Context(), filename, file); err != nil {
+		if err := hc.Uploader.UploadFile(ctx.Context(), filename, file); err != nil {
 			return err
 		}
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), a.Db).CreateContent(form)
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).CreateContent(form)
 
 	if err != nil {
 		return exceptions.Wrap("failed create user content", err)
 	}
 
-	return ctx.Status(200).JSON(a.response(ContentCreatedResponse{
+	return ctx.Status(200).JSON(hc.response(ContentCreatedResponse{
 		ContentId: result.Id,
 	}))
 }

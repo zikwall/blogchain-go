@@ -8,7 +8,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 )
 
-type BlogchainActionProvider struct {
+type HttpController struct {
 	RSA         container.RSA
 	Db          *database.Connection
 	StatsPacker *statistic.PostStatisticPacker
@@ -16,31 +16,25 @@ type BlogchainActionProvider struct {
 	Uploader    upload.Uploader
 }
 
-func CopyWith(p BlogchainActionProvider) BlogchainActionProvider {
-	a := BlogchainActionProvider{
+func CreateHttpControllerWithCopy(p HttpController) *HttpController {
+	return &HttpController{
 		RSA:         p.RSA,
 		Db:          p.Db,
 		StatsPacker: p.StatsPacker,
 		Finder:      p.Finder,
 		Uploader:    p.Uploader,
 	}
-
-	return a
 }
 
-func (a BlogchainActionProvider) _common(status uint8, message string) MessageResponse {
-	return MessageResponse{
-		Status:  status,
-		Message: message,
-	}
-}
-
-func (a BlogchainActionProvider) response(response interface{}) Response {
+func (hc HttpController) response(response interface{}) Response {
 	return Response{
 		Response: response,
 	}
 }
 
-func (a BlogchainActionProvider) message(message string) MessageResponse {
-	return a._common(200, message)
+func (hc HttpController) message(message string) MessageResponse {
+	return MessageResponse{
+		Status:  200,
+		Message: message,
+	}
 }

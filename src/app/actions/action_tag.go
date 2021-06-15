@@ -10,14 +10,14 @@ type TagResponse struct {
 	Tags []repositories.Tag `json:"tags"`
 }
 
-func (a BlogchainActionProvider) Tags(ctx *fiber.Ctx) error {
-	tags, err := repositories.UseTagRepository(ctx.Context(), a.Db).All()
+func (hc HttpController) Tags(ctx *fiber.Ctx) error {
+	tags, err := repositories.UseTagRepository(ctx.Context(), hc.Db).All()
 
 	if err != nil {
 		return exceptions.Wrap("failed find all tags", err)
 	}
 
-	return ctx.JSON(a.response(TagResponse{
+	return ctx.JSON(hc.response(TagResponse{
 		Tags: tags,
 	}))
 }

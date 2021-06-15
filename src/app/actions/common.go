@@ -15,7 +15,7 @@ type Response struct {
 	Response interface{} `json:"response"`
 }
 
-func getPageFromContext(ctx *fiber.Ctx) int64 {
+func extractPageFromContext(ctx *fiber.Ctx) int64 {
 	var page int64
 
 	if ctx.Params("page") != "" {
@@ -28,7 +28,7 @@ func getPageFromContext(ctx *fiber.Ctx) int64 {
 	return page
 }
 
-func getUserFromContext(ctx *fiber.Ctx) *repositories.User {
+func extractUserFromContext(ctx *fiber.Ctx) *repositories.User {
 	userInstance, ok := ctx.Locals("user").(*repositories.User)
 
 	if !ok {
