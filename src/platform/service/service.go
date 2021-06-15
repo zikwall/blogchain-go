@@ -13,37 +13,41 @@ import (
 	"time"
 )
 
-type (
-	Instance struct {
-		notify     Notify
-		Container  *container.Container
-		Clickhouse *clickhouse.Clickhouse
-		Finder     *maxmind.Finder
-		Context    context.Context
-		cancelFunc context.CancelFunc
-		database   *database.Connection
-	}
-	Configuration struct {
-		DatabaseConfiguration   database.Configuration
-		Container               container.Configuration
-		ClickhouseConfiguration clickhouse.Configuration
-		FinderConfig            maxmind.FinderConfig
-		IsDebug                 bool
-	}
-	HttpAccessControl struct {
-		AllowOrigins     string
-		AllowMethods     string
-		AllowHeaders     string
-		AllowCredentials bool
-		ExposeHeaders    string
-		MaxAge           int
-	}
-)
+// Instance is basic structure is the "core" of the entire application and somewhat resembles dependency injection,
+// but in a simpler form. It has such important properties as the top-level context and the ability to cancel it.
+// It also includes all the main component instances, such as databases, queues and caches,
+// and various internal schedulers.
+type Instance struct {
+	notify            Notify
+	Container         *container.Container
+	Clickhouse        *clickhouse.Clickhouse
+	Finder            *maxmind.Finder
+	Context           context.Context
+	cancelRootContext context.CancelFunc
+	database          *database.Connection
+}
+
+type Configuration struct {
+	DatabaseConfiguration   database.Configuration
+	Container               container.Configuration
+	ClickhouseConfiguration clickhouse.Configuration
+	FinderConfig            maxmind.FinderConfig
+	IsDebug                 bool
+}
+
+type HttpAccessControl struct {
+	AllowOrigins     string
+	AllowMethods     string
+	AllowHeaders     string
+	AllowCredentials bool
+	ExposeHeaders    string
+	MaxAge           int
+}
 
 func CreateService(ctx context.Context, c Configuration) (*Instance, error) {
 	b := new(Instance)
 	b.Container = container.NewBlogchainServiceContainer(c.Container)
-	b.Context, b.cancelFunc = context.WithCancel(ctx)
+	b.Context, b.cancelRootContext = context.WithCancel(ctx)
 
 	finder, err := maxmind.CreateFinder(c.FinderConfig)
 
@@ -85,9 +89,8 @@ func (b *Instance) GetDatabaseConnection() *database.Connection {
 func (s Instance) Shutdown(onError func(error)) {
 	log.Info("Shutdown Blogchain Service via System signal")
 
-	// cancel root context
-	s.cancelFunc()
-
+	// cancel the root context and clear all allocated resources
+	s.cancelRootContext()
 	for _, notifier := range s.notify.notifiers {
 		log.Info(notifier.CloseMessage())
 

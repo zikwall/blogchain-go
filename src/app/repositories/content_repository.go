@@ -47,9 +47,9 @@ func (cr ContentRepository) UserContent(contentId int64, id int64) (Content, err
 
 	found, err := query.ScanStructContext(cr.Context(), &content)
 	if err != nil {
-		return Content{}, exceptions.NewErrDatabaseAccess(err)
+		return Content{}, exceptions.ThrowPrivateError(err)
 	} else if !found {
-		return Content{}, exceptions.NewErrApplicationLogic(errors.New("user content was not found"))
+		return Content{}, exceptions.ThrowPublicError(errors.New("user content was not found"))
 	}
 
 	tags, err := fetchContentTags(cr.Context(), cr.Connection(), content.Id)
@@ -121,7 +121,7 @@ func (cr ContentRepository) UpdateContent(content Content, form *forms.ContentFo
 		ExecContext(cr.Context())
 
 	if err != nil {
-		return exceptions.NewErrDatabaseAccess(err)
+		return exceptions.ThrowPrivateError(err)
 	}
 
 	if err := cr.upsertTags(content, form, true); err != nil {
@@ -150,7 +150,7 @@ func (cr ContentRepository) upsertTags(content Content, form *forms.ContentForm,
 				ExecContext(cr.Context())
 
 			if err != nil {
-				return exceptions.NewErrDatabaseAccess(err)
+				return exceptions.ThrowPrivateError(err)
 			}
 		}
 
@@ -170,7 +170,7 @@ func (cr ContentRepository) upsertTags(content Content, form *forms.ContentForm,
 			ExecContext(cr.Context())
 
 		if err != nil {
-			return exceptions.NewErrDatabaseAccess(err)
+			return exceptions.ThrowPrivateError(err)
 		}
 	}
 
@@ -185,7 +185,7 @@ func (cr ContentRepository) FindAllByUser(userid int64, page int64) ([]PublicCon
 
 	var content []Content
 	if err := query.ScanStructsContext(cr.Context(), &content); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err), 0
+		return nil, exceptions.ThrowPrivateError(err), 0
 	}
 
 	response, err := withMutableResponse(cr.Context(), cr.Connection(), content)
@@ -207,9 +207,9 @@ func (cr ContentRepository) FindContentByIdAndUser(id int64, userid int64) (Cont
 
 	content := Content{}
 	if ok, err := query.ScanStructContext(cr.Context(), &content); err != nil {
-		return content, exceptions.NewErrDatabaseAccess(err)
+		return content, exceptions.ThrowPrivateError(err)
 	} else if !ok {
-		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
+		return content, exceptions.ThrowPublicError(errors.New("content with the required ID was not found"))
 	}
 
 	if tags, err := fetchContentTags(cr.Context(), cr.Connection(), id); err == nil {
@@ -226,9 +226,9 @@ func (cr ContentRepository) FindContentById(id int64) (Content, error) {
 
 	content := Content{}
 	if ok, err := query.ScanStructContext(cr.Context(), &content); err != nil {
-		return content, exceptions.NewErrDatabaseAccess(err)
+		return content, exceptions.ThrowPrivateError(err)
 	} else if !ok {
-		return content, exceptions.NewErrApplicationLogic(errors.New("content with the required ID was not found"))
+		return content, exceptions.ThrowPublicError(errors.New("content with the required ID was not found"))
 	}
 
 	if tags, err := fetchContentTags(cr.Context(), cr.Connection(), id); err == nil {
@@ -263,7 +263,7 @@ func (cr ContentRepository) FindAllContent(label string, page int64) ([]PublicCo
 
 	var content []Content
 	if err := query.ScanStructsContext(cr.Context(), &content); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err), 0
+		return nil, exceptions.ThrowPrivateError(err), 0
 	}
 
 	response, err := withMutableResponse(cr.Context(), cr.Connection(), content)

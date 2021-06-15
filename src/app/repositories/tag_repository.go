@@ -31,7 +31,7 @@ func (tr TagRepository) All() ([]Tag, error) {
 	var tags []Tag
 
 	if err := tr.find().ScanStructsContext(tr.Context(), &tags); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err)
+		return nil, exceptions.ThrowPrivateError(err)
 	}
 
 	return tags, nil
@@ -45,7 +45,7 @@ func (tr TagRepository) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, 
 	)
 
 	if err := withContent(query, id...).ScanStructsContext(tr.Context(), &tags); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err)
+		return nil, exceptions.ThrowPrivateError(err)
 	}
 
 	grouped := make(map[int64][]Tag, len(tags))
@@ -65,7 +65,7 @@ func (tr TagRepository) ContentTags(id int64) ([]Tag, error) {
 	var tags []Tag
 
 	if err := withContent(tr.find(), id).ScanStructsContext(tr.Context(), &tags); err != nil {
-		return nil, exceptions.NewErrDatabaseAccess(err)
+		return nil, exceptions.ThrowPrivateError(err)
 	}
 
 	return tags, nil

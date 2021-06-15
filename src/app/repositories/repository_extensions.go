@@ -27,7 +27,7 @@ func queryCount(context context.Context, query *builder.SelectDataset, pageSize 
 		countPages = math.Ceil(float64(count) / float64(pageSize))
 	}
 
-	return countPages, exceptions.NewErrDatabaseAccess(err)
+	return countPages, exceptions.ThrowPrivateError(err)
 }
 
 func withPagination(context context.Context, query *builder.SelectDataset, page, size uint) (*builder.SelectDataset, float64) {

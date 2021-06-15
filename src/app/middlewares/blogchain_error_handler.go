@@ -15,21 +15,21 @@ func ErrorHandler(ctx *fiber.Ctx, err error) error {
 		value := "Internal Server Error"
 
 		var e *fiber.Error
-		var wrap *exceptions.WrapError
+		var w *exceptions.WrapError
 
 		if errors.As(err, &e) {
 			code = e.Code
 			value = e.Message
 		}
 
-		if errors.As(err, &wrap) {
-			var appErr *exceptions.ErrApplicationLogic
-			var dbErr *exceptions.ErrDatabaseAccess
+		if errors.As(err, &w) {
+			var pub *exceptions.ErrPublic
+			var pri *exceptions.ErrPrivate
 
-			if errors.As(err, &appErr) {
-				value = fmt.Sprintf("%s: %v", wrap.Context, appErr.Error())
-			} else if errors.As(err, &dbErr) {
-				log.Warning(fmt.Sprintf("%s: %v", wrap.Context, dbErr.Error()))
+			if errors.As(err, &pub) {
+				value = fmt.Sprintf("%s: %v", w.Context, pub.Error())
+			} else if errors.As(err, &pri) {
+				log.Warning(fmt.Sprintf("%s: %v", w.Context, pri.Error()))
 			}
 		}
 

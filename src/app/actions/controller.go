@@ -8,6 +8,8 @@ import (
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 )
 
+// The HttpController structure is the base object for all http handlers,
+// and encapsulates access to services such as databases, redis, etc.
 type HttpController struct {
 	RSA         container.RSA
 	Db          *database.Connection

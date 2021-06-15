@@ -1,29 +1,29 @@
 package exceptions
 
-type ErrApplicationLogic struct {
+type ErrPublic struct {
 	Err error
 }
 
-func NewErrApplicationLogic(err error) *ErrApplicationLogic {
-	return &ErrApplicationLogic{
+func ThrowPublicError(err error) *ErrPublic {
+	return &ErrPublic{
 		Err: err,
 	}
 }
 
-func (e *ErrApplicationLogic) Error() string {
+func (e *ErrPublic) Error() string {
 	return e.Err.Error()
 }
 
-type ErrDatabaseAccess struct {
+type ErrPrivate struct {
 	Err error
 }
 
-func NewErrDatabaseAccess(err error) *ErrDatabaseAccess {
-	return &ErrDatabaseAccess{
+func ThrowPrivateError(err error) *ErrPrivate {
+	return &ErrPrivate{
 		Err: err,
 	}
 }
 
-func (e *ErrDatabaseAccess) Error() string {
+func (e *ErrPrivate) Error() string {
 	return e.Err.Error()
 }

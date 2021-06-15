@@ -100,7 +100,7 @@ func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error 
 		ExecContext(ur.Context())
 
 	if err != nil {
-		return exceptions.NewErrDatabaseAccess(err)
+		return exceptions.ThrowPrivateError(err)
 	}
 
 	user.Profile = profile
@@ -114,9 +114,9 @@ func (ur UserRepository) FindByUsernameOrEmail(username string, email string) (U
 		ScanStructContext(ur.context, &user)
 
 	if err != nil {
-		return user, exceptions.NewErrDatabaseAccess(err)
+		return user, exceptions.ThrowPrivateError(err)
 	} else if !found {
-		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required username or mail was not found"))
+		return user, exceptions.ThrowPublicError(errors.New("user with the required username or mail was not found"))
 	}
 
 	return user, nil
@@ -130,9 +130,9 @@ func (ur UserRepository) FindByCredentials(credentials string) (User, error) {
 	found, err := query.ScanStructContext(ur.Context(), &user)
 
 	if err != nil {
-		return user, exceptions.NewErrDatabaseAccess(err)
+		return user, exceptions.ThrowPrivateError(err)
 	} else if !found {
-		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required credentials was not found"))
+		return user, exceptions.ThrowPublicError(errors.New("user with the required credentials was not found"))
 	}
 
 	return user, err
@@ -147,9 +147,9 @@ func (ur UserRepository) FindById(id int64) (User, error) {
 		ScanStructContext(ur.Context(), &user)
 
 	if err != nil {
-		return user, exceptions.NewErrDatabaseAccess(err)
+		return user, exceptions.ThrowPrivateError(err)
 	} else if !found {
-		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required ID was not found"))
+		return user, exceptions.ThrowPublicError(errors.New("user with the required ID was not found"))
 	}
 
 	return user, nil
@@ -165,9 +165,9 @@ func (ur UserRepository) FindByUsername(username string) (User, error) {
 	found, err := query.ScanStructContext(ur.Context(), &user)
 
 	if err != nil {
-		return user, exceptions.NewErrDatabaseAccess(err)
+		return user, exceptions.ThrowPrivateError(err)
 	} else if !found {
-		return user, exceptions.NewErrApplicationLogic(errors.New("user with the required username was not found"))
+		return user, exceptions.ThrowPublicError(errors.New("user with the required username was not found"))
 	}
 
 	return user, err

@@ -18,7 +18,7 @@ func (hc HttpController) ContentInformation(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
-		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
+		return exceptions.Wrap("failed parse content id", exceptions.ThrowPublicError(err))
 	}
 
 	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
@@ -37,7 +37,7 @@ func (hc HttpController) ContentUpdate(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
-		return exceptions.Wrap("failed parse content id", exceptions.NewErrApplicationLogic(err))
+		return exceptions.Wrap("failed parse content id", exceptions.ThrowPublicError(err))
 	}
 
 	form := &forms.ContentForm{}
