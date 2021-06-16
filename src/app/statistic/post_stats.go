@@ -2,7 +2,7 @@ package statistic
 
 import "github.com/zikwall/blogchain/src/platform/clickhouse"
 
-var postStatsTable = clickhouse.Table{Name: "post_stats", Columns: []string{
+var PostStatsTable = clickhouse.Table{Name: "post_stats", Columns: []string{
 	"post_id",
 	"owner_id",
 	"os",

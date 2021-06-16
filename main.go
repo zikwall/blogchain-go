@@ -7,7 +7,6 @@ import (
 	"github.com/zikwall/blogchain/src/app/actions"
 	"github.com/zikwall/blogchain/src/app/lib/upload"
 	"github.com/zikwall/blogchain/src/app/middlewares"
-	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
@@ -244,14 +243,12 @@ func main() {
 			return err
 		}
 
-		httpController := actions.CreateHttpControllerWithCopy(actions.HttpController{
-			RSA: &rsa,
-			Db:  blogchain.GetDatabaseConnection(),
-			StatsPacker: statistic.CreatePostStatisticPacker(
-				blogchain.Context, blogchain.Clickhouse,
-			),
-			Finder:   blogchain.Finder,
-			Uploader: upload.NewFileUploader(fsClient),
+		httpController := actions.CreateHttpControllerWithCopy(blogchain.Context, actions.HttpController{
+			RSA:        &rsa,
+			Db:         blogchain.GetDatabaseConnection(),
+			Clickhouse: blogchain.Clickhouse,
+			Finder:     blogchain.Finder,
+			Uploader:   upload.NewFileUploader(fsClient),
 		})
 
 		api := app.Group("/api",

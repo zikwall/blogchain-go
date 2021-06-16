@@ -40,7 +40,7 @@ func (hc HttpController) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.StatsPacker.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.Clickhouse, result.Id)
 
 	if err != nil {
 		log.Warning(err)
@@ -67,7 +67,7 @@ func (hc HttpController) Contents(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), hc.StatsPacker.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), hc.Clickhouse, contents),
 	}))
 }
 
@@ -90,7 +90,7 @@ func (hc HttpController) ContentsUser(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), hc.StatsPacker.Clickhouse, contents),
+		Stats: withStatsContext(ctx.Context(), hc.Clickhouse, contents),
 	}))
 }
 
