@@ -28,7 +28,7 @@ type PostStats struct {
 	Date     string `json:"-"`
 }
 
-func (b *PostStats) flatten() []interface{} {
+func (b PostStats) flatten() []interface{} {
 	return []interface{}{
 		b.PostId,
 		b.OwnerId,

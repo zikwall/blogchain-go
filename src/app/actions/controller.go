@@ -13,7 +13,7 @@ import (
 type HttpController struct {
 	RSA         container.RSA
 	Db          *database.Connection
-	StatsPacker *statistic.PostStatisticPacker
+	StatsPacker *statistic.Packer
 	Finder      *maxmind.Finder
 	Uploader    upload.Uploader
 }

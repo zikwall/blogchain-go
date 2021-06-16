@@ -44,7 +44,7 @@ func (hc *HttpController) PushPostStats(ctx *fiber.Ctx) error {
 		stats = withUserAgent(stats, userAgent)
 	}
 
-	hc.StatsPacker.AppendRecords(stats)
+	hc.StatsPacker.NonBlockingWritePackets(stats)
 
 	return ctx.Status(200).SendString("OK")
 }
