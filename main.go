@@ -244,11 +244,12 @@ func main() {
 		}
 
 		httpController := actions.CreateHttpControllerWithCopy(blogchain.Context, actions.HttpController{
-			RSA:        &rsa,
-			Db:         blogchain.GetDatabaseConnection(),
-			Clickhouse: blogchain.Clickhouse,
-			Finder:     blogchain.Finder,
-			Uploader:   upload.NewFileUploader(fsClient),
+			RSA:              &rsa,
+			Db:               blogchain.GetDatabaseConnection(),
+			Clickhouse:       blogchain.Clickhouse,
+			ClickhouseBuffer: blogchain.ChBuffer,
+			Finder:           blogchain.Finder,
+			Uploader:         upload.NewFileUploader(fsClient),
 		})
 
 		api := app.Group("/api",

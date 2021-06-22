@@ -8,6 +8,8 @@ import (
 	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
+	clickhouse_buffer "github.com/zikwall/clickhouse-buffer"
+	"github.com/zikwall/clickhouse-buffer/src/api"
 	"runtime"
 	"strconv"
 	"time"
@@ -21,6 +23,7 @@ type Instance struct {
 	notify            Notify
 	Container         *container.Container
 	Clickhouse        *clickhouse.Clickhouse
+	ChBuffer          *clickhouse.BufferAdapter
 	Finder            *maxmind.Finder
 	Context           context.Context
 	cancelRootContext context.CancelFunc
@@ -73,10 +76,23 @@ func CreateService(ctx context.Context, c Configuration) (*Instance, error) {
 
 	b.Clickhouse = ch
 
+	chBuffer, err := api.NewClickhouseWithSqlx(b.Clickhouse.Query())
+
+	if err != nil {
+		return nil, err
+	}
+
+	b.ChBuffer = clickhouse.NewClickhouseBufferAdapter(clickhouse_buffer.NewClientWithOptions(b.Context, chBuffer,
+		api.DefaultOptions().
+			SetFlushInterval(2000).
+			SetBatchSize(5000),
+	))
+
 	b.notify.AddNotifiers(
 		b.database,
 		b.Clickhouse,
 		b.Finder,
+		b.ChBuffer,
 	)
 
 	return b, nil
