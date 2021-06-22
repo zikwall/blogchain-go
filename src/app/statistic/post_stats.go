@@ -1,19 +1,8 @@
 package statistic
 
-import "github.com/zikwall/blogchain/src/platform/clickhouse"
-
-var PostStatsTable = clickhouse.Table{Name: "post_stats", Columns: []string{
-	"post_id",
-	"owner_id",
-	"os",
-	"browser",
-	"platform",
-	"ip",
-	"country",
-	"region",
-	"insert_ts",
-	"date",
-}}
+import (
+	"github.com/zikwall/clickhouse-buffer/src/types"
+)
 
 type PostStats struct {
 	PostId   uint64 `json:"post_id"`
@@ -28,7 +17,7 @@ type PostStats struct {
 	Date     string `json:"-"`
 }
 
-func (b PostStats) flatten() []interface{} {
+func (b PostStats) Row() types.RowSlice {
 	return []interface{}{
 		b.PostId,
 		b.OwnerId,

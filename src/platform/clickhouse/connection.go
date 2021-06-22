@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"
-	"github.com/zikwall/blogchain/src/platform/log"
-	"strings"
 	"time"
 )
 
@@ -65,79 +63,6 @@ func NewClickhouse(c context.Context, conf Configuration) (*Clickhouse, error) {
 
 func (c Clickhouse) Query() *sqlx.DB {
 	return c.db
-}
-
-// Insert Currently, the client library does not support the JSONEachRow format, only native byte blocks
-// There is no support for user interfaces as well as simple execution of an already prepared request
-// The entire batch bid is implemented through so-called "transactions",
-// although Clickhouse does not support them - it is only a client solution for preparing requests
-func (c *Clickhouse) Insert(ctx context.Context, table Table, rows [][]interface{}) (uint64, error) {
-	var affected uint64
-
-	tx, err := c.db.BeginTx(ctx, nil)
-
-	if err != nil {
-		return 0, err
-	}
-
-	stmt, err := tx.PrepareContext(ctx, insertQuery(table.Name, table.Columns))
-
-	if err != nil {
-		// If you do not call the rollback function there will be a memory leak and goroutine
-		// Such a leak can occur if there is no access to the table or there is no table itself
-		if err = tx.Rollback(); err != nil {
-			log.Warning(err)
-		}
-
-		return 0, err
-	}
-
-	defer func() {
-		if err := stmt.Close(); err != nil {
-			log.Warning(err)
-		}
-	}()
-
-	timeoutContext, cancel := context.WithTimeout(ctx, time.Second*15)
-
-	defer cancel()
-
-	for _, row := range rows {
-		// row affected is not supported
-		if _, err := stmt.ExecContext(timeoutContext, row...); err == nil {
-			affected += 1
-		} else {
-			log.Warning(err)
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
-		return 0, err
-	}
-
-	return affected, nil
-}
-
-// InsertWithMetrics use elastic apm metrics
-func (c *Clickhouse) InsertWithMetrics(table Table, rows [][]interface{}) (uint64, error) {
-	return c.Insert(c.context, table, rows)
-}
-
-func insertQuery(table string, cols []string) string {
-	placeholders := make([]string, 0, len(cols))
-
-	for range cols {
-		placeholders = append(placeholders, "?")
-	}
-
-	prepared := fmt.Sprintf(
-		"INSERT INTO %s (%s) VALUES (%s)",
-		table,
-		strings.Join(cols, ", "),
-		strings.Join(placeholders, ", "),
-	)
-
-	return prepared
 }
 
 func buildConnectionString(c Configuration) string {
