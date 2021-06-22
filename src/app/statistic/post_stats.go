@@ -7,14 +7,14 @@ import (
 type PostStats struct {
 	PostId   uint64 `json:"post_id"`
 	OwnerId  uint64 `json:"owner_id"`
-	Os       string `json:"-"`
-	Browser  string `json:"-"`
-	Platform string `json:"-"`
-	Ip       string `json:"-"`
-	Country  string `json:"-"`
-	Region   string `json:"-"`
-	InsertTs string `json:"-"`
-	Date     string `json:"-"`
+	Os       string `json:"os"`
+	Browser  string `json:"browser"`
+	Platform string `json:"platform"`
+	Ip       string `json:"ip"`
+	Country  string `json:"country"`
+	Region   string `json:"region"`
+	InsertTs string `json:"insert_ts"`
+	Date     string `json:"date"`
 }
 
 func (b PostStats) Row() types.RowSlice {
