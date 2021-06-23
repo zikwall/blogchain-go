@@ -391,8 +391,6 @@ github.com/valyala/tcplisten v1.0.0 h1:rBHj/Xf+E1tRGZyWIWwJDiRY0zc1Js+CV5DqwacVS
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
-github.com/zikwall/clickhouse-buffer v0.0.0-20210622123618-58fb91a6a8c4 h1:5J5Q666XIsihLNnkiTTgdHl+CfHE92vpCr1WdWakw+s=
-github.com/zikwall/clickhouse-buffer v0.0.0-20210622123618-58fb91a6a8c4/go.mod h1:+H9eNWlvObBPNX9o9+CFhMDjJjBVp60sdbG8lLiDhcc=
 github.com/zikwall/clickhouse-buffer v0.0.0-20210623084218-3f32dd4c36cd h1:MBtllGYFsG/ZDb5EAWhQeugygDK5HZB4DKLxYQSyyr0=
 github.com/zikwall/clickhouse-buffer v0.0.0-20210623084218-3f32dd4c36cd/go.mod h1:+H9eNWlvObBPNX9o9+CFhMDjJjBVp60sdbG8lLiDhcc=
 github.com/zikwall/fsclient v0.0.3 h1:ffS4EAfSGfsE8nr6Ujb9jLYwpC4cQSPUx0FmL9oPQEE=
