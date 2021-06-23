@@ -32,7 +32,7 @@ func CreateHttpControllerWithCopy(context context.Context, p HttpController) *Ht
 		},
 	}
 
-	writeAPI := p.ClickhouseBuffer.Client().Writer(tableView, memory.NewInmemoryBuffer(
+	writeAPI := p.ClickhouseBuffer.Client().Writer(tableView, memory.NewBuffer(
 		p.ClickhouseBuffer.Client().Options().BatchSize(),
 	))
 

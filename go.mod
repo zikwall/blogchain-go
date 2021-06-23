@@ -20,7 +20,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/swaggo/swag v1.6.5
 	github.com/urfave/cli/v2 v2.2.0
-	github.com/zikwall/clickhouse-buffer v0.0.0-20210622123618-58fb91a6a8c4
+	github.com/zikwall/clickhouse-buffer v0.0.0-20210623084218-3f32dd4c36cd
 	github.com/zikwall/fsclient v0.0.3
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
