@@ -26,21 +26,21 @@ type Meta struct {
 	Pages float64 `json:"pages"`
 }
 
-func (hc HttpController) Content(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Content(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse content id", exceptions.ThrowPublicError(err))
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
-		FindContentById(id)
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
+		FindContentByID(id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.Clickhouse, result.ID)
 
 	if err != nil {
 		log.Warning(err)
@@ -52,10 +52,10 @@ func (hc HttpController) Content(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc HttpController) Contents(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
-	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
+	contents, count, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
 		FindAllContent(tag, extractPageFromContext(ctx))
 
 	if err != nil {
@@ -71,14 +71,14 @@ func (hc HttpController) Contents(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc HttpController) ContentsUser(ctx *fiber.Ctx) error {
+func (hc *HTTPController) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
 		return exceptions.Wrap("failed parse user id", err)
 	}
 
-	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
+	contents, count, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
 		FindAllByUser(user, extractPageFromContext(ctx))
 
 	if err != nil {
@@ -94,18 +94,18 @@ func (hc HttpController) ContentsUser(ctx *fiber.Ctx) error {
 	}))
 }
 
-func withStatsContext(context context.Context, ch *clickhouse.Clickhouse, cs []repositories.PublicContent) map[int64]uint64 {
+func withStatsContext(ctx context.Context, ch *clickhouse.Clickhouse, cs []repositories.PublicContent) map[int64]uint64 {
 	if len(cs) == 0 {
 		return map[int64]uint64{}
 	}
 
 	ids := make([]int64, 0, len(cs))
 
-	for _, c := range cs {
-		ids = append(ids, c.Id)
+	for i := range cs {
+		ids = append(ids, cs[i].ID)
 	}
 
-	viewers, err := statistic.GetPostsViewersCount(context, ch, ids...)
+	viewers, err := statistic.GetPostsViewersCount(ctx, ch, ids...)
 
 	if err != nil {
 		log.Warning(err)

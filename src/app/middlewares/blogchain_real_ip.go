@@ -2,7 +2,7 @@ package middlewares
 
 import "github.com/gofiber/fiber/v2"
 
-func UseBlogchainRealIp(c *fiber.Ctx) error {
+func UseBlogchainRealIP(c *fiber.Ctx) error {
 	ip := c.IP()
 
 	if c.Get("X-Real-IP") != "" {

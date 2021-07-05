@@ -7,7 +7,7 @@ type RegisterForm struct {
 	Username       string `json:"username"`
 	Password       string `json:"password"`
 	PasswordRepeat string `json:"password_repeat"`
-	RegistrationIp string
+	RegistrationIP string
 	Name           string `json:"name"`
 	PublicEmail    string `json:"public_email"`
 	Avatar         string `json:"avatar"`
@@ -15,7 +15,7 @@ type RegisterForm struct {
 
 func (r *RegisterForm) ComparePasswords() error {
 	if r.Password == r.PasswordRepeat {
-		return errors.New("Passwords don't match")
+		return errors.New("passwords don't match")
 	}
 
 	return nil
@@ -38,7 +38,7 @@ func (r *RegisterForm) required() error {
 		return nil
 	}
 
-	return errors.New("Email, username or password is empty")
+	return errors.New("email, username or password is empty")
 }
 
 func (r *RegisterForm) minLengths() error {
@@ -46,5 +46,5 @@ func (r *RegisterForm) minLengths() error {
 		return nil
 	}
 
-	return errors.New("Username or password must be at least in length 5 and 8 characters")
+	return errors.New("username or password must be at least in length 5 and 8 characters")
 }

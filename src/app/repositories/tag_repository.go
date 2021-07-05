@@ -13,12 +13,12 @@ type TagRepository struct {
 
 type TagContent struct {
 	Tag
-	ContentId int64 `db:"content_id"`
+	ContentID int64 `db:"content_id"`
 }
 
-func UseTagRepository(context context.Context, conn *database.Connection) TagRepository {
+func UseTagRepository(ctx context.Context, conn *database.Connection) TagRepository {
 	return TagRepository{
-		Repository{connection: conn, context: context},
+		Repository{connection: conn, context: ctx},
 	}
 }
 
@@ -51,8 +51,8 @@ func (tr TagRepository) ContentGroupedTags(id ...interface{}) (map[int64][]Tag, 
 	grouped := make(map[int64][]Tag, len(tags))
 
 	for _, tag := range tags {
-		grouped[tag.ContentId] = append(grouped[tag.ContentId], Tag{
-			Id:    tag.Id,
+		grouped[tag.ContentID] = append(grouped[tag.ContentID], Tag{
+			ID:    tag.ID,
 			Name:  tag.Name,
 			Label: tag.Label,
 		})
@@ -71,8 +71,8 @@ func (tr TagRepository) ContentTags(id int64) ([]Tag, error) {
 	return tags, nil
 }
 
-func fetchContentTags(context context.Context, conn *database.Connection, id int64) ([]Tag, error) {
-	tags, err := UseTagRepository(context, conn).ContentTags(id)
+func fetchContentTags(ctx context.Context, conn *database.Connection, id int64) ([]Tag, error) {
+	tags, err := UseTagRepository(ctx, conn).ContentTags(id)
 	return tags, err
 }
 

@@ -1,4 +1,4 @@
-FROM golang:1.16-alpine
+FROM golang:alpine
 RUN apk update && apk add bash
 RUN mkdir /app
 COPY . /app

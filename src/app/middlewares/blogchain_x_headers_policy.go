@@ -12,7 +12,7 @@ const (
 	XHeaderBlogchainPlatform   = "X-Platform"
 	XHeaderBlogchainAppVersion = "X-App-Version"
 	XHeaderBlogchainDeviceName = "X-Device-Name"
-	XHeaderBlogchainDeviceId   = "X-Device-Id"
+	XHeaderBlogchainDeviceID   = "X-Device-ID"
 )
 
 type (
@@ -21,12 +21,12 @@ type (
 		xPlatform     string
 		xAppVersion   string
 		xDeviceName   string
-		xDeviceId     string
+		xDeviceID     string
 	}
 )
 
-func (x BlogchainXHeaders) IsBlogchainOriginalApp() bool {
-	return len(x.xBlogchainApp) != 0
+func (x *BlogchainXHeaders) IsBlogchainOriginalApp() bool {
+	return x.xBlogchainApp != ""
 }
 
 func WithBlogchainXHeaderPolicy() fiber.Handler {
@@ -44,7 +44,7 @@ func WithBlogchainXHeaderPolicy() fiber.Handler {
 			xPlatform:     ctx.Get(XHeaderBlogchainPlatform),
 			xAppVersion:   ctx.Get(XHeaderBlogchainAppVersion),
 			xDeviceName:   ctx.Get(XHeaderBlogchainDeviceName),
-			xDeviceId:     ctx.Get(XHeaderBlogchainDeviceId),
+			xDeviceID:     ctx.Get(XHeaderBlogchainDeviceID),
 		}
 
 		if x.IsBlogchainOriginalApp() {

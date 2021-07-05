@@ -28,7 +28,7 @@ type (
 	}
 )
 
-func NewClickhouse(c context.Context, conf Configuration) (*Clickhouse, error) {
+func NewClickhouse(c context.Context, conf *Configuration) (*Clickhouse, error) {
 	connect, err := sqlx.Open("clickhouse", buildConnectionString(conf))
 
 	if err != nil {
@@ -41,14 +41,12 @@ func NewClickhouse(c context.Context, conf Configuration) (*Clickhouse, error) {
 
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 
-	defer func() {
-		cancel()
-	}()
+	defer cancel()
 
 	if err := connect.PingContext(ctx); err != nil {
 		var e *clickhouse.Exception
 		if errors.As(err, &e) {
-			return nil, fmt.Errorf("[%d] %s \n%s\n", e.Code, e.Message, e.StackTrace)
+			return nil, fmt.Errorf("[%d] %s \n%s", e.Code, e.Message, e.StackTrace)
 		}
 
 		return nil, err
@@ -65,7 +63,7 @@ func (c Clickhouse) Query() *sqlx.DB {
 	return c.db
 }
 
-func buildConnectionString(c Configuration) string {
+func buildConnectionString(c *Configuration) string {
 	debug := "false"
 
 	if c.IsDebug {

@@ -37,7 +37,7 @@ func ParseAuthHeader(header string) (string, bool) {
 	return parts[1], true
 }
 
-func CreateJwtToken(claims TokenClaims, duration int64, private string) (string, error) {
+func CreateJwtToken(claims *TokenClaims, duration int64, private string) (string, error) {
 	key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(private))
 
 	if err != nil {
@@ -49,7 +49,7 @@ func CreateJwtToken(claims TokenClaims, duration int64, private string) (string,
 		Issuer:    "blogchain-go",
 	}
 
-	withClaimsToken := jwt.NewWithClaims(jwt.SigningMethodRS256, &claims)
+	withClaimsToken := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	return withClaimsToken.SignedString(key)
 }
 

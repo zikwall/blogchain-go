@@ -5,7 +5,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func BlogchainPasswordCorrectness(hash string, password string) bool {
+func BlogchainPasswordCorrectness(hash, password string) bool {
 	errf := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 
 	if errf != nil && errors.Is(errf, bcrypt.ErrMismatchedHashAndPassword) {

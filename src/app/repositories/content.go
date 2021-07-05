@@ -5,9 +5,9 @@ import (
 )
 
 type Content struct {
-	Id         int64          `db:"id"`
-	Uuid       string         `db:"uuid"`
-	UserId     int64          `db:"user_id"`
+	ID         int64          `db:"id"`
+	UUID       string         `db:"uuid"`
+	UserID     int64          `db:"user_id"`
 	Title      string         `db:"title"`
 	Annotation string         `db:"annotation"`
 	Content    string         `db:"content"`
@@ -20,8 +20,8 @@ type Content struct {
 }
 
 type PublicContent struct {
-	Id         int64  `json:"id"`
-	Uuid       string `json:"uuid"`
+	ID         int64  `json:"id"`
+	UUID       string `json:"uuid"`
 	Title      string `json:"title"`
 	Annotation string `json:"annotation"`
 	Content    string `json:"content"`
@@ -39,8 +39,8 @@ type Related struct {
 
 func (content *Content) Response() PublicContent {
 	return PublicContent{
-		Id:         content.Id,
-		Uuid:       content.Uuid,
+		ID:         content.ID,
+		UUID:       content.UUID,
 		Title:      content.Title,
 		Annotation: content.Annotation,
 		Content:    content.Content,

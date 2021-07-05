@@ -8,7 +8,7 @@ import (
 
 func TestJwtToken(t *testing.T) {
 	t.Run("it should verify", func(t *testing.T) {
-		claims := TokenClaims{
+		claims := &TokenClaims{
 			UUID: 100,
 		}
 
@@ -30,7 +30,7 @@ func TestJwtToken(t *testing.T) {
 	})
 
 	t.Run("it should expired", func(t *testing.T) {
-		claims := TokenClaims{
+		claims := &TokenClaims{
 			UUID: 100,
 		}
 

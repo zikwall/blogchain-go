@@ -16,9 +16,9 @@ type UserRepository struct {
 	Repository
 }
 
-func UseUserRepository(context context.Context, conn *database.Connection) UserRepository {
+func UseUserRepository(ctx context.Context, conn *database.Connection) UserRepository {
 	return UserRepository{
-		Repository{connection: conn, context: context},
+		Repository{connection: conn, context: ctx},
 	}
 }
 
@@ -38,8 +38,8 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 	user.PasswordHash = string(hash)
 	user.Email = r.Email
 	user.Username = r.Username
-	user.RegistrationIp = sql.NullString{
-		String: r.RegistrationIp,
+	user.RegistrationIP = sql.NullString{
+		String: r.RegistrationIP,
 		Valid:  false,
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
@@ -48,7 +48,7 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 		"password_hash":   user.PasswordHash,
 		"email":           user.Email,
 		"username":        user.Username,
-		"registration_ip": user.RegistrationIp,
+		"registration_ip": user.RegistrationIP,
 		"created_at":      user.ConfirmedAt,
 	}
 
@@ -63,11 +63,11 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 		return User{}, err
 	}
 
-	if user.Id, err = status.LastInsertId(); err != nil {
+	if user.ID, err = status.LastInsertId(); err != nil {
 		return User{}, err
 	}
 
-	if err = ur.AttachProfile(r, &user); err != nil {
+	if err := ur.AttachProfile(r, &user); err != nil {
 		return User{}, err
 	}
 
@@ -76,7 +76,7 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 
 func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error {
 	profile := Profile{
-		userId:      user.Id,
+		userID:      user.ID,
 		Name:        r.Name,
 		PublicEmail: r.PublicEmail,
 		Avatar: sql.NullString{
@@ -86,7 +86,7 @@ func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error 
 	}
 
 	record := builder.Record{
-		"user_id":      profile.userId,
+		"user_id":      profile.userID,
 		"name":         profile.Name,
 		"public_email": profile.PublicEmail,
 		"avatar":       profile.Avatar,
@@ -108,7 +108,7 @@ func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error 
 	return nil
 }
 
-func (ur UserRepository) FindByUsernameOrEmail(username string, email string) (User, error) {
+func (ur UserRepository) FindByUsernameOrEmail(username, email string) (User, error) {
 	user := User{}
 	found, err := onUsernameOrMailCondition(ur.find(), username, email).
 		ScanStructContext(ur.context, &user)
@@ -138,7 +138,7 @@ func (ur UserRepository) FindByCredentials(credentials string) (User, error) {
 	return user, err
 }
 
-func (ur UserRepository) FindById(id int64) (User, error) {
+func (ur UserRepository) FindByID(id int64) (User, error) {
 	user := User{}
 	found, err := ur.find().
 		Where(
