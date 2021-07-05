@@ -13,11 +13,11 @@ func TestBlogchainPasswordCorrectness(t *testing.T) {
 		}
 
 		if BlogchainPasswordCorrectness(string(hash), MockPassword) != true {
-			t.Fatal("Error, the password was expected to be valid")
+			t.Fatal("failed, the password was expected to be valid")
 		}
 	})
 
-	t.Run("it shoudl be invalid password and verify also", func(t *testing.T) {
+	t.Run("it should be invalid password and verify also", func(t *testing.T) {
 		hash, err := GenerateBlogchainPasswordHash(MockPassword)
 
 		if err != nil {
@@ -25,7 +25,7 @@ func TestBlogchainPasswordCorrectness(t *testing.T) {
 		}
 
 		if BlogchainPasswordCorrectness(string(hash), "my_another_pass") == true {
-			t.Fatal("Error, the password was expected to be invalid")
+			t.Fatal("failed, the password was expected to be invalid")
 		}
 	})
 }

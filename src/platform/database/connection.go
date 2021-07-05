@@ -38,7 +38,7 @@ func (logger Logger) Printf(format string, v ...interface{}) {
 	logger.callback(format, v)
 }
 
-func NewInstance(c context.Context, conf Configuration) (*Connection, error) {
+func NewInstance(c context.Context, conf *Configuration) (*Connection, error) {
 	d := new(Connection)
 
 	if conf.Dialect == "" {
@@ -51,10 +51,8 @@ func NewInstance(c context.Context, conf Configuration) (*Connection, error) {
 
 	if strings.EqualFold(conf.Host, "") {
 		conf.Host = "@"
-	} else {
-		if !strings.Contains(conf.Host, "@") {
-			conf.Host = fmt.Sprintf("@tcp(%s)", conf.Host)
-		}
+	} else if !strings.Contains(conf.Host, "@") {
+		conf.Host = fmt.Sprintf("@tcp(%s)", conf.Host)
 	}
 
 	db, err := sql.Open(conf.Dialect, makeConnectionString(conf))
@@ -65,9 +63,7 @@ func NewInstance(c context.Context, conf Configuration) (*Connection, error) {
 
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
 
-	defer func() {
-		cancel()
-	}()
+	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
 		return nil, err
@@ -100,7 +96,7 @@ func (d *Connection) Builder() *builder.Database {
 	return d.db
 }
 
-func makeConnectionString(c Configuration) string {
+func makeConnectionString(c *Configuration) string {
 	return fmt.Sprintf("%s:%s%s/%s", c.User, c.Password, c.Host, c.Name)
 }
 

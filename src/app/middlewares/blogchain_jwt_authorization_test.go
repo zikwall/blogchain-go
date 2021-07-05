@@ -16,28 +16,25 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 		app := fiber.New()
 
 		rsa := &container.MockRSA{}
-		test := app.Group("/test")
-		{
-			test.Get("/jwt",
-				WithBlogchainJWTAuthorization(rsa),
-				func(c *fiber.Ctx) error {
-					valid := true
 
-					claims, ok := c.Locals("claims").(*jwt.TokenClaims)
+		app.Group("/test").Get("/jwt", WithBlogchainJWTAuthorization(rsa),
+			func(c *fiber.Ctx) error {
+				valid := true
 
-					if !ok {
-						valid = false
-					}
+				claims, ok := c.Locals("claims").(*jwt.TokenClaims)
 
-					return c.JSON(fiber.Map{
-						"valid":  valid,
-						"claims": claims,
-					})
-				},
-			)
-		}
+				if !ok {
+					valid = false
+				}
 
-		claims := jwt.TokenClaims{
+				return c.JSON(fiber.Map{
+					"valid":  valid,
+					"claims": claims,
+				})
+			},
+		)
+
+		claims := &jwt.TokenClaims{
 			UUID: 100,
 		}
 

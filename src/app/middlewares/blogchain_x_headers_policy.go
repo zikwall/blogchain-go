@@ -25,8 +25,8 @@ type (
 	}
 )
 
-func (x BlogchainXHeaders) IsBlogchainOriginalApp() bool {
-	return len(x.xBlogchainApp) != 0
+func (x *BlogchainXHeaders) IsBlogchainOriginalApp() bool {
+	return x.xBlogchainApp != ""
 }
 
 func WithBlogchainXHeaderPolicy() fiber.Handler {

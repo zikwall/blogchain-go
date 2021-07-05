@@ -31,14 +31,14 @@ type Instance struct {
 }
 
 type Configuration struct {
-	DatabaseConfiguration   database.Configuration
+	DatabaseConfiguration   *database.Configuration
 	Container               container.Configuration
-	ClickhouseConfiguration clickhouse.Configuration
+	ClickhouseConfiguration *clickhouse.Configuration
 	FinderConfig            maxmind.FinderConfig
 	IsDebug                 bool
 }
 
-type HttpAccessControl struct {
+type HTTPAccessControl struct {
 	AllowOrigins     string
 	AllowMethods     string
 	AllowHeaders     string
@@ -47,7 +47,7 @@ type HttpAccessControl struct {
 	MaxAge           int
 }
 
-func CreateService(ctx context.Context, c Configuration) (*Instance, error) {
+func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 	b := new(Instance)
 	b.Container = container.NewBlogchainServiceContainer(c.Container)
 	b.Context, b.cancelRootContext = context.WithCancel(ctx)
@@ -102,7 +102,7 @@ func (b *Instance) GetDatabaseConnection() *database.Connection {
 	return b.database
 }
 
-func (s Instance) Shutdown(onError func(error)) {
+func (s *Instance) Shutdown(onError func(error)) {
 	log.Info("Shutdown Blogchain Service via System signal")
 
 	// cancel the root context and clear all allocated resources
@@ -116,7 +116,7 @@ func (s Instance) Shutdown(onError func(error)) {
 	}
 }
 
-func (s Instance) Stacktrace() {
+func (s *Instance) Stacktrace() {
 	log.Info("Waiting for the server completion report to be generated")
 
 	<-time.After(time.Second * 2)

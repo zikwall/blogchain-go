@@ -15,11 +15,11 @@ type AuthResponse struct {
 	User  repositories.PublicUser `json:"user"`
 }
 
-func (hc HttpController) Logout(ctx *fiber.Ctx) error {
+func (hc *HttpController) Logout(ctx *fiber.Ctx) error {
 	return ctx.JSON(hc.message("Successfully logout"))
 }
 
-func (hc HttpController) Login(ctx *fiber.Ctx) error {
+func (hc *HttpController) Login(ctx *fiber.Ctx) error {
 	form := &forms.LoginForm{}
 
 	if err := ctx.BodyParser(&form); err != nil {
@@ -38,7 +38,7 @@ func (hc HttpController) Login(ctx *fiber.Ctx) error {
 	}
 
 	if !result.Exist() || !utils.BlogchainPasswordCorrectness(result.PasswordHash, form.Password) {
-		return exceptions.Wrap("login", errors.New("incorrect password was entered or the user doesn't exist."))
+		return exceptions.Wrap("login", errors.New("incorrect password was entered or the user doesn't exist"))
 	}
 
 	claims := &jwt.TokenClaims{
@@ -57,7 +57,7 @@ func (hc HttpController) Login(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc HttpController) Register(ctx *fiber.Ctx) error {
+func (hc *HttpController) Register(ctx *fiber.Ctx) error {
 	form := &forms.RegisterForm{}
 
 	if err := ctx.BodyParser(&form); err != nil {
@@ -76,7 +76,7 @@ func (hc HttpController) Register(ctx *fiber.Ctx) error {
 	}
 
 	if result.Exist() {
-		return exceptions.Wrap("register", errors.New("this name or email already exist."))
+		return exceptions.Wrap("register", errors.New("this name or email already exist"))
 	}
 
 	result, err = context.CreateUser(form)

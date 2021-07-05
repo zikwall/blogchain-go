@@ -17,9 +17,9 @@ type ContentRepository struct {
 	Repository
 }
 
-func UseContentRepository(context context.Context, conn *database.Connection) ContentRepository {
+func UseContentRepository(ctx context.Context, conn *database.Connection) ContentRepository {
 	return ContentRepository{
-		Repository{connection: conn, context: context},
+		Repository{connection: conn, context: ctx},
 	}
 }
 
@@ -34,7 +34,7 @@ func (cr ContentRepository) withFullUserProfile() *builder.SelectDataset {
 	return query
 }
 
-func (cr ContentRepository) UserContent(contentId int64, id int64) (Content, error) {
+func (cr ContentRepository) UserContent(contentId, id int64) (Content, error) {
 	var content Content
 
 	query := cr.find()
@@ -94,14 +94,14 @@ func (cr ContentRepository) CreateContent(form *forms.ContentForm) (Content, err
 		return Content{}, err
 	}
 
-	if err = cr.upsertTags(content, form, false); err != nil {
+	if err := cr.upsertTags(&content, form, false); err != nil {
 		return Content{}, err
 	}
 
 	return content, err
 }
 
-func (cr ContentRepository) UpdateContent(content Content, form *forms.ContentForm) error {
+func (cr ContentRepository) UpdateContent(content *Content, form *forms.ContentForm) error {
 	record := builder.Record{
 		"title":      form.Title,
 		"content":    form.Content,
@@ -131,7 +131,7 @@ func (cr ContentRepository) UpdateContent(content Content, form *forms.ContentFo
 	return nil
 }
 
-func (cr ContentRepository) upsertTags(content Content, form *forms.ContentForm, update bool) error {
+func (cr ContentRepository) upsertTags(content *Content, form *forms.ContentForm, update bool) error {
 	if form.Tags != "" {
 		tags := []int{}
 
@@ -177,7 +177,7 @@ func (cr ContentRepository) upsertTags(content Content, form *forms.ContentForm,
 	return nil
 }
 
-func (cr ContentRepository) FindAllByUser(userid int64, page int64) ([]PublicContent, error, float64) {
+func (cr ContentRepository) FindAllByUser(userid, page int64) ([]PublicContent, error, float64) {
 	query := cr.withFullUserProfile().Where(
 		builder.I("user.id").Eq(userid),
 	)
@@ -197,7 +197,7 @@ func (cr ContentRepository) FindAllByUser(userid int64, page int64) ([]PublicCon
 	return response, nil, count
 }
 
-func (cr ContentRepository) FindContentByIdAndUser(id int64, userid int64) (Content, error) {
+func (cr ContentRepository) FindContentByIDAndUser(id, userid int64) (Content, error) {
 	query := cr.withFullUserProfile().Where(
 		builder.And(
 			builder.I("content.id").Eq(id),
@@ -219,7 +219,7 @@ func (cr ContentRepository) FindContentByIdAndUser(id int64, userid int64) (Cont
 	return content, nil
 }
 
-func (cr ContentRepository) FindContentById(id int64) (Content, error) {
+func (cr ContentRepository) FindContentByID(id int64) (Content, error) {
 	query := cr.withFullUserProfile().Where(
 		builder.I("content.id").Eq(id),
 	)
@@ -314,17 +314,16 @@ func withProfileQuery(query *builder.SelectDataset) *builder.SelectDataset {
 	return query
 }
 
-func withMutableResponse(context context.Context, conn *database.Connection, contents []Content) ([]PublicContent, error) {
+func withMutableResponse(ctx context.Context, conn *database.Connection, contents []Content) ([]PublicContent, error) {
 	idx := make([]interface{}, 0, len(contents))
 	contentMap := make(map[int64]*Content, len(contents))
 
-	for _, content := range contents {
-		c := content
-		contentMap[content.Id] = &c
-		idx = append(idx, fmt.Sprintf("%v", content.Id))
+	for i := range contents {
+		contentMap[contents[i].Id] = &contents[i]
+		idx = append(idx, fmt.Sprintf("%v", contents[i].Id))
 	}
 
-	tags, err := UseTagRepository(context, conn).ContentGroupedTags(idx...)
+	tags, err := UseTagRepository(ctx, conn).ContentGroupedTags(idx...)
 
 	if err != nil {
 		return nil, err

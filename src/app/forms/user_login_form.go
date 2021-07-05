@@ -12,5 +12,5 @@ func (l *LoginForm) Validate() error {
 		return nil
 	}
 
-	return errors.New("Username or password is empty")
+	return errors.New("username or password is empty")
 }

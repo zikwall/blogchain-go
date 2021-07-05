@@ -23,7 +23,7 @@ func viewersAggregateQuery() *builder.SelectDataset {
 		)
 }
 
-func GetPostViewersCount(context context.Context, ch *clickhouse.Clickhouse, post int64) (uint64, error) {
+func GetPostViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, post int64) (uint64, error) {
 	var count uint64
 	var postId int64
 
@@ -35,7 +35,7 @@ func GetPostViewersCount(context context.Context, ch *clickhouse.Clickhouse, pos
 		).
 		ToSQL()
 
-	if err := ch.Query().QueryRowContext(context, rawQuery).Scan(&postId, &count); err != nil {
+	if err := ch.Query().QueryRowContext(ctx, rawQuery).Scan(&postId, &count); err != nil {
 		return 0, err
 	}
 
@@ -45,7 +45,7 @@ func GetPostViewersCount(context context.Context, ch *clickhouse.Clickhouse, pos
 	return count, nil
 }
 
-func GetPostsViewersCount(context context.Context, ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
+func GetPostsViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
 	var views []Viewers
 	counts := map[int64]uint64{}
 
@@ -56,7 +56,7 @@ func GetPostsViewersCount(context context.Context, ch *clickhouse.Clickhouse, po
 			),
 		).ToSQL()
 
-	if err := ch.Query().SelectContext(context, &views, rawQuery); err != nil {
+	if err := ch.Query().SelectContext(ctx, &views, rawQuery); err != nil {
 		return counts, err
 	}
 

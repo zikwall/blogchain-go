@@ -26,7 +26,7 @@ type Meta struct {
 	Pages float64 `json:"pages"`
 }
 
-func (hc HttpController) Content(ctx *fiber.Ctx) error {
+func (hc *HttpController) Content(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (hc HttpController) Content(ctx *fiber.Ctx) error {
 	}
 
 	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
-		FindContentById(id)
+		FindContentByID(id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find content by id", err)
@@ -52,7 +52,7 @@ func (hc HttpController) Content(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc HttpController) Contents(ctx *fiber.Ctx) error {
+func (hc *HttpController) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
 	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
@@ -71,7 +71,7 @@ func (hc HttpController) Contents(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc HttpController) ContentsUser(ctx *fiber.Ctx) error {
+func (hc *HttpController) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
@@ -94,18 +94,18 @@ func (hc HttpController) ContentsUser(ctx *fiber.Ctx) error {
 	}))
 }
 
-func withStatsContext(context context.Context, ch *clickhouse.Clickhouse, cs []repositories.PublicContent) map[int64]uint64 {
+func withStatsContext(ctx context.Context, ch *clickhouse.Clickhouse, cs []repositories.PublicContent) map[int64]uint64 {
 	if len(cs) == 0 {
 		return map[int64]uint64{}
 	}
 
 	ids := make([]int64, 0, len(cs))
 
-	for _, c := range cs {
-		ids = append(ids, c.Id)
+	for i := range cs {
+		ids = append(ids, cs[i].Id)
 	}
 
-	viewers, err := statistic.GetPostsViewersCount(context, ch, ids...)
+	viewers, err := statistic.GetPostsViewersCount(ctx, ch, ids...)
 
 	if err != nil {
 		log.Warning(err)

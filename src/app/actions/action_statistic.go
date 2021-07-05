@@ -21,7 +21,7 @@ func (hc *HttpController) PushPostStats(ctx *fiber.Ctx) error {
 	now := time.Now()
 	ip := fmt.Sprintf("%v", ctx.Locals("ip"))
 
-	stats := statistic.PostStats{
+	stats := &statistic.PostStats{
 		PostId:   data.PostId,
 		OwnerId:  data.OwnerId,
 		Os:       "",
@@ -49,14 +49,14 @@ func (hc *HttpController) PushPostStats(ctx *fiber.Ctx) error {
 	return ctx.Status(200).SendString("OK")
 }
 
-func withFinderAttributes(stats statistic.PostStats, result maxmind.FindResult) statistic.PostStats {
+func withFinderAttributes(stats *statistic.PostStats, result maxmind.FindResult) *statistic.PostStats {
 	stats.Region = result.Region
 	stats.Country = result.Country
 
 	return stats
 }
 
-func withUserAgent(stats statistic.PostStats, userAgent string) statistic.PostStats {
+func withUserAgent(stats *statistic.PostStats, userAgent string) *statistic.PostStats {
 	ua := user_agent.New(userAgent)
 
 	stats.Os = ua.OS()

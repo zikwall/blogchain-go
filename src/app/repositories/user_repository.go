@@ -16,9 +16,9 @@ type UserRepository struct {
 	Repository
 }
 
-func UseUserRepository(context context.Context, conn *database.Connection) UserRepository {
+func UseUserRepository(ctx context.Context, conn *database.Connection) UserRepository {
 	return UserRepository{
-		Repository{connection: conn, context: context},
+		Repository{connection: conn, context: ctx},
 	}
 }
 
@@ -67,7 +67,7 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 		return User{}, err
 	}
 
-	if err = ur.AttachProfile(r, &user); err != nil {
+	if err := ur.AttachProfile(r, &user); err != nil {
 		return User{}, err
 	}
 
@@ -108,7 +108,7 @@ func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error 
 	return nil
 }
 
-func (ur UserRepository) FindByUsernameOrEmail(username string, email string) (User, error) {
+func (ur UserRepository) FindByUsernameOrEmail(username, email string) (User, error) {
 	user := User{}
 	found, err := onUsernameOrMailCondition(ur.find(), username, email).
 		ScanStructContext(ur.context, &user)
@@ -138,7 +138,7 @@ func (ur UserRepository) FindByCredentials(credentials string) (User, error) {
 	return user, err
 }
 
-func (ur UserRepository) FindById(id int64) (User, error) {
+func (ur UserRepository) FindByID(id int64) (User, error) {
 	user := User{}
 	found, err := ur.find().
 		Where(

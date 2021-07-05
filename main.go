@@ -142,7 +142,7 @@ func main() {
 				EnvVars: []string{"MAXMIND_FILEPATH"},
 			},
 
-			//cdn
+			// cdn
 			&cli.StringFlag{
 				Name:    "cdn-host",
 				Usage:   "",
@@ -172,8 +172,8 @@ func main() {
 	application.Action = func(c *cli.Context) error {
 		blogchain, err := service.CreateService(
 			context.Background(),
-			service.Configuration{
-				DatabaseConfiguration: database.Configuration{
+			&service.Configuration{
+				DatabaseConfiguration: &database.Configuration{
 					Host:     c.String("database-host"),
 					User:     c.String("database-user"),
 					Password: c.String("database-password"),
@@ -182,7 +182,7 @@ func main() {
 					Debug:    c.Bool("debug"),
 				},
 				Container: container.Configuration{},
-				ClickhouseConfiguration: clickhouse.Configuration{
+				ClickhouseConfiguration: &clickhouse.Configuration{
 					Address:  c.String("clickhouse-address"),
 					User:     c.String("clickhouse-user"),
 					Password: c.String("clickhouse-password"),
@@ -216,7 +216,7 @@ func main() {
 		app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
 
 		app.Use(
-			middlewares.WithBlogchainCORSPolicy(service.HttpAccessControl{
+			middlewares.WithBlogchainCORSPolicy(&service.HTTPAccessControl{
 				AllowOrigins:     "*",
 				AllowMethods:     "*",
 				AllowHeaders:     "*",
@@ -243,7 +243,7 @@ func main() {
 			return err
 		}
 
-		httpController := actions.CreateHttpControllerWithCopy(blogchain.Context, actions.HttpController{
+		httpController := actions.CreateHttpControllerWithCopy(&actions.HttpController{
 			RSA:              &rsa,
 			Db:               blogchain.GetDatabaseConnection(),
 			Clickhouse:       blogchain.Clickhouse,
@@ -256,47 +256,37 @@ func main() {
 			middlewares.WithBlogchainJWTAuthorization(&rsa),
 			middlewares.WithBlogchainUserIdentity(blogchain),
 		)
-		{
-			api.Get("/healthcheck", actions.HealthCheck)
-			api.Get("/runtime", actions.RuntimeStatistic(
-				blogchain.Container.GetStartedAt(),
-			))
+		api.Get("/healthcheck", actions.HealthCheck)
+		api.Get("/runtime", actions.RuntimeStatistic(
+			blogchain.Container.GetStartedAt(),
+		))
 
-			v1 := api.Group("/v1")
-			{
-				v1.Get("/profile/:username", httpController.Profile)
-				v1.Get("/content/:id", httpController.Content)
-				v1.Get("/contents/:page?", httpController.Contents)
-				v1.Get("/tag/:tag/:page?", httpController.Contents)
-				v1.Get("/tags", httpController.Tags)
-				v1.Get("/contents/user/:id/:page?", httpController.ContentsUser)
-			}
+		v1 := api.Group("/v1")
+		v1.Get("/profile/:username", httpController.Profile)
+		v1.Get("/content/:id", httpController.Content)
+		v1.Get("/contents/:page?", httpController.Contents)
+		v1.Get("/tag/:tag/:page?", httpController.Contents)
+		v1.Get("/tags", httpController.Tags)
+		v1.Get("/contents/user/:id/:page?", httpController.ContentsUser)
 
-			withAccessControlPolicy := api.Use(
-				middlewares.UseBlogchainAccessControlPolicy,
-			)
+		withAccessControlPolicy := api.Use(
+			middlewares.UseBlogchainAccessControlPolicy,
+		)
 
-			editor := withAccessControlPolicy.Group("/editor")
-			{
-				editor.Get("/content/:id", httpController.ContentInformation)
-				editor.Post("/content/add", httpController.ContentCreate)
-				editor.Post("/content/update/:id", httpController.ContentUpdate)
-			}
-		}
+		editor := withAccessControlPolicy.Group("/editor")
+		editor.Get("/content/:id", httpController.ContentInformation)
+		editor.Post("/content/add", httpController.ContentCreate)
+		editor.Post("/content/update/:id", httpController.ContentUpdate)
 
 		// authorization & authentication endpoints
 		auth := app.Group("/auth", middlewares.UseBlogchainSignPolicy)
-		{
-			auth.Post("/register", httpController.Register)
-			auth.Post("/login", httpController.Login)
-			auth.Post("/logout", httpController.Logout)
-		}
+		auth.Post("/register", httpController.Register)
+		auth.Post("/login", httpController.Login)
+		auth.Post("/logout", httpController.Logout)
 
 		// statistic endpoints
 		stats := app.Group("/statistic")
-		{
-			stats.Post("/post/push", httpController.PushPostStats)
-		}
+		stats.Post("/post/push", httpController.PushPostStats)
 
 		await, stop := notifier(conf{
 			onSignal: func() {
@@ -330,9 +320,9 @@ func main() {
 	}
 }
 
-func resolveListener(context context.Context, listener int, uds, tcp string) (net.Listener, error) {
+func resolveListener(ctx context.Context, listener int, uds, tcp string) (net.Listener, error) {
 	if listener == ListenerUDS {
-		defer maybeChmodSocket(context, uds)
+		defer maybeChmodSocket(ctx, uds)
 		ln, err := listenToUnix(uds)
 
 		return ln, err

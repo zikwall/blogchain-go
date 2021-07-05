@@ -6,7 +6,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/service"
 )
 
-func WithBlogchainCORSPolicy(http service.HttpAccessControl) fiber.Handler {
+func WithBlogchainCORSPolicy(http *service.HTTPAccessControl) fiber.Handler {
 	return cors.New(
 		cors.Config{
 			AllowOrigins:     http.AllowOrigins,

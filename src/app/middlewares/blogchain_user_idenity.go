@@ -14,7 +14,7 @@ func WithBlogchainUserIdentity(blogchain *service.Instance) fiber.Handler {
 		claims := ctx.Locals("claims")
 
 		if token, ok := claims.(*jwt.TokenClaims); ok {
-			i, err := repositories.UseUserRepository(ctx.Context(), blogchain.GetDatabaseConnection()).FindById(token.UUID)
+			i, err := repositories.UseUserRepository(ctx.Context(), blogchain.GetDatabaseConnection()).FindByID(token.UUID)
 
 			if err == nil {
 				instance = &i

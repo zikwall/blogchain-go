@@ -23,14 +23,14 @@ func congratulations() {
 	log.Info("Congratulations, the Blogchain server has been successfully launched")
 }
 
-func notifier(r conf) (func() error, func(err ...error)) {
+func notifier(r conf) (wait func() error, stop func(err ...error)) {
 	congratulations()
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	err := make(chan error, 1)
 
-	wait := func() error {
+	wait = func() error {
 		// wait signal for the close application
 		<-sig
 
@@ -48,7 +48,7 @@ func notifier(r conf) (func() error, func(err ...error)) {
 	}
 
 	// add send error to await function
-	stop := func(e ...error) {
+	stop = func(e ...error) {
 		if len(e) > 0 {
 			err <- e[0]
 		}
@@ -78,9 +78,7 @@ func listenToUnix(bind string) (net.Listener, error) {
 
 func maybeChmodSocket(c context.Context, sock string) {
 	ctx, cancel := context.WithTimeout(c, 500*time.Millisecond)
-	defer func() {
-		cancel()
-	}()
+	defer cancel()
 
 	// on Linux and similar systems, there may be problems with the rights to the UDS socket
 	go func() {

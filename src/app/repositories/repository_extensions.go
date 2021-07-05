@@ -17,22 +17,24 @@ func joinWith(query *builder.SelectDataset, joins ...joinFn) *builder.SelectData
 	return query
 }
 
-func queryCount(context context.Context, query *builder.SelectDataset, pageSize uint) (float64, error) {
+func queryCount(ctx context.Context, query *builder.SelectDataset, pageSize uint) (float64, error) {
 	var count int64
 	var countPages float64
 	var err error
 	cloneQuery := *query
 
-	if count, err = cloneQuery.CountContext(context); err == nil {
+	if count, err = cloneQuery.CountContext(ctx); err == nil {
 		countPages = math.Ceil(float64(count) / float64(pageSize))
 	}
 
 	return countPages, exceptions.ThrowPrivateError(err)
 }
 
-func withPagination(context context.Context, query *builder.SelectDataset, page, size uint) (*builder.SelectDataset, float64) {
-	countPages, _ := queryCount(context, query, size)
-	query = query.Offset(page * size).Limit(size)
+func withPagination(ctx context.Context, query *builder.SelectDataset, page, size uint) (
+	pquery *builder.SelectDataset, count float64,
+) {
+	count, _ = queryCount(ctx, query, size)
+	pquery = query.Offset(page * size).Limit(size)
 
-	return query, countPages
+	return pquery, count
 }

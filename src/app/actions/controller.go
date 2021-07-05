@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"context"
 	"github.com/zikwall/blogchain/src/app/lib/upload"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/container"
@@ -23,7 +22,7 @@ type HttpController struct {
 	Uploader         upload.Uploader
 }
 
-func CreateHttpControllerWithCopy(context context.Context, p HttpController) *HttpController {
+func CreateHttpControllerWithCopy(p *HttpController) *HttpController {
 	tableView := api.View{
 		Name: "blogchain.post_stats",
 		Columns: []string{
@@ -47,13 +46,13 @@ func CreateHttpControllerWithCopy(context context.Context, p HttpController) *Ht
 	}
 }
 
-func (hc HttpController) response(response interface{}) Response {
+func (hc *HttpController) response(response interface{}) Response {
 	return Response{
 		Response: response,
 	}
 }
 
-func (hc HttpController) message(message string) MessageResponse {
+func (hc *HttpController) message(message string) MessageResponse {
 	return MessageResponse{
 		Status:  200,
 		Message: message,
