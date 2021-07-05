@@ -98,9 +98,8 @@ func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 	return b, nil
 }
 
-// nolint:stylecheck // reason
-func (b *Instance) Database() *database.Connection {
-	return b.database
+func (s *Instance) Database() *database.Connection {
+	return s.database
 }
 
 func (s *Instance) Shutdown(onError func(error)) {

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	builder "github.com/doug-martin/goqu/v9"
+	// nolint:golint // reason
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/zikwall/blogchain/src/platform/log"
