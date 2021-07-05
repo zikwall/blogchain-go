@@ -17,7 +17,7 @@ type PostStats struct {
 	Date     string `json:"date"`
 }
 
-func (b PostStats) Row() types.RowSlice {
+func (b *PostStats) Row() types.RowSlice {
 	return []interface{}{
 		b.PostId,
 		b.OwnerId,
