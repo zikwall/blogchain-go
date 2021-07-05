@@ -9,7 +9,7 @@ type (
 	Configuration struct{}
 )
 
-func NewBlogchainServiceContainer(c Configuration) *Container {
+func NewBlogchainServiceContainer() *Container {
 	return &Container{
 		startedAt: time.Now(),
 	}

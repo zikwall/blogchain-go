@@ -49,7 +49,7 @@ type HTTPAccessControl struct {
 
 func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 	b := new(Instance)
-	b.Container = container.NewBlogchainServiceContainer(c.Container)
+	b.Container = container.NewBlogchainServiceContainer()
 	b.Context, b.cancelRootContext = context.WithCancel(ctx)
 
 	finder, err := maxmind.CreateFinder(c.FinderConfig)
