@@ -40,7 +40,7 @@ linters:
     - gocyclo
     #- gofmt
     #- goimports
-    #- golint
+    - golint
     - gosec
     - gosimple
     - govet
@@ -51,8 +51,8 @@ linters:
     - nakedret
     - scopelint
     - staticcheck
-    #- structcheck
-    #- stylecheck
+    - structcheck
+    - stylecheck
     - typecheck
     - unconvert
     - unparam
