@@ -34,13 +34,13 @@ func (cr ContentRepository) withFullUserProfile() *builder.SelectDataset {
 	return query
 }
 
-func (cr ContentRepository) UserContent(contentId, id int64) (Content, error) {
+func (cr ContentRepository) UserContent(contentID, id int64) (Content, error) {
 	var content Content
 
 	query := cr.find()
 	query = withUserQuery(query).Where(
 		builder.And(
-			builder.I("content.id").Eq(contentId),
+			builder.I("content.id").Eq(contentID),
 			builder.I("user.id").Eq(id),
 		),
 	)
@@ -52,7 +52,7 @@ func (cr ContentRepository) UserContent(contentId, id int64) (Content, error) {
 		return Content{}, exceptions.ThrowPublicError(errors.New("user content was not found"))
 	}
 
-	tags, err := fetchContentTags(cr.Context(), cr.Connection(), content.Id)
+	tags, err := fetchContentTags(cr.Context(), cr.Connection(), content.ID)
 	if err != nil {
 		return Content{}, err
 	}
@@ -65,13 +65,13 @@ func (cr ContentRepository) CreateContent(form *forms.ContentForm) (Content, err
 	content := Content{}
 	content.Content = form.Content
 	content.Title = form.Title
-	content.UserId = form.UserId
+	content.UserID = form.UserID
 	content.Annotation = form.Annotation
-	content.Uuid = form.UUID
+	content.UUID = form.UUID
 
 	record := builder.Record{
-		"uuid":       content.Uuid,
-		"user_id":    content.UserId,
+		"uuid":       content.UUID,
+		"user_id":    content.UserID,
 		"title":      content.Title,
 		"content":    content.Content,
 		"annotation": form.Annotation,
@@ -90,7 +90,7 @@ func (cr ContentRepository) CreateContent(form *forms.ContentForm) (Content, err
 		return Content{}, err
 	}
 
-	if content.Id, err = status.LastInsertId(); err != nil {
+	if content.ID, err = status.LastInsertId(); err != nil {
 		return Content{}, err
 	}
 
@@ -115,7 +115,7 @@ func (cr ContentRepository) UpdateContent(content *Content, form *forms.ContentF
 		Update("content").
 		Set(record).
 		Where(
-			builder.C("id").Eq(content.Id),
+			builder.C("id").Eq(content.ID),
 		).
 		Executor().
 		ExecContext(cr.Context())
@@ -144,7 +144,7 @@ func (cr ContentRepository) upsertTags(content *Content, form *forms.ContentForm
 				Builder().
 				Delete("content_tag").
 				Where(
-					builder.C("content_id").Eq(content.Id),
+					builder.C("content_id").Eq(content.ID),
 				).
 				Executor().
 				ExecContext(cr.Context())
@@ -157,7 +157,7 @@ func (cr ContentRepository) upsertTags(content *Content, form *forms.ContentForm
 		records := make([]builder.Record, 0, len(tags))
 		for _, v := range tags {
 			records = append(records, builder.Record{
-				"content_id": content.Id,
+				"content_id": content.ID,
 				"tag_id":     v,
 			})
 		}
@@ -177,7 +177,7 @@ func (cr ContentRepository) upsertTags(content *Content, form *forms.ContentForm
 	return nil
 }
 
-func (cr ContentRepository) FindAllByUser(userid, page int64) ([]PublicContent, error, float64) {
+func (cr ContentRepository) FindAllByUser(userid, page int64) ([]PublicContent, float64, error) {
 	query := cr.withFullUserProfile().Where(
 		builder.I("user.id").Eq(userid),
 	)
@@ -185,16 +185,16 @@ func (cr ContentRepository) FindAllByUser(userid, page int64) ([]PublicContent, 
 
 	var content []Content
 	if err := query.ScanStructsContext(cr.Context(), &content); err != nil {
-		return nil, exceptions.ThrowPrivateError(err), 0
+		return nil, 0, exceptions.ThrowPrivateError(err)
 	}
 
 	response, err := withMutableResponse(cr.Context(), cr.Connection(), content)
 
 	if err != nil {
-		return nil, err, 0
+		return nil, 0, err
 	}
 
-	return response, nil, count
+	return response, count, nil
 }
 
 func (cr ContentRepository) FindContentByIDAndUser(id, userid int64) (Content, error) {
@@ -238,7 +238,7 @@ func (cr ContentRepository) FindContentByID(id int64) (Content, error) {
 	return content, nil
 }
 
-func (cr ContentRepository) FindAllContent(label string, page int64) ([]PublicContent, error, float64) {
+func (cr ContentRepository) FindAllContent(label string, page int64) ([]PublicContent, float64, error) {
 	query := cr.withFullUserProfile()
 
 	if !strings.EqualFold(label, "") {
@@ -263,16 +263,16 @@ func (cr ContentRepository) FindAllContent(label string, page int64) ([]PublicCo
 
 	var content []Content
 	if err := query.ScanStructsContext(cr.Context(), &content); err != nil {
-		return nil, exceptions.ThrowPrivateError(err), 0
+		return nil, 0, exceptions.ThrowPrivateError(err)
 	}
 
 	response, err := withMutableResponse(cr.Context(), cr.Connection(), content)
 
 	if err != nil {
-		return nil, err, 0
+		return nil, 0, err
 	}
 
-	return response, nil, count
+	return response, count, nil
 }
 
 // избавиться
@@ -319,8 +319,8 @@ func withMutableResponse(ctx context.Context, conn *database.Connection, content
 	contentMap := make(map[int64]*Content, len(contents))
 
 	for i := range contents {
-		contentMap[contents[i].Id] = &contents[i]
-		idx = append(idx, fmt.Sprintf("%v", contents[i].Id))
+		contentMap[contents[i].ID] = &contents[i]
+		idx = append(idx, fmt.Sprintf("%v", contents[i].ID))
 	}
 
 	tags, err := UseTagRepository(ctx, conn).ContentGroupedTags(idx...)

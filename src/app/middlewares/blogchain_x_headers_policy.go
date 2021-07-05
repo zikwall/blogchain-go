@@ -12,7 +12,7 @@ const (
 	XHeaderBlogchainPlatform   = "X-Platform"
 	XHeaderBlogchainAppVersion = "X-App-Version"
 	XHeaderBlogchainDeviceName = "X-Device-Name"
-	XHeaderBlogchainDeviceID   = "X-Device-Id"
+	XHeaderBlogchainDeviceID   = "X-Device-ID"
 )
 
 type (

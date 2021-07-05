@@ -245,7 +245,7 @@ func main() {
 
 		httpController := actions.CreateHTTPControllerWithCopy(&actions.HTTPController{
 			RSA:              &rsa,
-			Db:               blogchain.GetDatabaseConnection(),
+			DB:               blogchain.Database(),
 			Clickhouse:       blogchain.Clickhouse,
 			ClickhouseBuffer: blogchain.ChBuffer,
 			Finder:           blogchain.Finder,

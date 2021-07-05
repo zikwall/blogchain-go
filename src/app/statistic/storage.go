@@ -7,7 +7,7 @@ import (
 )
 
 type Viewers struct {
-	PostId int64  `db:"post_id"`
+	PostID int64  `db:"post_id"`
 	Views  uint64 `db:"views"`
 }
 
@@ -25,7 +25,7 @@ func viewersAggregateQuery() *builder.SelectDataset {
 
 func GetPostViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, post int64) (uint64, error) {
 	var count uint64
-	var postId int64
+	var postID int64
 
 	rawQuery, _, _ := viewersAggregateQuery().
 		Where(
@@ -35,7 +35,7 @@ func GetPostViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, post in
 		).
 		ToSQL()
 
-	if err := ch.Query().QueryRowContext(ctx, rawQuery).Scan(&postId, &count); err != nil {
+	if err := ch.Query().QueryRowContext(ctx, rawQuery).Scan(&postID, &count); err != nil {
 		return 0, err
 	}
 
@@ -61,7 +61,7 @@ func GetPostsViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, posts 
 	}
 
 	for _, view := range views {
-		counts[view.PostId] = view.Views
+		counts[view.PostID] = view.Views
 	}
 
 	return counts, nil

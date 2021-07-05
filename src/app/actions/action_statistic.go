@@ -22,15 +22,15 @@ func (hc *HTTPController) PushPostStats(ctx *fiber.Ctx) error {
 	ip := fmt.Sprintf("%v", ctx.Locals("ip"))
 
 	stats := &statistic.PostStats{
-		PostId:   data.PostId,
-		OwnerId:  data.OwnerId,
+		PostID:   data.PostID,
+		OwnerID:  data.OwnerID,
 		Os:       "",
 		Browser:  "",
 		Platform: "",
-		Ip:       ip,
+		IP:       ip,
 		Country:  "",
 		Region:   "",
-		InsertTs: utils.Datetime(now),
+		InsertTS: utils.Datetime(now),
 		Date:     utils.Date(now),
 	}
 

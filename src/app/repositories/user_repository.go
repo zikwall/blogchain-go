@@ -38,8 +38,8 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 	user.PasswordHash = string(hash)
 	user.Email = r.Email
 	user.Username = r.Username
-	user.RegistrationIp = sql.NullString{
-		String: r.RegistrationIp,
+	user.RegistrationIP = sql.NullString{
+		String: r.RegistrationIP,
 		Valid:  false,
 	}
 	user.CreatedAt.Int64 = time.Now().Unix()
@@ -48,7 +48,7 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 		"password_hash":   user.PasswordHash,
 		"email":           user.Email,
 		"username":        user.Username,
-		"registration_ip": user.RegistrationIp,
+		"registration_ip": user.RegistrationIP,
 		"created_at":      user.ConfirmedAt,
 	}
 
@@ -63,7 +63,7 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 		return User{}, err
 	}
 
-	if user.Id, err = status.LastInsertId(); err != nil {
+	if user.ID, err = status.LastInsertId(); err != nil {
 		return User{}, err
 	}
 
@@ -76,7 +76,7 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 
 func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error {
 	profile := Profile{
-		userId:      user.Id,
+		userID:      user.ID,
 		Name:        r.Name,
 		PublicEmail: r.PublicEmail,
 		Avatar: sql.NullString{
@@ -86,7 +86,7 @@ func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error 
 	}
 
 	record := builder.Record{
-		"user_id":      profile.userId,
+		"user_id":      profile.userID,
 		"name":         profile.Name,
 		"public_email": profile.PublicEmail,
 		"avatar":       profile.Avatar,

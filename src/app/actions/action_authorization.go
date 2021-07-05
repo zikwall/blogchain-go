@@ -30,7 +30,7 @@ func (hc *HTTPController) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	result, err := repositories.UseUserRepository(ctx.Context(), hc.Db).
+	result, err := repositories.UseUserRepository(ctx.Context(), hc.DB).
 		FindByCredentials(form.Username)
 
 	if err != nil {
@@ -42,7 +42,7 @@ func (hc *HTTPController) Login(ctx *fiber.Ctx) error {
 	}
 
 	claims := &jwt.TokenClaims{
-		UUID: result.GetId(),
+		UUID: result.GetID(),
 	}
 
 	token, err := jwt.CreateJwtToken(claims, 1000, hc.RSA.GetPrivateKey())
@@ -68,7 +68,7 @@ func (hc *HTTPController) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	context := repositories.UseUserRepository(ctx.Context(), hc.Db)
+	context := repositories.UseUserRepository(ctx.Context(), hc.DB)
 	result, err := context.FindByUsernameOrEmail(form.Username, form.Email)
 
 	if err != nil {
@@ -86,7 +86,7 @@ func (hc *HTTPController) Register(ctx *fiber.Ctx) error {
 	}
 
 	claims := &jwt.TokenClaims{
-		UUID: result.GetId(),
+		UUID: result.GetID(),
 	}
 
 	token, err := jwt.CreateJwtToken(claims, 100, hc.RSA.GetPrivateKey())

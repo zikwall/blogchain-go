@@ -11,7 +11,7 @@ type TagResponse struct {
 }
 
 func (hc *HTTPController) Tags(ctx *fiber.Ctx) error {
-	tags, err := repositories.UseTagRepository(ctx.Context(), hc.Db).All()
+	tags, err := repositories.UseTagRepository(ctx.Context(), hc.DB).All()
 
 	if err != nil {
 		return exceptions.Wrap("failed find all tags", err)

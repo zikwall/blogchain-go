@@ -14,7 +14,7 @@ import (
 // and encapsulates access to services such as databases, redis, etc.
 type HTTPController struct {
 	RSA              container.RSA
-	Db               *database.Connection
+	DB               *database.Connection
 	Clickhouse       *clickhouse.Clickhouse
 	ClickhouseBuffer *clickhouse.BufferAdapter
 	writeAPI         api.Writer
@@ -37,7 +37,7 @@ func CreateHTTPControllerWithCopy(p *HTTPController) *HTTPController {
 
 	return &HTTPController{
 		RSA:              p.RSA,
-		Db:               p.Db,
+		DB:               p.DB,
 		Clickhouse:       p.Clickhouse,
 		ClickhouseBuffer: p.ClickhouseBuffer,
 		Finder:           p.Finder,

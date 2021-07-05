@@ -7,7 +7,7 @@ type RegisterForm struct {
 	Username       string `json:"username"`
 	Password       string `json:"password"`
 	PasswordRepeat string `json:"password_repeat"`
-	RegistrationIp string
+	RegistrationIP string
 	Name           string `json:"name"`
 	PublicEmail    string `json:"public_email"`
 	Avatar         string `json:"avatar"`

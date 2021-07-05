@@ -33,14 +33,14 @@ func (hc *HTTPController) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.ThrowPublicError(err))
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
 		FindContentByID(id)
 
 	if err != nil {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.Clickhouse, result.Id)
+	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.Clickhouse, result.ID)
 
 	if err != nil {
 		log.Warning(err)
@@ -55,7 +55,7 @@ func (hc *HTTPController) Content(ctx *fiber.Ctx) error {
 func (hc *HTTPController) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
-	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
+	contents, count, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
 		FindAllContent(tag, extractPageFromContext(ctx))
 
 	if err != nil {
@@ -78,7 +78,7 @@ func (hc *HTTPController) ContentsUser(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse user id", err)
 	}
 
-	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
+	contents, count, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
 		FindAllByUser(user, extractPageFromContext(ctx))
 
 	if err != nil {
@@ -102,7 +102,7 @@ func withStatsContext(ctx context.Context, ch *clickhouse.Clickhouse, cs []repos
 	ids := make([]int64, 0, len(cs))
 
 	for i := range cs {
-		ids = append(ids, cs[i].Id)
+		ids = append(ids, cs[i].ID)
 	}
 
 	viewers, err := statistic.GetPostsViewersCount(ctx, ch, ids...)

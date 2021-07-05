@@ -11,7 +11,7 @@ import (
 )
 
 type ContentCreatedResponse struct {
-	ContentId int64 `json:"content_id"`
+	ContentID int64 `json:"content_id"`
 }
 
 func (hc *HTTPController) ContentInformation(ctx *fiber.Ctx) error {
@@ -21,8 +21,8 @@ func (hc *HTTPController) ContentInformation(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse content id", exceptions.ThrowPublicError(err))
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).
-		UserContent(id, extractUserFromContext(ctx).Id)
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.DB).
+		UserContent(id, extractUserFromContext(ctx).ID)
 
 	if err != nil {
 		return exceptions.Wrap("failed find user content", err)
@@ -46,21 +46,21 @@ func (hc *HTTPController) ContentUpdate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse form body", err)
 	}
 
-	form.UserId = extractUserFromContext(ctx).Id
+	form.UserID = extractUserFromContext(ctx).ID
 
 	if err = form.Validate(); err != nil {
 		return exceptions.Wrap("failed validate form", err)
 	}
 
-	context := repositories.UseContentRepository(ctx.Context(), hc.Db)
-	res, err := context.UserContent(id, form.UserId)
+	context := repositories.UseContentRepository(ctx.Context(), hc.DB)
+	res, err := context.UserContent(id, form.UserID)
 
 	if err != nil {
 		return exceptions.Wrap("failed find user content", err)
 	}
 
 	if img, err := ctx.FormFile("image"); err == nil {
-		filename := createImagePath(res.Uuid)
+		filename := createImagePath(res.UUID)
 		res.Image.String = filename
 
 		file, err := img.Open()
@@ -92,7 +92,7 @@ func (hc *HTTPController) ContentCreate(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed parse form body", err)
 	}
 
-	form.UserId = extractUserFromContext(ctx).Id
+	form.UserID = extractUserFromContext(ctx).ID
 	form.UUID = uuid.NewV4().String()
 
 	if err := form.Validate(); err != nil {
@@ -118,14 +118,14 @@ func (hc *HTTPController) ContentCreate(ctx *fiber.Ctx) error {
 		}
 	}
 
-	result, err := repositories.UseContentRepository(ctx.Context(), hc.Db).CreateContent(form)
+	result, err := repositories.UseContentRepository(ctx.Context(), hc.DB).CreateContent(form)
 
 	if err != nil {
 		return exceptions.Wrap("failed create user content", err)
 	}
 
 	return ctx.Status(200).JSON(hc.response(ContentCreatedResponse{
-		ContentId: result.Id,
+		ContentID: result.ID,
 	}))
 }
 
