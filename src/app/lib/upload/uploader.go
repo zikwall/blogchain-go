@@ -20,8 +20,8 @@ func NewFileUploader(client impl.Client) Uploader {
 	}
 }
 
-func (f FileUploader) UploadFile(context context.Context, name string, file io.Reader) error {
-	return f.uploader.SendFile(context, impl.FileDest{
+func (f FileUploader) UploadFile(ctx context.Context, name string, file io.Reader) error {
+	return f.uploader.SendFile(ctx, impl.FileDest{
 		Name: name,
 		File: file,
 	})
