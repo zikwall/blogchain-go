@@ -41,7 +41,7 @@ func (hc HttpController) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("login", errors.New("incorrect password was entered or the user doesn't exist."))
 	}
 
-	claims := jwt.TokenClaims{
+	claims := &jwt.TokenClaims{
 		UUID: result.GetId(),
 	}
 
@@ -85,7 +85,7 @@ func (hc HttpController) Register(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed create user", err)
 	}
 
-	claims := jwt.TokenClaims{
+	claims := &jwt.TokenClaims{
 		UUID: result.GetId(),
 	}
 
