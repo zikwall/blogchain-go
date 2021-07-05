@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (hc *HttpController) PushPostStats(ctx *fiber.Ctx) error {
+func (hc *HTTPController) PushPostStats(ctx *fiber.Ctx) error {
 	data := &statistic.PostStats{}
 
 	if err := ctx.BodyParser(&data); err != nil {

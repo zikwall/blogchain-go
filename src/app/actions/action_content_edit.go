@@ -14,7 +14,7 @@ type ContentCreatedResponse struct {
 	ContentId int64 `json:"content_id"`
 }
 
-func (hc *HttpController) ContentInformation(ctx *fiber.Ctx) error {
+func (hc *HTTPController) ContentInformation(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
@@ -33,7 +33,7 @@ func (hc *HttpController) ContentInformation(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc *HttpController) ContentUpdate(ctx *fiber.Ctx) error {
+func (hc *HTTPController) ContentUpdate(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
@@ -85,7 +85,7 @@ func (hc *HttpController) ContentUpdate(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(hc.message("Successfully!"))
 }
 
-func (hc *HttpController) ContentCreate(ctx *fiber.Ctx) error {
+func (hc *HTTPController) ContentCreate(ctx *fiber.Ctx) error {
 	form := &forms.ContentForm{}
 
 	if err := ctx.BodyParser(form); err != nil {

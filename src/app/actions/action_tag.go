@@ -10,7 +10,7 @@ type TagResponse struct {
 	Tags []repositories.Tag `json:"tags"`
 }
 
-func (hc *HttpController) Tags(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Tags(ctx *fiber.Ctx) error {
 	tags, err := repositories.UseTagRepository(ctx.Context(), hc.Db).All()
 
 	if err != nil {

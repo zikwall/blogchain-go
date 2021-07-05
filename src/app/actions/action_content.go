@@ -26,7 +26,7 @@ type Meta struct {
 	Pages float64 `json:"pages"`
 }
 
-func (hc *HttpController) Content(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Content(ctx *fiber.Ctx) error {
 	id, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {
@@ -52,7 +52,7 @@ func (hc *HttpController) Content(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc *HttpController) Contents(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Contents(ctx *fiber.Ctx) error {
 	tag := ctx.Params("tag")
 
 	contents, err, count := repositories.UseContentRepository(ctx.Context(), hc.Db).
@@ -71,7 +71,7 @@ func (hc *HttpController) Contents(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc *HttpController) ContentsUser(ctx *fiber.Ctx) error {
+func (hc *HTTPController) ContentsUser(ctx *fiber.Ctx) error {
 	user, err := strconv.ParseInt(ctx.Params("id"), 10, 64)
 
 	if err != nil {

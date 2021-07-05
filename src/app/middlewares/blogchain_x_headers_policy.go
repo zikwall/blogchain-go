@@ -12,7 +12,7 @@ const (
 	XHeaderBlogchainPlatform   = "X-Platform"
 	XHeaderBlogchainAppVersion = "X-App-Version"
 	XHeaderBlogchainDeviceName = "X-Device-Name"
-	XHeaderBlogchainDeviceId   = "X-Device-Id"
+	XHeaderBlogchainDeviceID   = "X-Device-Id"
 )
 
 type (
@@ -21,7 +21,7 @@ type (
 		xPlatform     string
 		xAppVersion   string
 		xDeviceName   string
-		xDeviceId     string
+		xDeviceID     string
 	}
 )
 
@@ -44,7 +44,7 @@ func WithBlogchainXHeaderPolicy() fiber.Handler {
 			xPlatform:     ctx.Get(XHeaderBlogchainPlatform),
 			xAppVersion:   ctx.Get(XHeaderBlogchainAppVersion),
 			xDeviceName:   ctx.Get(XHeaderBlogchainDeviceName),
-			xDeviceId:     ctx.Get(XHeaderBlogchainDeviceId),
+			xDeviceID:     ctx.Get(XHeaderBlogchainDeviceID),
 		}
 
 		if x.IsBlogchainOriginalApp() {

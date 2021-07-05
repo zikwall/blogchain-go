@@ -225,7 +225,7 @@ func main() {
 				MaxAge:           0,
 			}),
 			middlewares.WithBlogchainXHeaderPolicy(),
-			middlewares.UseBlogchainRealIp,
+			middlewares.UseBlogchainRealIP,
 		)
 
 		rsa := container.NewRSAContainer(
@@ -243,7 +243,7 @@ func main() {
 			return err
 		}
 
-		httpController := actions.CreateHttpControllerWithCopy(&actions.HttpController{
+		httpController := actions.CreateHTTPControllerWithCopy(&actions.HTTPController{
 			RSA:              &rsa,
 			Db:               blogchain.GetDatabaseConnection(),
 			Clickhouse:       blogchain.Clickhouse,

@@ -15,11 +15,11 @@ type AuthResponse struct {
 	User  repositories.PublicUser `json:"user"`
 }
 
-func (hc *HttpController) Logout(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Logout(ctx *fiber.Ctx) error {
 	return ctx.JSON(hc.message("Successfully logout"))
 }
 
-func (hc *HttpController) Login(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Login(ctx *fiber.Ctx) error {
 	form := &forms.LoginForm{}
 
 	if err := ctx.BodyParser(&form); err != nil {
@@ -57,7 +57,7 @@ func (hc *HttpController) Login(ctx *fiber.Ctx) error {
 	}))
 }
 
-func (hc *HttpController) Register(ctx *fiber.Ctx) error {
+func (hc *HTTPController) Register(ctx *fiber.Ctx) error {
 	form := &forms.RegisterForm{}
 
 	if err := ctx.BodyParser(&form); err != nil {
