@@ -393,6 +393,8 @@ github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/zikwall/clickhouse-buffer v0.0.0-20210623084218-3f32dd4c36cd h1:MBtllGYFsG/ZDb5EAWhQeugygDK5HZB4DKLxYQSyyr0=
 github.com/zikwall/clickhouse-buffer v0.0.0-20210623084218-3f32dd4c36cd/go.mod h1:+H9eNWlvObBPNX9o9+CFhMDjJjBVp60sdbG8lLiDhcc=
+github.com/zikwall/clickhouse-buffer v0.0.0-20210706103708-2559bd43191a h1:coprRGY9I775vY1s3EnJGKjnlOJfgrmU33zKm+NLEZk=
+github.com/zikwall/clickhouse-buffer v0.0.0-20210706103708-2559bd43191a/go.mod h1:+H9eNWlvObBPNX9o9+CFhMDjJjBVp60sdbG8lLiDhcc=
 github.com/zikwall/fsclient v0.0.3 h1:ffS4EAfSGfsE8nr6Ujb9jLYwpC4cQSPUx0FmL9oPQEE=
 github.com/zikwall/fsclient v0.0.3/go.mod h1:UyJTWkiyws3x+DyWEUgvYVQer83DnlkKYgpv+wVcrn8=
 go.etcd.io/bbolt v1.3.3/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=

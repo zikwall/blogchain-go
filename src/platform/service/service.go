@@ -8,7 +8,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
-	clickhouse_buffer "github.com/zikwall/clickhouse-buffer"
+	"github.com/zikwall/clickhouse-buffer"
 	"github.com/zikwall/clickhouse-buffer/src/api"
 	"runtime"
 	"strconv"
@@ -82,7 +82,7 @@ func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 		return nil, err
 	}
 
-	b.ChBuffer = clickhouse.NewClickhouseBufferAdapter(clickhouse_buffer.NewClientWithOptions(b.Context, chBuffer,
+	b.ChBuffer = clickhouse.NewClickhouseBufferAdapter(clickhousebuffer.NewClientWithOptions(b.Context, chBuffer,
 		api.DefaultOptions().
 			SetFlushInterval(2000).
 			SetBatchSize(5000),
