@@ -7,8 +7,31 @@ import (
 	"math"
 )
 
+// ```code
+// 	func withUserQuery(query *builder.SelectDataset) *builder.SelectDataset {
+//		query = query.SelectAppend(
+//			builder.I(...),
+//		)
+//		query = query.LeftJoin(
+//			builder.T("user"),
+//			builder.On(
+//				builder.I("user.id").Eq(builder.I("content.user_id")),
+//			),
+//		)
+//		return query
+//	}
+// ```
 type joinFn func(query *builder.SelectDataset) *builder.SelectDataset
 
+// joinWith the function is a wrapper for convenient merging of query parts, for example, such as SQL JOIN
+//
+// ```code
+// 	func withFullUserProfile() *builder.SelectDataset {
+//		query = ...
+//		query = joinWith(query, withUserQuery, withProfileQuery)
+//		return query
+//	}
+// ```
 func joinWith(query *builder.SelectDataset, joins ...joinFn) *builder.SelectDataset {
 	for _, join := range joins {
 		query = join(query)
@@ -17,6 +40,7 @@ func joinWith(query *builder.SelectDataset, joins ...joinFn) *builder.SelectData
 	return query
 }
 
+// queryCount function determines the number of "pages" depending on the page size (the larger, the smaller the number of pages)
 func queryCount(ctx context.Context, query *builder.SelectDataset, pageSize uint) (float64, error) {
 	var count int64
 	var countPages float64
@@ -30,11 +54,12 @@ func queryCount(ctx context.Context, query *builder.SelectDataset, pageSize uint
 	return countPages, exceptions.ThrowPrivateError(err)
 }
 
+// withPagination wrapper function for creating page-by-page pagination, automatically tracks the offset and size
 func withPagination(ctx context.Context, query *builder.SelectDataset, page, size uint) (
-	pquery *builder.SelectDataset, count float64,
+	paginatedQuery *builder.SelectDataset, count float64,
 ) {
 	count, _ = queryCount(ctx, query, size)
-	pquery = query.Offset(page * size).Limit(size)
+	paginatedQuery = query.Offset(page * size).Limit(size)
 
-	return pquery, count
+	return paginatedQuery, count
 }
