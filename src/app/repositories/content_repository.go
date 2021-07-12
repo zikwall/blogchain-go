@@ -316,10 +316,7 @@ func withProfileQuery(query *builder.SelectDataset) *builder.SelectDataset {
 
 func withMutableResponse(ctx context.Context, conn *database.Connection, contents []Content) ([]PublicContent, error) {
 	idx := make([]interface{}, 0, len(contents))
-	contentMap := make(map[int64]*Content, len(contents))
-
 	for i := range contents {
-		contentMap[contents[i].ID] = &contents[i]
 		idx = append(idx, fmt.Sprintf("%v", contents[i].ID))
 	}
 
@@ -329,16 +326,13 @@ func withMutableResponse(ctx context.Context, conn *database.Connection, content
 		return nil, err
 	}
 
-	for id, value := range tags {
-		if _, ok := contentMap[id]; ok {
-			contentMap[id].withTags(value)
+	publicContents := make([]PublicContent, 0, len(contents))
+	for _, content := range contents {
+		if value, ok := tags[content.ID]; ok {
+			content.withTags(value)
 		}
+		publicContents = append(publicContents, content.Response())
 	}
 
-	pc := make([]PublicContent, 0, len(contentMap))
-	for _, content := range contentMap {
-		pc = append(pc, content.Response())
-	}
-
-	return pc, nil
+	return publicContents, nil
 }
