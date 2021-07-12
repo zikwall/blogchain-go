@@ -8,6 +8,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 	"github.com/zikwall/clickhouse-buffer/src/api"
 	"github.com/zikwall/clickhouse-buffer/src/buffer/memory"
+	"github.com/zikwall/fsclient"
 )
 
 // The HTTPController structure is the base object for all http handlers,
@@ -20,9 +21,32 @@ type HTTPController struct {
 	writeAPI         api.Writer
 	Finder           *maxmind.Finder
 	Uploader         upload.Uploader
+	FsClient         *fsclient.FsClient
 }
 
-func CreateHTTPControllerWithCopy(p *HTTPController) *HTTPController {
+func CreateHTTPControllerWithCopy(p *HTTPController) (*HTTPController, error) {
+	controller := &HTTPController{
+		RSA:              p.RSA,
+		DB:               p.DB,
+		Clickhouse:       p.Clickhouse,
+		ClickhouseBuffer: p.ClickhouseBuffer,
+		Finder:           p.Finder,
+		FsClient:         p.FsClient,
+	}
+
+	if err := controller.after(); err != nil {
+		return nil, err
+	}
+
+	return controller, nil
+}
+
+func (hc *HTTPController) after() error {
+	hc.initWriterAPI()
+	return hc.initFileServerClient()
+}
+
+func (hc *HTTPController) initWriterAPI() {
 	tableView := api.View{
 		Name: "blogchain.post_stats",
 		Columns: []string{
@@ -31,19 +55,20 @@ func CreateHTTPControllerWithCopy(p *HTTPController) *HTTPController {
 		},
 	}
 
-	writeAPI := p.ClickhouseBuffer.Client().Writer(tableView, memory.NewBuffer(
-		p.ClickhouseBuffer.Client().Options().BatchSize(),
+	hc.writeAPI = hc.ClickhouseBuffer.Client().Writer(tableView, memory.NewBuffer(
+		hc.ClickhouseBuffer.Client().Options().BatchSize(),
 	))
+}
 
-	return &HTTPController{
-		RSA:              p.RSA,
-		DB:               p.DB,
-		Clickhouse:       p.Clickhouse,
-		ClickhouseBuffer: p.ClickhouseBuffer,
-		Finder:           p.Finder,
-		Uploader:         p.Uploader,
-		writeAPI:         writeAPI,
+func (hc *HTTPController) initFileServerClient() error {
+	fsClient, err := fsclient.WithCopyFsClient(*hc.FsClient)
+
+	if err != nil {
+		return err
 	}
+
+	hc.Uploader = upload.NewFileUploader(fsClient)
+	return nil
 }
 
 func (hc *HTTPController) response(response interface{}) Response {

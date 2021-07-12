@@ -5,7 +5,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/urfave/cli/v2"
 	"github.com/zikwall/blogchain/src/app/actions"
-	"github.com/zikwall/blogchain/src/app/lib/upload"
 	"github.com/zikwall/blogchain/src/app/middlewares"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/container"
@@ -232,25 +231,23 @@ func main() {
 			container.TestPublicKey, container.TestPrivateKey,
 		)
 
-		fsClient, err := fsclient.WithCopyFsClient(fsclient.FsClient{
-			Uri:        c.String("cdn-host"),
-			SecureType: 1,
-			User:       c.String("cdn-user"),
-			Password:   c.String("cdn-password"),
-		})
-
-		if err != nil {
-			return err
-		}
-
-		httpController := actions.CreateHTTPControllerWithCopy(&actions.HTTPController{
+		httpController, err := actions.CreateHTTPControllerWithCopy(&actions.HTTPController{
 			RSA:              &rsa,
 			DB:               blogchain.Database(),
 			Clickhouse:       blogchain.Clickhouse,
 			ClickhouseBuffer: blogchain.ChBuffer,
 			Finder:           blogchain.Finder,
-			Uploader:         upload.NewFileUploader(fsClient),
+			FsClient: &fsclient.FsClient{
+				Uri:        c.String("cdn-host"),
+				SecureType: 1,
+				User:       c.String("cdn-user"),
+				Password:   c.String("cdn-password"),
+			},
 		})
+
+		if err != nil {
+			return err
+		}
 
 		api := app.Group("/api",
 			middlewares.WithBlogchainJWTAuthorization(&rsa),
