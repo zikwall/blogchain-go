@@ -327,11 +327,11 @@ func withMutableResponse(ctx context.Context, conn *database.Connection, content
 	}
 
 	publicContents := make([]PublicContent, 0, len(contents))
-	for _, content := range contents {
-		if value, ok := tags[content.ID]; ok {
-			content.withTags(value)
+	for i := range contents {
+		if value, ok := tags[contents[i].ID]; ok {
+			contents[i].withTags(value)
 		}
-		publicContents = append(publicContents, content.Response())
+		publicContents = append(publicContents, contents[i].Response())
 	}
 
 	return publicContents, nil
