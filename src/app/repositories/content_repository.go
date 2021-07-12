@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	builder "github.com/doug-martin/goqu/v9"
 	"github.com/zikwall/blogchain/src/app/exceptions"
 	"github.com/zikwall/blogchain/src/app/forms"
@@ -317,7 +316,7 @@ func withProfileQuery(query *builder.SelectDataset) *builder.SelectDataset {
 func withMutableResponse(ctx context.Context, conn *database.Connection, contents []Content) ([]PublicContent, error) {
 	idx := make([]interface{}, 0, len(contents))
 	for i := range contents {
-		idx = append(idx, fmt.Sprintf("%v", contents[i].ID))
+		idx = append(idx, contents[i].ID)
 	}
 
 	tags, err := UseTagRepository(ctx, conn).ContentGroupedTags(idx...)
