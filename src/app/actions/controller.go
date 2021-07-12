@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/zikwall/blogchain/src/app/lib/upload"
+	"github.com/zikwall/blogchain/src/app/statistic"
 	"github.com/zikwall/blogchain/src/platform/clickhouse"
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
@@ -47,17 +48,16 @@ func (hc *HTTPController) after() error {
 }
 
 func (hc *HTTPController) initWriterAPI() {
-	tableView := api.View{
-		Name: "blogchain.post_stats",
-		Columns: []string{
-			"post_id", "owner_id", "os", "browser", "platform",
-			"ip", "country", "region", "insert_ts", "date",
+	buffer := hc.ClickhouseBuffer.Client()
+	hc.writeAPI = buffer.Writer(
+		api.View{
+			Name:    statistic.PostStatsTable,
+			Columns: statistic.PostStatsColumns,
 		},
-	}
-
-	hc.writeAPI = hc.ClickhouseBuffer.Client().Writer(tableView, memory.NewBuffer(
-		hc.ClickhouseBuffer.Client().Options().BatchSize(),
-	))
+		memory.NewBuffer(
+			buffer.Options().BatchSize(),
+		),
+	)
 }
 
 func (hc *HTTPController) initFileServerClient() error {

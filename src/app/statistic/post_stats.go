@@ -4,6 +4,13 @@ import (
 	"github.com/zikwall/clickhouse-buffer/src/types"
 )
 
+const PostStatsTable = "blogchain.post_stats"
+
+var PostStatsColumns = []string{
+	"post_id", "owner_id", "os", "browser", "platform",
+	"ip", "country", "region", "insert_ts", "date",
+}
+
 type PostStats struct {
 	PostID   uint64 `json:"post_id"`
 	OwnerID  uint64 `json:"owner_id"`
