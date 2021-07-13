@@ -169,7 +169,7 @@ func main() {
 	}
 
 	application.Action = func(c *cli.Context) error {
-		blogchain, err := service.CreateService(
+		blogchain, err := service.CreateBlogchainService(
 			context.Background(),
 			&service.Configuration{
 				DatabaseConfiguration: &database.Configuration{
@@ -251,7 +251,7 @@ func main() {
 
 		api := app.Group("/api",
 			middlewares.WithBlogchainJWTAuthorization(&rsa),
-			middlewares.WithBlogchainUserIdentity(blogchain),
+			middlewares.WithBlogchainUserIdentity(blogchain.Database()),
 		)
 		api.Get("/healthcheck", actions.HealthCheck)
 		api.Get("/runtime", actions.RuntimeStatistic(

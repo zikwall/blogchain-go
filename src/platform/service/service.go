@@ -15,11 +15,11 @@ import (
 	"time"
 )
 
-// Instance is basic structure is the "core" of the entire application and somewhat resembles dependency injection,
+// Blogchain is basic structure is the "core" of the entire application and somewhat resembles dependency injection,
 // but in a simpler form. It has such important properties as the top-level context and the ability to cancel it.
 // It also includes all the main component instances, such as databases, queues and caches,
 // and various internal schedulers.
-type Instance struct {
+type Blogchain struct {
 	notify            Notify
 	Container         *container.Container
 	Clickhouse        *clickhouse.Connection
@@ -47,10 +47,10 @@ type HTTPAccessControl struct {
 	MaxAge           int
 }
 
-func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
-	b := new(Instance)
-	b.Container = container.NewBlogchainServiceContainer()
-	b.Context, b.cancelRootContext = context.WithCancel(ctx)
+func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, error) {
+	blogchain := new(Blogchain)
+	blogchain.Container = container.NewBlogchainServiceContainer()
+	blogchain.Context, blogchain.cancelRootContext = context.WithCancel(ctx)
 
 	finder, err := maxmind.CreateFinder(c.FinderConfig)
 
@@ -58,48 +58,49 @@ func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 		return nil, err
 	}
 
-	b.Finder = finder
+	blogchain.Finder = finder
 
-	db, err := database.NewConnection(b.Context, c.DatabaseConfiguration)
-
-	if err != nil {
-		return nil, err
-	}
-
-	b.database = db
-
-	ch, err := clickhouse.NewConnection(b.Context, c.ClickhouseConfiguration)
+	db, err := database.NewConnection(blogchain.Context, c.DatabaseConfiguration)
 
 	if err != nil {
 		return nil, err
 	}
 
-	b.Clickhouse = ch
+	blogchain.database = db
 
-	chBuffer, err := api.NewClickhouseWithSqlx(b.Clickhouse.Query())
+	ch, err := clickhouse.NewConnection(blogchain.Context, c.ClickhouseConfiguration)
 
 	if err != nil {
 		return nil, err
 	}
 
-	b.ChBuffer = clickhouse.NewClickhouseBufferAdapter(clickhousebuffer.NewClientWithOptions(b.Context, chBuffer,
-		api.DefaultOptions().
-			SetFlushInterval(2000).
-			SetBatchSize(5000),
-	))
+	blogchain.Clickhouse = ch
 
-	b.notify.AddNotifiers(
-		b.database,
-		b.Clickhouse,
-		b.Finder,
-		b.ChBuffer,
+	chBuffer, err := api.NewClickhouseWithSqlx(blogchain.Clickhouse.Query())
+
+	if err != nil {
+		return nil, err
+	}
+
+	blogchain.ChBuffer = clickhouse.NewClickhouseBufferAdapter(
+		clickhousebuffer.NewClientWithOptions(blogchain.Context, chBuffer,
+			api.DefaultOptions().
+				SetFlushInterval(2000).
+				SetBatchSize(5000),
+		))
+
+	blogchain.notify.AddNotifiers(
+		blogchain.database,
+		blogchain.Clickhouse,
+		blogchain.Finder,
+		blogchain.ChBuffer,
 	)
 
-	return b, nil
+	return blogchain, nil
 }
 
-func (s *Instance) Database() *database.Connection {
-	return s.database
+func (b *Blogchain) Database() *database.Connection {
+	return b.database
 }
 
 // Shutdown method of implementing the cleaning of resources and connections when the application is shut down.
@@ -112,12 +113,12 @@ func (s *Instance) Database() *database.Connection {
 //		bugsnag.Notify(err)
 //	})
 // ```
-func (s *Instance) Shutdown(onError func(error)) {
+func (b *Blogchain) Shutdown(onError func(error)) {
 	log.Info("shutdown Blogchain Service via System signal")
 
 	// cancel the root context and clear all allocated resources
-	s.cancelRootContext()
-	for _, notifier := range s.notify.notifiers {
+	b.cancelRootContext()
+	for _, notifier := range b.notify.notifiers {
 		log.Info(notifier.CloseMessage())
 
 		if err := notifier.Close(); err != nil {
@@ -128,7 +129,7 @@ func (s *Instance) Shutdown(onError func(error)) {
 
 // Stacktrace simple output of debugging information on the operation of the application
 // and on the status of released resources (gorutin)
-func (s *Instance) Stacktrace() {
+func (b *Blogchain) Stacktrace() {
 	log.Info("waiting for the server completion report to be generated")
 
 	<-time.After(time.Second * 2)
