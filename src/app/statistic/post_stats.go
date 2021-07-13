@@ -1,7 +1,7 @@
 package statistic
 
 import (
-	"github.com/zikwall/clickhouse-buffer/src/types"
+	"github.com/zikwall/clickhouse-buffer/src/buffer"
 )
 
 const PostStatsTable = "blogchain.post_stats"
@@ -24,7 +24,7 @@ type PostStats struct {
 	Date     string `json:"date"`
 }
 
-func (b *PostStats) Row() types.RowSlice {
+func (b *PostStats) Row() buffer.RowSlice {
 	return []interface{}{
 		b.PostID,
 		b.OwnerID,

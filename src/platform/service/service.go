@@ -9,7 +9,6 @@ import (
 	"github.com/zikwall/blogchain/src/platform/log"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
 	"github.com/zikwall/clickhouse-buffer"
-	"github.com/zikwall/clickhouse-buffer/src/api"
 	"runtime"
 	"strconv"
 	"time"
@@ -76,7 +75,7 @@ func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, 
 
 	blogchain.Clickhouse = ch
 
-	chBuffer, err := api.NewClickhouseWithSqlx(blogchain.Clickhouse.Query())
+	chBuffer, err := clickhousebuffer.NewClickhouseWithSqlx(blogchain.Clickhouse.Query())
 
 	if err != nil {
 		return nil, err
@@ -84,10 +83,11 @@ func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, 
 
 	blogchain.ChBuffer = clickhouse.NewClickhouseBufferAdapter(
 		clickhousebuffer.NewClientWithOptions(blogchain.Context, chBuffer,
-			api.DefaultOptions().
+			clickhousebuffer.DefaultOptions().
 				SetFlushInterval(2000).
 				SetBatchSize(5000),
-		))
+		),
+	)
 
 	blogchain.notify.AddNotifiers(
 		blogchain.database,

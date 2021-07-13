@@ -1,18 +1,20 @@
 package clickhouse
 
-import "github.com/zikwall/clickhouse-buffer/src/api"
+import (
+	"github.com/zikwall/clickhouse-buffer"
+)
 
 type BufferAdapter struct {
-	chBuffer api.Client
+	chBuffer clickhousebuffer.Client
 }
 
-func NewClickhouseBufferAdapter(bufferClient api.Client) *BufferAdapter {
+func NewClickhouseBufferAdapter(bufferClient clickhousebuffer.Client) *BufferAdapter {
 	return &BufferAdapter{
 		chBuffer: bufferClient,
 	}
 }
 
-func (cba *BufferAdapter) Client() api.Client {
+func (cba *BufferAdapter) Client() clickhousebuffer.Client {
 	return cba.chBuffer
 }
 

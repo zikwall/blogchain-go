@@ -7,7 +7,7 @@ import (
 	"github.com/zikwall/blogchain/src/platform/container"
 	"github.com/zikwall/blogchain/src/platform/database"
 	"github.com/zikwall/blogchain/src/platform/maxmind"
-	"github.com/zikwall/clickhouse-buffer/src/api"
+	"github.com/zikwall/clickhouse-buffer"
 	"github.com/zikwall/clickhouse-buffer/src/buffer/memory"
 	"github.com/zikwall/fsclient"
 )
@@ -19,7 +19,7 @@ type HTTPController struct {
 	DB               *database.Connection
 	Clickhouse       *clickhouse.Connection
 	ClickhouseBuffer *clickhouse.BufferAdapter
-	writeAPI         api.Writer
+	writeAPI         clickhousebuffer.Writer
 	Finder           *maxmind.Finder
 	Uploader         upload.Uploader
 	FsClient         *fsclient.FsClient
@@ -50,7 +50,7 @@ func (hc *HTTPController) after() error {
 func (hc *HTTPController) initWriterAPI() {
 	buffer := hc.ClickhouseBuffer.Client()
 	hc.writeAPI = buffer.Writer(
-		api.View{
+		clickhousebuffer.View{
 			Name:    statistic.PostStatsTable,
 			Columns: statistic.PostStatsColumns,
 		},
