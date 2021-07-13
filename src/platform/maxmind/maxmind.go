@@ -6,18 +6,16 @@ import (
 	"net"
 )
 
-type (
-	Finder struct {
-		reader *geoip2.Reader
-	}
-	FinderConfig struct {
-		Path string
-	}
-	FindResult struct {
-		Country string
-		Region  string
-	}
-)
+type Finder struct {
+	reader *geoip2.Reader
+}
+type FinderConfig struct {
+	Path string
+}
+type FindResult struct {
+	Country string
+	Region  string
+}
 
 func CreateFinder(c FinderConfig) (*Finder, error) {
 	f := new(Finder)
@@ -61,5 +59,5 @@ func (f *Finder) Close() error {
 }
 
 func (f Finder) CloseMessage() string {
-	return "Close Maxmind City database"
+	return "close Maxmind City database"
 }

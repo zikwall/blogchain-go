@@ -103,7 +103,7 @@ func (s *Instance) Database() *database.Connection {
 }
 
 func (s *Instance) Shutdown(onError func(error)) {
-	log.Info("Shutdown Blogchain Service via System signal")
+	log.Info("shutdown Blogchain Service via System signal")
 
 	// cancel the root context and clear all allocated resources
 	s.cancelRootContext()
@@ -117,7 +117,7 @@ func (s *Instance) Shutdown(onError func(error)) {
 }
 
 func (s *Instance) Stacktrace() {
-	log.Info("Waiting for the server completion report to be generated")
+	log.Info("waiting for the server completion report to be generated")
 
 	<-time.After(time.Second * 2)
 
@@ -131,7 +131,7 @@ func (s *Instance) Stacktrace() {
 	fmt.Printf(
 		"%s \n \t - %s \n \t - %s \n",
 		log.Colored("REPORT", log.Green),
-		colored("Number of remaining goroutines:", strconv.Itoa(runtime.NumGoroutine())),
-		colored("Number of operations of the garbage collector:", strconv.Itoa(int(memory.NumGC))),
+		colored("number of remaining goroutines:", strconv.Itoa(runtime.NumGoroutine())),
+		colored("number of operations of the garbage collector:", strconv.Itoa(int(memory.NumGC))),
 	)
 }
