@@ -62,42 +62,49 @@ func main() {
 				Required: true,
 				Usage:    "Database host",
 				EnvVars:  []string{"DATABASE_HOST"},
+				FilePath: "/srv/bc_secret/database_host",
 			},
 			&cli.StringFlag{
 				Name:     "database-user",
 				Required: true,
 				Usage:    "Database user",
 				EnvVars:  []string{"DATABASE_USER"},
+				FilePath: "/srv/bc_secret/database_user",
 			},
 			&cli.StringFlag{
 				Name:     "database-password",
 				Required: true,
 				Usage:    "Database password",
 				EnvVars:  []string{"DATABASE_PASSWORD"},
+				FilePath: "/srv/bc_secret/database_password",
 			},
 			&cli.StringFlag{
 				Name:     "database-name",
 				Required: true,
 				Usage:    "Database name",
 				EnvVars:  []string{"DATABASE_NAME"},
+				FilePath: "/srv/bc_secret/database_name",
 			},
 			&cli.StringFlag{
 				Name:     "database-dialect",
 				Required: true,
 				Usage:    "Database dialect: mysql, postgres, sqlite3, sqlserver etc",
 				EnvVars:  []string{"DATABASE_DIALECT"},
+				FilePath: "/srv/bc_secret/database_dialect",
 			},
 			&cli.StringFlag{
 				Name:     "rsa-public-key",
 				Required: false,
 				Usage:    "Container secret key for JWT, and etc.",
 				EnvVars:  []string{"RSA_PUBLIC_KEY"},
+				FilePath: "/srv/bc_secret/rsa_public_key",
 			},
 			&cli.StringFlag{
 				Name:     "rsa-private-key",
 				Required: false,
 				Usage:    "Container secret key for JWT, and etc.",
 				EnvVars:  []string{"RSA_PRIVATE_KEY"},
+				FilePath: "/srv/bc_secret/rsa_private_key",
 			},
 
 			// clickhouse
@@ -143,20 +150,23 @@ func main() {
 
 			// cdn
 			&cli.StringFlag{
-				Name:    "cdn-host",
-				Usage:   "",
-				Value:   "localhost:1337",
-				EnvVars: []string{"CDN_HOST"},
+				Name:     "cdn-host",
+				Usage:    "",
+				Value:    "localhost:1337",
+				EnvVars:  []string{"CDN_HOST"},
+				FilePath: "/srv/bc_secret/cdn_host",
 			},
 			&cli.StringFlag{
-				Name:    "cdn-user",
-				Usage:   "",
-				EnvVars: []string{"CDN_USER"},
+				Name:     "cdn-user",
+				Usage:    "",
+				EnvVars:  []string{"CDN_USER"},
+				FilePath: "/srv/bc_secret/cdn_user",
 			},
 			&cli.StringFlag{
-				Name:    "cdn-password",
-				Usage:   "",
-				EnvVars: []string{"CDN_PASSWORD"},
+				Name:     "cdn-password",
+				Usage:    "",
+				EnvVars:  []string{"CDN_PASSWORD"},
+				FilePath: "/srv/bc_secret/cdn_password",
 			},
 
 			// dev

@@ -65,12 +65,23 @@ docker run -d --net=host \
 
 In example above on every new connection driver will use following sequence of hosts if previous host is unavailable:
 - host1:9000;
-
 - host2:1234;
 - host3:9000;
 - host4:5678.
 
 All queries within established connection will be sent to the same host.
+
+### Use Docker secrets
+
+**Template:** `/srv/bc_secret/<secret_name_with_underscore>`
+
+**Examples:**
+
+- `CLICKHOUSE_ALT_HOSTS` or `--clickhouse-alt-hosts` to `/srv/bc_secret/clickhouse_alt_hosts`
+- `DATABASE_PASSWORD` to `/srv/bc_secret/database_password`
+- `etc`
+
+For a complete list of secrets, see the file `main.go`.
 
 ### Tests
 
