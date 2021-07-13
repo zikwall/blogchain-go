@@ -94,7 +94,7 @@ func (hc *HTTPController) ContentsUser(ctx *fiber.Ctx) error {
 	}))
 }
 
-func withStatsContext(ctx context.Context, ch *clickhouse.Clickhouse, cs []repositories.PublicContent) map[int64]uint64 {
+func withStatsContext(ctx context.Context, ch *clickhouse.Connection, cs []repositories.PublicContent) map[int64]uint64 {
 	if len(cs) == 0 {
 		return map[int64]uint64{}
 	}

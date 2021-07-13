@@ -9,26 +9,26 @@ import (
 	"time"
 )
 
-type (
-	Clickhouse struct {
-		db      *sqlx.DB
-		context context.Context
-	}
-	Configuration struct {
-		Address  string
-		Password string
-		User     string
-		Database string
-		AltHosts string
-		IsDebug  bool
-	}
-	Table struct {
-		Name    string
-		Columns []string
-	}
-)
+type Connection struct {
+	db      *sqlx.DB
+	context context.Context
+}
 
-func NewClickhouse(c context.Context, conf *Configuration) (*Clickhouse, error) {
+type Configuration struct {
+	Address  string
+	Password string
+	User     string
+	Database string
+	AltHosts string
+	IsDebug  bool
+}
+
+type Table struct {
+	Name    string
+	Columns []string
+}
+
+func NewConnection(c context.Context, conf *Configuration) (*Connection, error) {
 	connect, err := sqlx.Open("clickhouse", buildConnectionString(conf))
 
 	if err != nil {
@@ -52,15 +52,15 @@ func NewClickhouse(c context.Context, conf *Configuration) (*Clickhouse, error) 
 		return nil, err
 	}
 
-	ch := new(Clickhouse)
+	ch := new(Connection)
 	ch.db = connect
 	ch.context = c
 
 	return ch, nil
 }
 
-func (c Clickhouse) Query() *sqlx.DB {
-	return c.db
+func (conn Connection) Query() *sqlx.DB {
+	return conn.db
 }
 
 func buildConnectionString(c *Configuration) string {
@@ -84,10 +84,10 @@ func buildConnectionString(c *Configuration) string {
 	return build
 }
 
-func (c Clickhouse) Close() error {
-	return c.db.Close()
+func (conn Connection) Close() error {
+	return conn.db.Close()
 }
 
-func (c Clickhouse) CloseMessage() string {
-	return "Close Clickhouse connection"
+func (conn Connection) CloseMessage() string {
+	return "close Clickhouse connection"
 }

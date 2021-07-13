@@ -17,7 +17,7 @@ import (
 type HTTPController struct {
 	RSA              container.RSA
 	DB               *database.Connection
-	Clickhouse       *clickhouse.Clickhouse
+	Clickhouse       *clickhouse.Connection
 	ClickhouseBuffer *clickhouse.BufferAdapter
 	writeAPI         api.Writer
 	Finder           *maxmind.Finder

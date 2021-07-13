@@ -13,35 +13,21 @@ import (
 	"time"
 )
 
-type (
-	Connection struct {
-		db *builder.Database
-	}
-	Configuration struct {
-		Host     string
-		User     string
-		Password string
-		Port     string
-		Name     string
-		Dialect  string
-		Debug    bool
-	}
-	Logger struct {
-		callback func(format string, v ...interface{})
-	}
-)
-
-func (logger *Logger) SetCallback(callbak func(format string, v ...interface{})) {
-	logger.callback = callbak
+type Connection struct {
+	db *builder.Database
 }
 
-func (logger Logger) Printf(format string, v ...interface{}) {
-	logger.callback(format, v)
+type Configuration struct {
+	Host     string
+	User     string
+	Password string
+	Port     string
+	Name     string
+	Dialect  string
+	Debug    bool
 }
 
-func NewInstance(c context.Context, conf *Configuration) (*Connection, error) {
-	d := new(Connection)
-
+func (conf *Configuration) checkBeforeInitializing() {
 	if conf.Dialect == "" {
 		conf.Dialect = "mysql"
 	}
@@ -55,6 +41,10 @@ func NewInstance(c context.Context, conf *Configuration) (*Connection, error) {
 	} else if !strings.Contains(conf.Host, "@") {
 		conf.Host = fmt.Sprintf("@tcp(%s)", conf.Host)
 	}
+}
+
+func NewConnection(c context.Context, conf *Configuration) (*Connection, error) {
+	conf.checkBeforeInitializing()
 
 	db, err := sql.Open(conf.Dialect, makeConnectionString(conf))
 
@@ -75,7 +65,8 @@ func NewInstance(c context.Context, conf *Configuration) (*Connection, error) {
 	db.SetConnMaxLifetime(5 * time.Minute)
 
 	dialect := builder.Dialect(conf.Dialect)
-	d.db = dialect.DB(db)
+	connection := new(Connection)
+	connection.db = dialect.DB(db)
 
 	if conf.Debug {
 		dbLogger := Logger{}
@@ -83,18 +74,18 @@ func NewInstance(c context.Context, conf *Configuration) (*Connection, error) {
 			log.Info(v)
 		})
 
-		d.SetLogger(dbLogger)
+		connection.SetLogger(dbLogger)
 	}
 
-	return d, nil
+	return connection, nil
 }
 
-func (d *Connection) SetLogger(logger builder.Logger) {
-	d.db.Logger(logger)
+func (conn *Connection) SetLogger(logger builder.Logger) {
+	conn.db.Logger(logger)
 }
 
-func (d *Connection) Builder() *builder.Database {
-	return d.db
+func (conn *Connection) Builder() *builder.Database {
+	return conn.db
 }
 
 func makeConnectionString(c *Configuration) string {
@@ -102,10 +93,10 @@ func makeConnectionString(c *Configuration) string {
 }
 
 // Close not implemented
-func (d Connection) Close() error {
+func (conn Connection) Close() error {
 	return nil
 }
 
-func (d Connection) CloseMessage() string {
-	return "Close database: this is not implemented"
+func (conn Connection) CloseMessage() string {
+	return "close database: this is not implemented"
 }

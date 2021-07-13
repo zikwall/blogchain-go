@@ -22,7 +22,7 @@ import (
 type Instance struct {
 	notify            Notify
 	Container         *container.Container
-	Clickhouse        *clickhouse.Clickhouse
+	Clickhouse        *clickhouse.Connection
 	ChBuffer          *clickhouse.BufferAdapter
 	Finder            *maxmind.Finder
 	Context           context.Context
@@ -60,7 +60,7 @@ func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 
 	b.Finder = finder
 
-	db, err := database.NewInstance(b.Context, c.DatabaseConfiguration)
+	db, err := database.NewConnection(b.Context, c.DatabaseConfiguration)
 
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func CreateService(ctx context.Context, c *Configuration) (*Instance, error) {
 
 	b.database = db
 
-	ch, err := clickhouse.NewClickhouse(b.Context, c.ClickhouseConfiguration)
+	ch, err := clickhouse.NewConnection(b.Context, c.ClickhouseConfiguration)
 
 	if err != nil {
 		return nil, err

@@ -23,7 +23,7 @@ func viewersAggregateQuery() *builder.SelectDataset {
 		)
 }
 
-func GetPostViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, post int64) (uint64, error) {
+func GetPostViewersCount(ctx context.Context, ch *clickhouse.Connection, post int64) (uint64, error) {
 	var count uint64
 	var postID int64
 
@@ -45,7 +45,7 @@ func GetPostViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, post in
 	return count, nil
 }
 
-func GetPostsViewersCount(ctx context.Context, ch *clickhouse.Clickhouse, posts ...int64) (map[int64]uint64, error) {
+func GetPostsViewersCount(ctx context.Context, ch *clickhouse.Connection, posts ...int64) (map[int64]uint64, error) {
 	var views []Viewers
 	counts := map[int64]uint64{}
 
