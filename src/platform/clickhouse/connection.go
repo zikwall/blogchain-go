@@ -28,7 +28,7 @@ type Table struct {
 	Columns []string
 }
 
-func NewConnection(c context.Context, conf *Configuration) (*Connection, error) {
+func NewConnection(ctx context.Context, conf *Configuration) (*Connection, error) {
 	connect, err := sqlx.Open("clickhouse", buildConnectionString(conf))
 
 	if err != nil {
@@ -39,8 +39,7 @@ func NewConnection(c context.Context, conf *Configuration) (*Connection, error) 
 	connect.SetMaxOpenConns(21)
 	connect.SetConnMaxLifetime(5 * time.Minute)
 
-	ctx, cancel := context.WithTimeout(c, 10*time.Second)
-
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	if err := connect.PingContext(ctx); err != nil {
@@ -52,15 +51,23 @@ func NewConnection(c context.Context, conf *Configuration) (*Connection, error) 
 		return nil, err
 	}
 
-	ch := new(Connection)
-	ch.db = connect
-	ch.context = c
+	connection := new(Connection)
+	connection.db = connect
+	connection.context = ctx
 
-	return ch, nil
+	return connection, nil
 }
 
-func (conn Connection) Query() *sqlx.DB {
+func (conn *Connection) Query() *sqlx.DB {
 	return conn.db
+}
+
+func (conn *Connection) Close() error {
+	return conn.db.Close()
+}
+
+func (conn Connection) CloseMessage() string {
+	return "close Clickhouse connection"
 }
 
 func buildConnectionString(c *Configuration) string {
@@ -82,12 +89,4 @@ func buildConnectionString(c *Configuration) string {
 	}
 
 	return build
-}
-
-func (conn Connection) Close() error {
-	return conn.db.Close()
-}
-
-func (conn Connection) CloseMessage() string {
-	return "close Clickhouse connection"
 }

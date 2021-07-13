@@ -46,14 +46,13 @@ func (conf *Configuration) checkBeforeInitializing() {
 func NewConnection(c context.Context, conf *Configuration) (*Connection, error) {
 	conf.checkBeforeInitializing()
 
-	db, err := sql.Open(conf.Dialect, makeConnectionString(conf))
+	db, err := sql.Open(conf.Dialect, buildConnectionString(conf))
 
 	if err != nil {
 		return nil, err
 	}
 
 	ctx, cancel := context.WithTimeout(c, 10*time.Second)
-
 	defer cancel()
 
 	if err := db.PingContext(ctx); err != nil {
@@ -88,7 +87,7 @@ func (conn *Connection) Builder() *builder.Database {
 	return conn.db
 }
 
-func makeConnectionString(c *Configuration) string {
+func buildConnectionString(c *Configuration) string {
 	return fmt.Sprintf("%s:%s%s/%s", c.User, c.Password, c.Host, c.Name)
 }
 
