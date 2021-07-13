@@ -102,6 +102,16 @@ func (s *Instance) Database() *database.Connection {
 	return s.database
 }
 
+// Shutdown method of implementing the cleaning of resources and connections when the application is shut down.
+// Shutdown method addresses all connected listeners (which implement the corresponding interface)
+// and calls the methods of this interface in turn.
+// Shutdown accepts a single argument - a callback function with an argument of type error for custom error handling
+// ```code
+// 	Shutdown(func(err error) {
+//		log.Warning(err)
+//		bugsnag.Notify(err)
+//	})
+// ```
 func (s *Instance) Shutdown(onError func(error)) {
 	log.Info("shutdown Blogchain Service via System signal")
 
@@ -116,6 +126,8 @@ func (s *Instance) Shutdown(onError func(error)) {
 	}
 }
 
+// Stacktrace simple output of debugging information on the operation of the application
+// and on the status of released resources (gorutin)
 func (s *Instance) Stacktrace() {
 	log.Info("waiting for the server completion report to be generated")
 
