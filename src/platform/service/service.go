@@ -23,7 +23,7 @@ type Blogchain struct {
 	Container         *container.Container
 	Clickhouse        *clickhouse.Connection
 	ChBuffer          *clickhouse.BufferAdapter
-	Finder            *maxmind.Finder
+	Reader            *maxmind.Reader
 	Context           context.Context
 	cancelRootContext context.CancelFunc
 	database          *database.Connection
@@ -33,7 +33,7 @@ type Configuration struct {
 	DatabaseConfiguration   *database.Configuration
 	Container               container.Configuration
 	ClickhouseConfiguration *clickhouse.Configuration
-	FinderConfig            maxmind.FinderConfig
+	ReaderConfig            maxmind.ReaderConfig
 	IsDebug                 bool
 }
 
@@ -51,13 +51,13 @@ func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, 
 	blogchain.Container = container.NewBlogchainServiceContainer()
 	blogchain.Context, blogchain.cancelRootContext = context.WithCancel(ctx)
 
-	finder, err := maxmind.CreateFinder(c.FinderConfig)
+	finder, err := maxmind.CreateReader(c.ReaderConfig)
 
 	if err != nil {
 		return nil, err
 	}
 
-	blogchain.Finder = finder
+	blogchain.Reader = finder
 
 	db, err := database.NewConnection(blogchain.Context, c.DatabaseConfiguration)
 
@@ -92,7 +92,7 @@ func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, 
 	blogchain.notify.AddNotifiers(
 		blogchain.database,
 		blogchain.Clickhouse,
-		blogchain.Finder,
+		blogchain.Reader,
 		blogchain.ChBuffer,
 	)
 

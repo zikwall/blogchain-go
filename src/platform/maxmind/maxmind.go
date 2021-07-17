@@ -1,40 +1,34 @@
 package maxmind
 
 import (
-	"fmt"
 	"github.com/oschwald/geoip2-golang"
 	"net"
 )
 
-type Finder struct {
+type Reader struct {
 	reader *geoip2.Reader
 }
-type FinderConfig struct {
+type ReaderConfig struct {
 	Path string
 }
-type FindResult struct {
+type ReaderResult struct {
 	Country string
 	Region  string
 }
 
-func CreateFinder(c FinderConfig) (*Finder, error) {
-	f := new(Finder)
-	reader, err := f.openDatabase(c.Path)
+func CreateReader(conf ReaderConfig) (*Reader, error) {
+	reader, err := openDatabase(conf.Path)
 
 	if err != nil {
 		return nil, err
 	}
 
-	f.reader = reader
-
-	fmt.Printf("Read MaxMind database from %s \n", c.Path)
-
-	return f, nil
+	return &Reader{reader: reader}, nil
 }
 
-func (f *Finder) Lookup(ip string) (FindResult, error) {
-	record, err := f.reader.City(net.ParseIP(ip))
-	result := FindResult{}
+func (rd *Reader) Lookup(ip string) (ReaderResult, error) {
+	record, err := rd.reader.City(net.ParseIP(ip))
+	result := ReaderResult{}
 
 	if err != nil {
 		return result, err
@@ -50,14 +44,14 @@ func (f *Finder) Lookup(ip string) (FindResult, error) {
 	return result, nil
 }
 
-func (f Finder) openDatabase(mmdbPath string) (*geoip2.Reader, error) {
-	return geoip2.Open(mmdbPath)
+func (rd *Reader) Close() error {
+	return rd.reader.Close()
 }
 
-func (f *Finder) Close() error {
-	return f.reader.Close()
-}
-
-func (f Finder) CloseMessage() string {
+func (rd Reader) CloseMessage() string {
 	return "close Maxmind City database"
+}
+
+func openDatabase(path string) (*geoip2.Reader, error) {
+	return geoip2.Open(path)
 }

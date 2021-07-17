@@ -34,7 +34,7 @@ func (hc *HTTPController) PushPostStats(ctx *fiber.Ctx) error {
 		Date:     utils.Date(now),
 	}
 
-	geo, err := hc.Finder.Lookup(ip)
+	geo, err := hc.GeoReader.Lookup(ip)
 
 	if err == nil {
 		stats = withFinderAttributes(stats, geo)
@@ -49,7 +49,7 @@ func (hc *HTTPController) PushPostStats(ctx *fiber.Ctx) error {
 	return ctx.Status(200).SendString("OK")
 }
 
-func withFinderAttributes(stats *statistic.PostStats, result maxmind.FindResult) *statistic.PostStats {
+func withFinderAttributes(stats *statistic.PostStats, result maxmind.ReaderResult) *statistic.PostStats {
 	stats.Region = result.Region
 	stats.Country = result.Country
 

@@ -199,7 +199,7 @@ func main() {
 					AltHosts: c.String("clickhouse-alt-hosts"),
 					IsDebug:  c.Bool("debug"),
 				},
-				FinderConfig: maxmind.FinderConfig{
+				ReaderConfig: maxmind.ReaderConfig{
 					Path: c.String("maxmind-mmdb"),
 				},
 			},
@@ -246,7 +246,7 @@ func main() {
 			DB:               blogchain.Database(),
 			Clickhouse:       blogchain.Clickhouse,
 			ClickhouseBuffer: blogchain.ChBuffer,
-			Finder:           blogchain.Finder,
+			GeoReader:        blogchain.Reader,
 			FsClient: &fsclient.FsClient{
 				Uri:        c.String("cdn-host"),
 				SecureType: 1,

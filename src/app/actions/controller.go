@@ -20,7 +20,7 @@ type HTTPController struct {
 	Clickhouse       *clickhouse.Connection
 	ClickhouseBuffer *clickhouse.BufferAdapter
 	writeAPI         clickhousebuffer.Writer
-	Finder           *maxmind.Finder
+	GeoReader        *maxmind.Reader
 	Uploader         upload.Uploader
 	FsClient         *fsclient.FsClient
 }
@@ -31,7 +31,7 @@ func CreateHTTPControllerWithCopy(p *HTTPController) (*HTTPController, error) {
 		DB:               p.DB,
 		Clickhouse:       p.Clickhouse,
 		ClickhouseBuffer: p.ClickhouseBuffer,
-		Finder:           p.Finder,
+		GeoReader:        p.GeoReader,
 		FsClient:         p.FsClient,
 	}
 
