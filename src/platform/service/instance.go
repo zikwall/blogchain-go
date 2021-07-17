@@ -19,7 +19,7 @@ import (
 // It also includes all the main component instances, such as databases, queues and caches,
 // and various internal schedulers.
 type Blogchain struct {
-	notify            Notify
+	drop              *Droppable
 	Container         *container.Container
 	Clickhouse        *clickhouse.Connection
 	ChBuffer          *clickhouse.BufferAdapter
@@ -47,7 +47,9 @@ type HTTPAccessControl struct {
 }
 
 func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, error) {
-	blogchain := new(Blogchain)
+	blogchain := &Blogchain{
+		drop: &Droppable{},
+	}
 	blogchain.Container = container.NewBlogchainServiceContainer()
 	blogchain.Context, blogchain.cancelRootContext = context.WithCancel(ctx)
 
@@ -89,7 +91,7 @@ func CreateBlogchainService(ctx context.Context, c *Configuration) (*Blogchain, 
 		),
 	)
 
-	blogchain.notify.AddNotifiers(
+	blogchain.drop.AddDroppers(
 		blogchain.database,
 		blogchain.Clickhouse,
 		blogchain.Reader,
@@ -118,10 +120,12 @@ func (b *Blogchain) Shutdown(onError func(error)) {
 
 	// cancel the root context and clear all allocated resources
 	b.cancelRootContext()
-	for _, notifier := range b.notify.notifiers {
-		log.Info(notifier.CloseMessage())
+	for _, notifier := range b.drop.droppers {
+		if impl, ok := notifier.(DropDebug); ok {
+			log.Info(impl.DropMsg())
+		}
 
-		if err := notifier.Close(); err != nil {
+		if err := notifier.Drop(); err != nil {
 			onError(err)
 		}
 	}

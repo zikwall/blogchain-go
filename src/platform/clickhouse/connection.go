@@ -62,12 +62,12 @@ func (conn *Connection) Query() *sqlx.DB {
 	return conn.db
 }
 
-func (conn *Connection) Close() error {
+func (conn *Connection) Drop() error {
 	return conn.db.Close()
 }
 
-func (conn Connection) CloseMessage() string {
-	return "close Clickhouse connection"
+func (conn Connection) DropMsg() string {
+	return "close clickhouse connection pool"
 }
 
 func buildConnectionString(c *Configuration) string {

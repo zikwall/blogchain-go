@@ -91,11 +91,11 @@ func buildConnectionString(c *Configuration) string {
 	return fmt.Sprintf("%s:%s%s/%s", c.User, c.Password, c.Host, c.Name)
 }
 
-// Close not implemented
-func (conn Connection) Close() error {
+// Drop close not implemented in database
+func (conn Connection) Drop() error {
 	return nil
 }
 
-func (conn Connection) CloseMessage() string {
+func (conn Connection) DropMsg() string {
 	return "close database: this is not implemented"
 }

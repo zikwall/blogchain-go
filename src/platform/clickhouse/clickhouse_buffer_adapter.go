@@ -18,11 +18,11 @@ func (cba *BufferAdapter) Client() clickhousebuffer.Client {
 	return cba.chBuffer
 }
 
-func (cba *BufferAdapter) Close() error {
+func (cba *BufferAdapter) Drop() error {
 	cba.chBuffer.Close()
 	return nil
 }
 
-func (cba *BufferAdapter) CloseMessage() string {
+func (cba *BufferAdapter) DropMsg() string {
 	return "close clickhouse buffer adapter"
 }

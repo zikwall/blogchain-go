@@ -44,12 +44,12 @@ func (rd *Reader) Lookup(ip string) (ReaderResult, error) {
 	return result, nil
 }
 
-func (rd *Reader) Close() error {
+func (rd *Reader) Drop() error {
 	return rd.reader.Close()
 }
 
-func (rd Reader) CloseMessage() string {
-	return "close Maxmind City database"
+func (rd Reader) DropMsg() string {
+	return "close geo reader"
 }
 
 func openDatabase(path string) (*geoip2.Reader, error) {
