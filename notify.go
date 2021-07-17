@@ -20,7 +20,7 @@ type conf struct {
 }
 
 func congratulations() {
-	log.Info("Congratulations, the Blogchain server has been successfully launched")
+	log.Info("congratulations, the Blogchain server has been successfully launched")
 }
 
 func notifier(r conf) (wait func() error, stop func(err ...error)) {

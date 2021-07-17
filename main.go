@@ -297,7 +297,7 @@ func main() {
 
 		await, stop := notifier(conf{
 			onSignal: func() {
-				log.Info("Received a system signal to shut down the application, start the shutdown process..")
+				log.Info("received a system signal to shut down the application, start the shutdown process..")
 			},
 		})
 
