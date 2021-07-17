@@ -27,22 +27,26 @@ func (ur UserRepository) find() *builder.SelectDataset {
 	return query.Select("user.*").From("user")
 }
 
-func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
-	hash, err := utils.GenerateBlogchainPasswordHash(r.Password)
+func (ur UserRepository) CreateUser(form *forms.RegisterForm) (User, error) {
+	hash, err := utils.GeneratePasswordHash(form.Password)
 
 	if err != nil {
 		return User{}, err
 	}
 
-	user := User{}
-	user.PasswordHash = string(hash)
-	user.Email = r.Email
-	user.Username = r.Username
-	user.RegistrationIP = sql.NullString{
-		String: r.RegistrationIP,
-		Valid:  false,
+	user := User{
+		PasswordHash: string(hash),
+		Email:        form.Email,
+		Username:     form.Username,
+		RegistrationIP: sql.NullString{
+			String: form.RegistrationIP,
+			Valid:  false,
+		},
+		CreatedAt: sql.NullInt64{
+			Int64: time.Now().Unix(),
+			Valid: false,
+		},
 	}
-	user.CreatedAt.Int64 = time.Now().Unix()
 
 	record := builder.Record{
 		"password_hash":   user.PasswordHash,
@@ -67,20 +71,20 @@ func (ur UserRepository) CreateUser(r *forms.RegisterForm) (User, error) {
 		return User{}, err
 	}
 
-	if err := ur.AttachProfile(r, &user); err != nil {
+	if err := ur.AttachProfile(form, &user); err != nil {
 		return User{}, err
 	}
 
 	return user, err
 }
 
-func (ur UserRepository) AttachProfile(r *forms.RegisterForm, user *User) error {
+func (ur UserRepository) AttachProfile(form *forms.RegisterForm, user *User) error {
 	profile := Profile{
 		userID:      user.ID,
-		Name:        r.Name,
-		PublicEmail: r.PublicEmail,
+		Name:        form.Name,
+		PublicEmail: form.PublicEmail,
 		Avatar: sql.NullString{
-			String: r.Avatar,
+			String: form.Avatar,
 			Valid:  false,
 		},
 	}

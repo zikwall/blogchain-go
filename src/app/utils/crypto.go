@@ -5,16 +5,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func BlogchainPasswordCorrectness(hash, password string) bool {
-	errf := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+func CompareHashAndPassword(hash, password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 
-	if errf != nil && errors.Is(errf, bcrypt.ErrMismatchedHashAndPassword) {
+	if err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 		return false
 	}
 
 	return true
 }
 
-func GenerateBlogchainPasswordHash(password string) ([]byte, error) {
+func GeneratePasswordHash(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }

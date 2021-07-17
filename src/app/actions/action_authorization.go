@@ -37,7 +37,7 @@ func (hc *HTTPController) Login(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed check user", err)
 	}
 
-	if !result.Exist() || !utils.BlogchainPasswordCorrectness(result.PasswordHash, form.Password) {
+	if !result.Exist() || !utils.CompareHashAndPassword(result.PasswordHash, form.Password) {
 		return exceptions.Wrap("login", errors.New("incorrect password was entered or the user doesn't exist"))
 	}
 
