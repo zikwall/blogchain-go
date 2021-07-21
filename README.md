@@ -27,7 +27,7 @@ go run . \
   --database-user blogchain \
   --database-password 123456 \
   --database-name blogchain \
-  --database-driver mysql \
+  --database-dialect mysql \
   --clickhouse-address localhost \
   --clickhouse-user default \
   --clickhouse-password ***** \
