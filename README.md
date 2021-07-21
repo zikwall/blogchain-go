@@ -53,6 +53,9 @@ docker run -d --net=host \
    -e CLICKHOUSE_PASSWORD='' \
    -e CLICKHOUSE_DATABASE='database_name' \
    -e CLICKHOUSE_ALT_HOSTS='optional hosts' \
+   -e CDN_HOST='https://fileserver:1338' \
+   -e CDN_USER='user' \
+   -e CDN_PASSWORD='pass' \
    -e CONTAINER_SECRET='<application secret>' \
    --name golang-blogchain-server qwx1337/blogchain-server:latest
 ```
