@@ -2,7 +2,7 @@ FROM golang:alpine as app-builder
 RUN apk update
 RUN apk add --no-cache bash
 RUN apk add --no-cache git
-RUN mkdir /go/tmp/app
+RUN mkdir -p /go/tmp/app
 WORKDIR /go/tmp/app
 COPY . .
 RUN CGO_ENABLED=0 go test -v
