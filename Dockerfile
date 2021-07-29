@@ -5,7 +5,7 @@ RUN apk add --no-cache git
 RUN mkdir -p /go/tmp/app
 WORKDIR /go/tmp/app
 COPY . .
-RUN CGO_ENABLED=0 go test -v
+RUN CGO_ENABLED=0 go test -v ./...
 RUN CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -tags timetzdata -o main /go/tmp/app .
 
 FROM scratch
