@@ -10,5 +10,7 @@ RUN CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -tags timetzdata -o 
 
 FROM scratch
 COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+RUN mkdir -p /go/tmp/app/share
+COPY --from=app-builder /go/tmp/app/share/ /go/src/app/share/
 COPY --from=app-builder /go/tmp/app/main /go/src/app/
 CMD ["/go/src/app/main"]
