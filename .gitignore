@@ -21,16 +21,17 @@
 swag
 
 # Database migration tool
-src/cmd/*
-!src/cmd/.gitkeep
-!src/cmd/default.dbconfig.yml
+cmd/*
+!cmd/main.go
+!cmd/.gitkeep
+!cmd/default.dbconfig.yml
 
 # Local database configuration for database migration tool
-src/cmd/dbconfig.yml
+cmd/dbconfig.yml
 
 # Public resources
-src/app/public/uploads/*
-!src/app/public/uploads/.gitkeep
+src/services/api/public/uploads/*
+!src/services/api/public/uploads/.gitkeep
 
 # Local
 bin/run_local_*
