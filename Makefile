@@ -1,6 +1,6 @@
 PROJECT_NAME=$(shell basename "$(PWD)")
 SCRIPT_AUTHOR=Andrey Kapitonov <andrey.kapitonov.96@gmail.com>
-SCRIPT_VERSION=0.0.3.dev
+SCRIPT_VERSION=0.0.4.dev
 
 all: tests
 
@@ -18,20 +18,20 @@ tests:
 build-migration-tool:
 	git clone https://github.com/rubenv/sql-migrate
 	cd ./sql-migrate/sql-migrate && go build && cd ../..
-	mv ./sql-migrate/sql-migrate/sql-migrate ./src/cmd
+	mv ./sql-migrate/sql-migrate/sql-migrate ./cmd
 	rm -rf ./sql-migrate
 
 migrate-up:
-	./src/cmd/sql-migrate up -config=./src/cmd/dbconfig.yml
+	./src/cmd/sql-migrate up -config=./cmd/dbconfig.yml
 
 migrate-down:
-	./src/cmd/sql-migrate down -config=./src/cmd/dbconfig.yml
+	./src/cmd/sql-migrate down -config=./cmd/dbconfig.yml
 
 migrate-status:
-	./src/cmd/sql-migrate status -config=./src/cmd/dbconfig.yml
+	./src/cmd/sql-migrate status -config=./cmd/dbconfig.yml
 
 migrate-new:
-	./src/cmd/sql-migrate new $(name) -config=./src/cmd/dbconfig.yml
+	./src/cmd/sql-migrate new $(name) -config=./cmd/dbconfig.yml
 
 help:
 	@echo -e "Usage: make [target] ...\n"

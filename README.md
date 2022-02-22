@@ -19,7 +19,7 @@
 
 - Native
 ```shell script
-go run . \
+go run ./cmd/api/main.go \
   --bind-address 0.0.0.0:3001 \ // if listener == 1
   --listener 1
   --bind-socket /tmp/blogchain.sock \ // if listener == 2
@@ -89,4 +89,4 @@ For a complete list of secrets, see the file `main.go`.
 ### Tests
 
 - `$ make tests`
-- `$ golangci-lint run --config ./golangci-linter.yml`
+- `$ golangci-lint run --config ./.golangci.yml`
