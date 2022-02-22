@@ -2,8 +2,9 @@ package upload
 
 import (
 	"context"
-	"github.com/zikwall/fsclient/impl"
 	"io"
+
+	"github.com/zikwall/fsclient/impl"
 )
 
 type Uploader interface {
@@ -15,12 +16,12 @@ type FileUploader struct {
 }
 
 func NewFileUploader(client impl.Client) Uploader {
-	return FileUploader{
+	return &FileUploader{
 		uploader: client,
 	}
 }
 
-func (f FileUploader) UploadFile(ctx context.Context, name string, file io.Reader) error {
+func (f *FileUploader) UploadFile(ctx context.Context, name string, file io.Reader) error {
 	return f.uploader.SendFile(ctx, impl.FileDest{
 		Name: name,
 		File: file,

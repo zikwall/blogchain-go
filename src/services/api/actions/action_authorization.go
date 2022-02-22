@@ -2,9 +2,9 @@ package actions
 
 import (
 	"errors"
-	"github.com/zikwall/blogchain/src/pkg/jwt"
 
 	"github.com/zikwall/blogchain/src/pkg/exceptions"
+	"github.com/zikwall/blogchain/src/pkg/jwt"
 	"github.com/zikwall/blogchain/src/services/api/forms"
 	"github.com/zikwall/blogchain/src/services/api/repositories"
 	"github.com/zikwall/blogchain/src/services/api/utils"

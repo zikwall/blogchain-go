@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/zikwall/blogchain/src/pkg/log"
 
@@ -11,8 +13,6 @@ import (
 	// nolint:golint // reason
 	_ "github.com/doug-martin/goqu/v9/dialect/mysql"
 	_ "github.com/go-sql-driver/mysql"
-	"strings"
-	"time"
 )
 
 type Connection struct {

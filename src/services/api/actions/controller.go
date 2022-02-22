@@ -8,7 +8,7 @@ import (
 	"github.com/zikwall/blogchain/src/services/api/lib/upload"
 	"github.com/zikwall/blogchain/src/services/api/statistic"
 
-	"github.com/zikwall/clickhouse-buffer"
+	clickhousebuffer "github.com/zikwall/clickhouse-buffer"
 	"github.com/zikwall/clickhouse-buffer/src/buffer/memory"
 	"github.com/zikwall/fsclient"
 )

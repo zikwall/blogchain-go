@@ -1,8 +1,6 @@
 package clickhouse
 
-import (
-	"github.com/zikwall/clickhouse-buffer"
-)
+import clickhousebuffer "github.com/zikwall/clickhouse-buffer"
 
 type BufferAdapter struct {
 	chBuffer clickhousebuffer.Client

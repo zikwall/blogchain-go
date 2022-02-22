@@ -54,8 +54,8 @@ func (r MockRSA) GetPrivateKey() string {
 	return TestPrivateKey
 }
 
-func (r *MockRSA) SetPublicKey(key string)  {}
-func (r *MockRSA) SetPrivateKey(key string) {}
+func (r *MockRSA) SetPublicKey(_ string)  {}
+func (r *MockRSA) SetPrivateKey(_ string) {}
 
 // It's possible that your "\n" is actually the escaped version of a line break character.
 // You can replace these with real line breaks by searching for the escaped version

@@ -9,7 +9,7 @@ import (
 	"github.com/zikwall/blogchain/src/pkg/drop"
 	"github.com/zikwall/blogchain/src/pkg/maxmind"
 
-	"github.com/zikwall/clickhouse-buffer"
+	clickhousebuffer "github.com/zikwall/clickhouse-buffer"
 )
 
 // Blogchain is basic structure is the "core" of the entire application and somewhat resembles dependency injection,
