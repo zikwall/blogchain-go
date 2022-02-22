@@ -4,7 +4,10 @@ RUN apk add --no-cache bash
 RUN apk add --no-cache git
 RUN mkdir -p /go/tmp/app/{share,tmp}
 WORKDIR /go/tmp/app
+COPY go.mod .
+COPY go.sum .
 COPY . .
+COPY ./cmd/api/main.go .
 RUN go get .
 RUN go list -m all
 RUN CGO_ENABLED=0 go test -v ./...
