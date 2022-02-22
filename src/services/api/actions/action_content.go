@@ -2,13 +2,14 @@ package actions
 
 import (
 	"context"
+	"fmt"
 	"strconv"
+	"time"
 
-	"github.com/zikwall/blogchain/src/pkg/clickhouse"
 	"github.com/zikwall/blogchain/src/pkg/exceptions"
 	"github.com/zikwall/blogchain/src/pkg/log"
+	"github.com/zikwall/blogchain/src/protobuf/storage"
 	"github.com/zikwall/blogchain/src/services/api/repositories"
-	"github.com/zikwall/blogchain/src/services/api/statistic"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,7 +22,7 @@ type ContentResponse struct {
 type ContentsResponse struct {
 	Contents []repositories.PublicContent `json:"contents"`
 	Meta     Meta                         `json:"meta"`
-	Stats    map[int64]uint64             `json:"stats"`
+	Stats    map[uint64]uint64            `json:"stats"`
 }
 
 type Meta struct {
@@ -39,14 +40,29 @@ func (hc *HTTPController) Content(ctx *fiber.Ctx) error {
 		return exceptions.Wrap("failed find content by id", err)
 	}
 
-	viewers, err := statistic.GetPostViewersCount(ctx.Context(), hc.Clickhouse, result.ID)
+	defer func() {
+		writeContext, cancel := context.WithTimeout(ctx.Context(), time.Second*1)
+		defer cancel()
+		_, writeErr := hc.StatisticClient.WritePostStats(writeContext, &storage.PostStats{
+			PostID:    uint64(result.ID),
+			OwnerID:   uint64(result.UserID),
+			Ip:        fmt.Sprintf("%v", ctx.Locals("ip")),
+			UserAgent: ctx.Get("User-Agent", ""),
+		})
+		if writeErr != nil {
+			log.Warning(err)
+		}
+	}()
+
+	viewers, err := hc.StatisticClient.GetPostViewersCount(ctx.Context(), &storage.PostViewersRequest{
+		PostID: uint64(result.ID),
+	})
 	if err != nil {
 		log.Warning(err)
 	}
-
 	return ctx.Status(200).JSON(hc.response(ContentResponse{
 		Content: result.GetPublicContent(),
-		Viewers: viewers,
+		Viewers: viewers.Views,
 	}))
 }
 
@@ -65,7 +81,7 @@ func (hc *HTTPController) Contents(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), hc.Clickhouse, contents),
+		Stats: hc.withStatsContext(ctx.Context(), contents),
 	}))
 }
 
@@ -87,25 +103,30 @@ func (hc *HTTPController) ContentsUser(ctx *fiber.Ctx) error {
 		Meta: Meta{
 			Pages: count,
 		},
-		Stats: withStatsContext(ctx.Context(), hc.Clickhouse, contents),
+		Stats: hc.withStatsContext(ctx.Context(), contents),
 	}))
 }
 
-func withStatsContext(
+func (hc *HTTPController) withStatsContext(
 	ctx context.Context,
-	ch *clickhouse.Connection,
 	cs []repositories.PublicContent,
-) map[int64]uint64 {
+) map[uint64]uint64 {
 	if len(cs) == 0 {
-		return map[int64]uint64{}
+		return map[uint64]uint64{}
 	}
-	ids := make([]int64, 0, len(cs))
+	ids := make([]uint64, 0, len(cs))
 	for i := range cs {
-		ids = append(ids, cs[i].ID)
+		ids = append(ids, uint64(cs[i].ID))
 	}
-	viewers, err := statistic.GetPostsViewersCount(ctx, ch, ids...)
+	viewers, err := hc.StatisticClient.GetPostsViewersCount(ctx, &storage.PostsViewersRequest{
+		PostID: ids,
+	})
 	if err != nil {
 		log.Warning(err)
 	}
-	return viewers
+	views := make(map[uint64]uint64, len(viewers.Views))
+	for i := range viewers.Views {
+		views[viewers.Views[i].PostID] = viewers.Views[i].Views
+	}
+	return views
 }

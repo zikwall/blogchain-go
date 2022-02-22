@@ -169,7 +169,13 @@ func main() {
 				EnvVars:  []string{"CDN_PASSWORD"},
 				FilePath: "/srv/bc_secret/cdn_password",
 			},
-
+			&cli.StringFlag{
+				Name:     "statistic-address",
+				Required: true,
+				Value:    "0.0.0.0:7000",
+				Usage:    "Storage gRPC host",
+				EnvVars:  []string{"STATISTIC_ADDRESS"},
+			},
 			// dev
 			&cli.BoolFlag{
 				Name:    "debug",
@@ -219,6 +225,7 @@ func Main(ctx *cli.Context) error {
 			ReaderConfig: maxmind.ReaderConfig{
 				Path: ctx.String("maxmind-mmdb"),
 			},
+			StatisticAddress: ctx.String("statistic-address"),
 		},
 	)
 	if err != nil {
@@ -305,10 +312,6 @@ func Main(ctx *cli.Context) error {
 	auth.Post("/register", httpController.Register)
 	auth.Post("/login", httpController.Login)
 	auth.Post("/logout", httpController.Logout)
-
-	// statistic endpoints
-	stats := app.Group("/statistic")
-	stats.Post("/post/push", httpController.PushPostStats)
 
 	go func() {
 		ln, err := signal.ResolveListener(

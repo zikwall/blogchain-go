@@ -5,11 +5,9 @@ import (
 	"github.com/zikwall/blogchain/src/pkg/container"
 	"github.com/zikwall/blogchain/src/pkg/database"
 	"github.com/zikwall/blogchain/src/pkg/maxmind"
+	"github.com/zikwall/blogchain/src/protobuf/storage"
 	"github.com/zikwall/blogchain/src/services/api/lib/upload"
-	"github.com/zikwall/blogchain/src/services/api/statistic"
 
-	clickhousebuffer "github.com/zikwall/clickhouse-buffer"
-	"github.com/zikwall/clickhouse-buffer/src/buffer/memory"
 	"github.com/zikwall/fsclient"
 )
 
@@ -20,10 +18,10 @@ type HTTPController struct {
 	DB               *database.Connection
 	Clickhouse       *clickhouse.Connection
 	ClickhouseBuffer *clickhouse.BufferAdapter
-	writeAPI         clickhousebuffer.Writer
 	GeoReader        *maxmind.Reader
 	Uploader         upload.Uploader
 	FsClient         *fsclient.FsClient
+	StatisticClient  storage.StorageClient
 }
 
 func CreateHTTPControllerWithCopy(p *HTTPController) (*HTTPController, error) {
@@ -34,6 +32,7 @@ func CreateHTTPControllerWithCopy(p *HTTPController) (*HTTPController, error) {
 		ClickhouseBuffer: p.ClickhouseBuffer,
 		GeoReader:        p.GeoReader,
 		FsClient:         p.FsClient,
+		StatisticClient:  p.StatisticClient,
 	}
 
 	if err := controller.after(); err != nil {
@@ -44,21 +43,7 @@ func CreateHTTPControllerWithCopy(p *HTTPController) (*HTTPController, error) {
 }
 
 func (hc *HTTPController) after() error {
-	hc.initWriterAPI()
 	return hc.initFileServerClient()
-}
-
-func (hc *HTTPController) initWriterAPI() {
-	buffer := hc.ClickhouseBuffer.Client()
-	hc.writeAPI = buffer.Writer(
-		clickhousebuffer.View{
-			Name:    statistic.PostStatsTable,
-			Columns: statistic.PostStatsColumns,
-		},
-		memory.NewBuffer(
-			buffer.Options().BatchSize(),
-		),
-	)
 }
 
 func (hc *HTTPController) initFileServerClient() error {

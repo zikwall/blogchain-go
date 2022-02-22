@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package common;
+option go_package = "github.com/zikwall/blogchain/src/protobuf/common";
+
+message Error {
+  uint32 code = 1;
+  string message = 2;
+}
+
+message EmptyResponse {}
