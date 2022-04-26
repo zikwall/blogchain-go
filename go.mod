@@ -1,6 +1,6 @@
 module github.com/zikwall/blogchain
 
-go 1.17
+go 1.18
 
 require (
 	github.com/ClickHouse/clickhouse-go v1.4.5
@@ -20,6 +20,8 @@ require (
 	github.com/zikwall/clickhouse-buffer v0.0.2-0.20210713144504-a61c6c1acb1a
 	github.com/zikwall/fsclient v0.0.3
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
+	google.golang.org/grpc v1.44.0
+	google.golang.org/protobuf v1.27.1
 )
 
 require (
@@ -54,7 +56,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.0.0-20201224043029-2b0845dc783e // indirect
 	google.golang.org/genproto v0.0.0-20220222154240-daf995802d7b // indirect
-	google.golang.org/grpc v1.44.0 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )

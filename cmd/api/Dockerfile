@@ -1,4 +1,9 @@
 FROM golang:alpine as app-builder
+ARG VERSION
+ARG COMMIT_HASH
+ARG BUILD_DATE
+ARG LDFLAGS
+
 RUN apk update
 RUN apk add --no-cache bash
 RUN apk add --no-cache git
@@ -10,8 +15,14 @@ COPY . .
 COPY ./cmd/api/main.go .
 RUN go get .
 RUN go list -m all
+
+ENV VERSION=$VERSION
+ENV COMMIT_HASH=$COMMIT_HASH
+ENV BUILD_DATE=$BUILD_DATE
+ENV LDFLAGS=$LDFLAGS
+
 RUN CGO_ENABLED=0 go test -v ./...
-RUN CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -tags timetzdata -o main /go/tmp/app .
+RUN CGO_ENABLED=0 go build -a -ldflags="${LDFLAGS}" -tags timetzdata -o main /go/tmp/app .
 
 FROM scratch
 COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

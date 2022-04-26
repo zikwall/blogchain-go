@@ -9,6 +9,7 @@ import (
 	"github.com/zikwall/blogchain/src/pkg/database"
 	"github.com/zikwall/blogchain/src/pkg/log"
 	"github.com/zikwall/blogchain/src/pkg/maxmind"
+	metaV1 "github.com/zikwall/blogchain/src/pkg/meta/v1"
 	"github.com/zikwall/blogchain/src/pkg/signal"
 	"github.com/zikwall/blogchain/src/services/api/actions"
 	"github.com/zikwall/blogchain/src/services/api/middlewares"
@@ -246,6 +247,7 @@ func Main(ctx *cli.Context) error {
 	app.Static("/docs", "./src/app/public/docs")
 	app.Static("/uploads", "./src/app/public/uploads")
 	app.Get("/metrics", actions.PrometheusWithFastHTTPAdapter())
+	app.Get("/meta", metaV1.GetVersion)
 
 	app.Use(
 		middlewares.WithBlogchainCORSPolicy(&service.HTTPAccessControl{
