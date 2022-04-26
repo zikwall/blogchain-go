@@ -1,6 +1,9 @@
 package log
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 const (
 	Reset  Color = "\033[0m"
@@ -26,4 +29,8 @@ func Warning(message interface{}) {
 
 func Error(message interface{}) {
 	log.Fatalf("%s: %v \n", Colored("[BLOGCHAIN WARNING]", Red), message)
+}
+
+func Warningf(message string, v ...interface{}) {
+	Warning(fmt.Sprintf(message, v...))
 }

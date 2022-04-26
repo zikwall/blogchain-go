@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package storage;
+
+import "src/protobuf/common/common.proto";
+option go_package = "github.com/zikwall/blogchain/src/protobuf/storage";
+
+message PostStats {
+    uint64 postID = 1;
+    uint64 ownerID = 2;
+    string ip = 6;
+    string userAgent = 7;
+}
+
+message PostViewersResponse {
+  uint64 postID = 1;
+  uint64 views = 2;
+}
+
+message PostViewersRequest {
+  uint64 postID = 1;
+}
+
+message PostsViewersResponse {
+  repeated PostViewersResponse views = 1;
+}
+
+message PostsViewersRequest {
+  repeated uint64 postID = 1;
+}
+
+service Storage {
+  rpc WritePostStats(PostStats) returns (common.EmptyResponse) {}
+  rpc GetPostViewersCount(PostViewersRequest) returns (PostViewersResponse) {}
+  rpc GetPostsViewersCount(PostsViewersRequest) returns (PostsViewersResponse) {}
+}

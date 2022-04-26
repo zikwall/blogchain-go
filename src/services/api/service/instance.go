@@ -8,6 +8,7 @@ import (
 	"github.com/zikwall/blogchain/src/pkg/database"
 	"github.com/zikwall/blogchain/src/pkg/drop"
 	"github.com/zikwall/blogchain/src/pkg/maxmind"
+	"github.com/zikwall/blogchain/src/pkg/statistic"
 
 	clickhousebuffer "github.com/zikwall/clickhouse-buffer"
 )
@@ -17,11 +18,12 @@ import (
 // It also includes all the main component instances, such as databases, queues and caches,
 // and various internal schedulers.
 type Blogchain struct {
-	Container  *container.Container
-	Clickhouse *clickhouse.Connection
-	ChBuffer   *clickhouse.BufferAdapter
-	Reader     *maxmind.Reader
-	database   *database.Connection
+	Container       *container.Container
+	Clickhouse      *clickhouse.Connection
+	ChBuffer        *clickhouse.BufferAdapter
+	Reader          *maxmind.Reader
+	database        *database.Connection
+	StatisticClient *statistic.StorageClientImp
 	*drop.Impl
 }
 
@@ -30,6 +32,7 @@ type Configuration struct {
 	Container               container.Configuration
 	ClickhouseConfiguration *clickhouse.Configuration
 	ReaderConfig            maxmind.ReaderConfig
+	StatisticAddress        string
 	IsDebug                 bool
 }
 
@@ -77,11 +80,17 @@ func New(ctx context.Context, c *Configuration) (*Blogchain, error) {
 		),
 	)
 
+	blogchain.StatisticClient, err = statistic.NewClient(blogchain.Context(), c.StatisticAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	blogchain.AddDroppers(
 		blogchain.database,
 		blogchain.Clickhouse,
 		blogchain.Reader,
 		blogchain.ChBuffer,
+		blogchain.StatisticClient,
 	)
 
 	return blogchain, nil

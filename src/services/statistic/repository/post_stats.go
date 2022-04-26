@@ -1,4 +1,4 @@
-package statistic
+package repository
 
 import (
 	"github.com/zikwall/clickhouse-buffer/src/buffer"
