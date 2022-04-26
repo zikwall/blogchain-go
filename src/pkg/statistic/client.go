@@ -7,6 +7,7 @@ import (
 	"github.com/zikwall/blogchain/src/protobuf/storage"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type StorageClientImp struct {
@@ -16,7 +17,9 @@ type StorageClientImp struct {
 
 func NewClient(ctx context.Context, listenAddress string) (*StorageClientImp, error) {
 	impl := &StorageClientImp{}
-	var opts []grpc.DialOption
+	var opts = []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
 
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()

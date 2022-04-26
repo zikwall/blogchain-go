@@ -3,7 +3,7 @@ package middlewares
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http/httptest"
 	"testing"
 
@@ -47,7 +47,7 @@ func TestWithBlogchainJWTAuthorization(t *testing.T) {
 			t.Fatal("Failed check signature by response status code")
 		}
 
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 
 		response := struct {
 			Valid  bool
